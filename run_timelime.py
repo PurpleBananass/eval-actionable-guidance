@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from tqdm import tqdm
-from TimeLIME import TL
+from TimeLIME import TL, TimeLIME
 from data_utils import read_dataset
 
 
@@ -17,7 +17,7 @@ def run_single_dataset():
         if Path(output_path / project).exists():
             continue
         print(f"Working on {project}...")
-        train, test, val, inverse = projects[project]  # These are normalized datasets
+        train, test, val = projects[project]  # These are normalized datasets
         model_path = models_path / f"{project}.pkl"
 
         if not Path.exists(model_path):
@@ -32,7 +32,7 @@ def run_single_dataset():
             rf_model = pickle.load(f)
 
         # TimeLIME Planner
-        rec, plans, instances, importances, indices = TL(train, test, rf_model)
+        rec, plans, instances, importances, indices = TimeLIME(train, test, rf_model)
 
         feature_names = train.columns
         for i in range(len(rec)):
@@ -52,6 +52,7 @@ def run_single_dataset():
                             feature_importance,
                             plans[i][feature_index][0],
                             plans[i][feature_index][1],
+                            rec[i][feature_index],
                         ]
                     )
             supported_plan = sorted(
@@ -59,7 +60,7 @@ def run_single_dataset():
             )
             df = pd.DataFrame(
                 supported_plan,
-                columns=["feature", "value", "importance", "left", "right"],
+                columns=["feature", "value", "importance", "left", "right", "rec"],
             )
             df.to_csv(result_path / f"{indices[i]}.csv", index=False)
 

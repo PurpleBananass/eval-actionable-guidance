@@ -11,7 +11,7 @@ def run_single_dataset():
     models_path = Path("./models")
     models_path.mkdir(parents=True, exist_ok=True)
     for project in tqdm(projects, desc="projects", leave=True):
-        train, test, val, inverse = projects[project] # These are normalized datasets
+        train, test, val = projects[project] # These are normalized datasets
         model_path = models_path / f"{project}.pkl"
 
         if not Path.exists(model_path):
@@ -29,7 +29,7 @@ def run_single_dataset():
             "cases": test.loc[:, test.columns != "target"],
             "model": blackbox,
             "output_path": "./output/generated/" + project,
-            "inverse": inverse,
+            # "inverse": inverse,
         }
         lormika = LORMIKA(**model_kwargs)
         lormika.instance_generation()

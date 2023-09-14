@@ -8,6 +8,44 @@ from mlxtend.frequent_patterns import apriori
 from mlxtend.preprocessing import TransactionEncoder
 from tqdm import tqdm
 
+def translate1(sentence,name):
+    # do not aim to change the column
+    lst = sentence.strip().split(name)
+    left,right= 0,0
+    if lst[0] == '':
+        del lst[0]
+    if len(lst)==2:
+        if '<=' in lst[1]:
+            aa=lst[1].strip(' <=')
+            right= float(aa)
+        elif '<' in lst[1]:
+            aa=lst[1].strip(' <')
+            right = float(aa)
+        if '<=' in lst[0]:
+            aa=lst[0].strip(' <=')
+            left = float(aa)
+        elif '<' in lst[0]:
+            aa=lst[0].strip(' <')
+            left = float(aa)
+    else:
+        if '<=' in lst[0]:
+            aa=lst[0].strip(' <=')
+            right = float(aa)
+            left = 0
+        elif '<' in lst[0]:
+            aa=lst[0].strip(' <')
+            right = float(aa)
+            left = 0
+        if '>=' in lst[0]:
+            aa=lst[0].strip(' >=')
+            left = float(aa)
+            right = 1
+        elif '>' in lst[0]:
+            aa=lst[0].strip(' >')
+            left = float(aa)
+            right = 1
+    return left, right
+
 def TL(train, test, model):
     start_time = time.time()
 
@@ -155,6 +193,180 @@ def flip(data_row,local_exp,ind, cols, actionable):
 
     return result,record
 
+
+def TimeLIME(train, test, model):
+    start_time = time.time()
+
+    X_train = train.iloc[:, :-1]
+    y_train = train.iloc[:, -1]
+    X_test = test.iloc[:, :-1]
+    y_test = test.iloc[:, -1]    
+
+    deltas = []
+    for col in X_train.columns:
+        deltas.append(hedge(X_train[col].values, X_test[col].values))
+    deltas = sorted(range(len(deltas)), key=lambda k: deltas[k], reverse=True)
+
+    actionable = []
+    for i in range(0, len(deltas)):
+        if i in deltas[0:5]:
+            actionable.append(1)
+        else:
+            actionable.append(0)
+    # print(actionable)
+
+    explainer = LimeTabularExplainer(
+        training_data=X_train.values,
+        training_labels=y_train.values,
+        feature_names=X_train.columns,
+        discretizer="entropy",
+        feature_selection="lasso_path",
+        mode="classification",
+    )
+
+    records = []
+    seen = []
+    seen_id = []    
+    plans = []
+    instances = []
+    importances = []
+    indices = []
+
+    itemsets = []
+    common_indices = X_test.index.intersection(X_train.index)
+    for name in tqdm(common_indices, desc="Generating itemsets", leave=False, total=len(common_indices)):
+    
+        changes = X_test.loc[name].values - X_train.loc[name].values
+        changes = [
+            (idx, change) for idx, change in enumerate(changes) if change != 0
+        ]
+        changes = [
+            "inc" + str(item[0]) if item[1] > 0 else "dec" + str(item[0])
+            for item in changes
+        ]
+        if len(changes) > 0:
+            itemsets.append(changes)
+
+    te = TransactionEncoder()
+    te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
+    df = pd.DataFrame.sparse.from_spmatrix(te_ary, columns=te.columns_)
+    rules = apriori(df, min_support=0.001, max_len=5, use_colnames=True)
+
+    min_val = X_train.min()
+    max_val = X_train.max()
+
+    predictions = model.predict(X_test.values)
+    for i in range(0, len(y_test)):
+        real_target = predictions[i]
+        if real_target == 1 and y_test.values[i] == 1:
+            ins = explainer.explain_instance(
+                data_row=X_test.values[i],
+                predict_fn=model.predict_proba,
+                num_features=len(X_train.columns),
+                num_samples=5000,
+            )
+            ind = ins.local_exp[1]
+            temp = X_test.values[i].copy()
+
+            plan, rec = flip_non_normalized(
+                temp, ins.as_list(label=1), ind, X_train.columns, actionable, min_val, max_val
+            )
+
+            if rec in seen_id:
+                supported_plan_id = seen[seen_id.index(rec)]
+            else:
+                supported_plan_id = find_supported_plan(rec, rules, top=5)
+                seen_id.append(rec.copy())
+
+                seen.append(supported_plan_id)
+
+            for k in range(len(rec)):
+                if rec[k] != 0:
+                    if (k not in supported_plan_id) and (
+                        (0 - k) not in supported_plan_id
+                    ):
+                        perturbation_range = 0.05 * (max_val[k] - min_val[k])
+                        plan[k][0], plan[k][1] = temp[k] - perturbation_range, temp[k] + perturbation_range
+                        rec[k] = 0
+
+            records.append(rec)
+            plans.append(plan)
+            instances.append(temp)
+            importances.append(ind)
+            indices.append(X_test.index[i])
+            
+    print("Runtime:", time.time() - start_time)
+
+    return records, plans, instances, importances, indices
+
+# Modify the flip function to handle non-normalized features while considering their min-max values
+def flip_non_normalized(data_row, local_exp, ind, cols, actionable, min_val, max_val):
+    cache = []
+    trans = []
+    cnt, cntp, cntn = [], [], []
+    
+    for i in range(0, len(local_exp)):
+        cache.append(ind[i])
+        trans.append(local_exp[i])
+        
+        if ind[i][1] > 0:
+            cntp.append(i)
+            cnt.append(i)
+        elif ind[i][1] < 0:
+            cntn.append(i)
+            cnt.append(i)
+    
+    record = [0 for n in range(len(cols))]
+    tem = data_row.copy()
+    result = [[0 for m in range(2)] for n in range(len(cols))]
+    
+    for j in range(0, len(local_exp)):
+        act = True
+        index = cache[j][0]
+        if actionable:
+            if actionable[index] == 0:
+                act = False
+        
+        if j in cnt and act:
+            # Obtain the original interval for this feature
+     
+            original_l, original_r = translate1(trans[j][0],cols[cache[j][0]])
+            # Flip the interval
+            flipped_l, flipped_r = flip_interval(original_l, original_r, min_val[index], max_val[index])
+            
+            # Update result
+            result[index][0], result[index][1] = flipped_l, flipped_r
+            
+            if j in cntp:
+                record[index] = -1
+            else:
+                record[index] = 1
+        else:
+            if act:
+                # Just a small perturbation around the original value for non-actionable features
+                perturbation_range = 0.005 * (max_val[index] - min_val[index])
+                result[index][0], result[index][1] = tem[index] - perturbation_range, tem[index] + perturbation_range
+            else:
+                # A larger perturbation for non-actionable features
+                perturbation_range = 0.05 * (max_val[index] - min_val[index])
+                result[index][0], result[index][1] = tem[index] - perturbation_range, tem[index] + perturbation_range
+
+    return result, record
+
+
+def flip_interval(l, r, min_val, max_val):
+    # Normalize the interval to [0, 1]
+    normalized_l = (l - min_val) / (max_val - min_val)
+    normalized_r = (r - min_val) / (max_val - min_val)
+
+    # Flip the interval
+    flipped_n_l, flipped_n_r = 1 - normalized_r, 1 - normalized_l
+
+    # Denormalize the interval
+    flipped_l = flipped_n_l * (max_val - min_val) + min_val
+    flipped_r = flipped_n_r * (max_val - min_val) + min_val
+
+    return flipped_l, flipped_r
 
 def hedge(arr1,arr2):
     # returns a value, larger means more changes

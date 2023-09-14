@@ -15,7 +15,7 @@ class LORMIKA:
         self.__cases: pd.DataFrame = kwargs["cases"]
         self.__model = kwargs["model"]
         self.__output_path = kwargs["output_path"]
-        self.__inverse = kwargs["inverse"]
+        # self.__inverse = kwargs["inverse"]
         Path(self.__output_path).mkdir(parents=True, exist_ok=True)
 
     def instance_generation(self):

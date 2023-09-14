@@ -132,7 +132,7 @@ def prepare_release_dataset():
             dataset_val.to_csv(save_folder + "/val.csv", index=True, header=True)
 
 
-def read_dataset(normalize=True):
+def read_dataset(normalize=False):
     save_folder = "release_dataset"
     projects = {}
     for project in Path(save_folder).iterdir():
