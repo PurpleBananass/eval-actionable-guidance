@@ -42,9 +42,9 @@ def preprocess(project, releases: list[str]):
     dataset_tst = get_df(project, releases[1])
     dataset_val = get_df(project, releases[2])
 
-    duplicated_index_trn = dataset_trn.index.duplicated(keep='first')
-    duplicated_index_tst = dataset_tst.index.duplicated(keep='first')
-    duplicated_index_val = dataset_val.index.duplicated(keep='first')
+    duplicated_index_trn = dataset_trn.index.duplicated(keep="first")
+    duplicated_index_tst = dataset_tst.index.duplicated(keep="first")
+    duplicated_index_val = dataset_val.index.duplicated(keep="first")
 
     dataset_trn = dataset_trn[~duplicated_index_trn]
     dataset_tst = dataset_tst[~duplicated_index_tst]
@@ -58,7 +58,6 @@ def preprocess(project, releases: list[str]):
         errors="ignore",
     )
 
-    
     # dataset_tst = dataset_tst[dataset_tst["RealBug"] == 1]
     # dataset_val과 dataset_tst는 동일한 파일이 있어야 함
     dataset_val = dataset_val[dataset_val.index.isin(dataset_tst.index)]
@@ -79,7 +78,9 @@ def preprocess(project, releases: list[str]):
     features_names = dataset_trn.columns.tolist()[:-1]
     X_train = dataset_trn.loc[:, features_names].copy()
     with (ro.default_converter + pandas2ri.converter).context():
-        r_X_train = ro.conversion.get_conversion().py2rpy(X_train)  # rpy2의 dataframe으로 변환
+        r_X_train = ro.conversion.get_conversion().py2rpy(
+            X_train
+        )  # rpy2의 dataframe으로 변환
     selected_features = Rnalytica.AutoSpearman(r_X_train, StrVector(features_names))
     selected_features = list(selected_features) + ["target"]
     train = dataset_trn.loc[:, selected_features]
@@ -123,22 +124,15 @@ def prepare_release_dataset():
     projects = all_dataset()
     for project, releases in projects.items():
         for i, release in enumerate(releases):
-            dataset_trn, dataset_tst, dataset_val = preprocess(
-                project, release
-            )
+            dataset_trn, dataset_tst, dataset_val = preprocess(project, release)
             save_folder = f"release_dataset/{project}@{i}"
             Path(save_folder).mkdir(parents=True, exist_ok=True)
-            dataset_trn.to_csv(
-                save_folder + "/train.csv", index=True, header=True
-            )
-            dataset_tst.to_csv(
-                save_folder + "/test.csv", index=True, header=True
-            )
-            dataset_val.to_csv(
-                save_folder + "/val.csv", index=True, header=True
-            )
+            dataset_trn.to_csv(save_folder + "/train.csv", index=True, header=True)
+            dataset_tst.to_csv(save_folder + "/test.csv", index=True, header=True)
+            dataset_val.to_csv(save_folder + "/val.csv", index=True, header=True)
 
-def read_dataset():
+
+def read_dataset(normalize=True):
     save_folder = "release_dataset"
     projects = {}
     for project in Path(save_folder).iterdir():
@@ -148,23 +142,43 @@ def read_dataset():
         test = pd.read_csv(project / "test.csv", index_col=0)
         val = pd.read_csv(project / "val.csv", index_col=0)
 
-        origianl_dtypes = train.dtypes
+        if normalize:
+            
+            original_dtypes = train.dtypes
+            X_train = train.iloc[:, train.columns != "target"]
+            y_train = train["target"]
+            X_test = test.iloc[:, test.columns != "target"]
+            y_test = test["target"]
+            X_val = val.iloc[:, val.columns != "target"]
+            y_val = val["target"]
 
-        scaler = MinMaxScaler()
-        scaler.fit(train)
+            scaler = MinMaxScaler()
+            scaler.fit(X_train.values)
+            X_train_norm = scaler.transform(X_train.values)
+            X_test_norm = scaler.transform(X_test.values)
+            X_val_norm = scaler.transform(X_val.values)
 
-        train = pd.DataFrame(scaler.transform(train), columns=train.columns, index=train.index)
-        test = pd.DataFrame(scaler.transform(test), columns=test.columns, index=test.index)
-        val = pd.DataFrame(scaler.transform(val), columns=val.columns, index=val.index)
-        
-        def inverse_transform(df: pd.DataFrame):
-            inversed = scaler.inverse_transform(df)
-            inversed_df = pd.DataFrame(inversed, columns=df.columns, index=df.index)
-            inversed_df = inversed_df.astype(origianl_dtypes)
-            return inversed_df
-        
-        projects[project.name] = [train, test, val, inverse_transform]
+            train = pd.DataFrame(X_train_norm, columns=X_train.columns, index=X_train.index)
+            train["target"] = y_train
+            train = train.astype(original_dtypes)
+            test = pd.DataFrame(X_test_norm, columns=X_test.columns, index=X_test.index)
+            test["target"] = y_test
+            test = test.astype(original_dtypes)
+            val = pd.DataFrame(X_val_norm, columns=X_val.columns, index=X_val.index)
+            val["target"] = y_val
+            val = val.astype(original_dtypes)
+
+            projects[project.name] = [train, test, val, scaler]
+        else:
+            projects[project.name] = [train, test, val]
     return projects
+
+def inverse_transform(df: pd.DataFrame, scaler):
+    origianl_dtypes = df.dtypes
+    inversed = scaler.inverse_transform(df.values)
+    inversed_df = pd.DataFrame(inversed, columns=df.columns, index=df.index)
+    inversed_df = inversed_df.astype(origianl_dtypes)
+    return inversed_df
 
 def split_path(base, path):
     if base in path:
@@ -173,26 +187,29 @@ def split_path(base, path):
     else:
         return path
 
+
 def path_truncate(project, base="src/"):
-    print(f'Project: {project.name}')
+    print(f"Project: {project.name}")
     for path in project.glob("*.csv"):
         df = pd.read_csv(path, index_col="File")
         df.index = df.index.map(lambda x: split_path(base, x))
         df.to_csv(path)
 
-def convert_original_dataset(dataset: Path=Path("./original_dataset")): 
+
+def convert_original_dataset(dataset: Path = Path("./original_dataset")):
     for csv in dataset.glob("*.csv"):
         file_name = csv.name
         project, *release = file_name.split("-")
-        release = '-'.join(release)
+        release = "-".join(release)
         # print(project, release)
-        
+
         df = pd.read_csv(csv, index_col=0)
         df = df.drop_duplicates()
 
         # save to csv
         Path(f"./project_dataset/{project}").mkdir(parents=True, exist_ok=True)
         df.to_csv(f"./project_dataset/{project}/{release}")
+
 
 def organize_original_dataset():
     convert_original_dataset()
@@ -202,7 +219,35 @@ def organize_original_dataset():
     path_truncate(Path("./project_dataset/lucene"))
     path_truncate(Path("./project_dataset/wicket"))
 
+
 if __name__ == "__main__":
-    organize_original_dataset()
-    prepare_release_dataset()
-    read_dataset()
+    # organize_original_dataset()
+    # prepare_release_dataset()
+    
+    # Inverse가 제대로 되는지 확인
+    projects = read_dataset()
+    project = projects["activemq@0"]
+    train, test, val, scaler = project
+    X_train = train.iloc[:, train.columns != "target"]
+    y_train = train["target"]
+    X_test = test.iloc[:, test.columns != "target"]
+    y_test = test["target"]
+
+    X_train_inv = inverse_transform(X_train, scaler)
+    X_test_inv = inverse_transform(X_test, scaler)
+
+    projects_no_norm = read_dataset(normalize=False)
+    project_no_norm = projects_no_norm["activemq@0"]
+    train_no_norm, test_no_norm, val_no_norm = project_no_norm
+    X_train_no_norm = train_no_norm.iloc[:, train_no_norm.columns != "target"]
+    y_train_no_norm = train_no_norm["target"]
+    X_test_no_norm = test_no_norm.iloc[:, test_no_norm.columns != "target"]
+    y_test_no_norm = test_no_norm["target"]
+
+    print(X_train_inv.equals(X_train_no_norm))
+    print(X_test_inv.equals(X_test_no_norm))
+    print(y_train.equals(y_train_no_norm))
+    print(y_test.equals(y_test_no_norm))
+
+
+
