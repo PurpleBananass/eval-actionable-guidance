@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from mlxtend.frequent_patterns import apriori
 from mlxtend.preprocessing import TransactionEncoder
 
-def TL(train, test, model, inverse):
+def TL(train, test, model):
     start_time = time.time()
 
     X_train = train.iloc[:, :-1]
@@ -43,6 +43,7 @@ def TL(train, test, model, inverse):
     plans = []
     instances = []
     importances = []
+    indices = []
 
     itemsets = []
     common_indices = X_test.index.intersection(X_train.index)
@@ -62,7 +63,6 @@ def TL(train, test, model, inverse):
     te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
     df = pd.DataFrame.sparse.from_spmatrix(te_ary, columns=te.columns_)
     rules = apriori(df, min_support=0.001, max_len=5, use_colnames=True)
-    print(rules)
 
     predictions = model.predict(X_test.values)
     for i in range(0, len(y_test)):
@@ -89,7 +89,6 @@ def TL(train, test, model, inverse):
 
                 seen.append(supported_plan_id)
 
-            print("Before find_support: ", rec)
             for k in range(len(rec)):
                 if rec[k] != 0:
                     if (k not in supported_plan_id) and (
@@ -97,16 +96,16 @@ def TL(train, test, model, inverse):
                     ):
                         plan[k][0], plan[k][1] = temp[k] - 0.05, temp[k] + 0.05
                         rec[k] = 0
-            print("After- find_support: ", rec)
 
             records.append(rec)
             plans.append(plan)
             instances.append(temp)
             importances.append(ins.as_list(label=1))
+            indices.append(X_test.index[i])
             
     print("Runtime:", time.time() - start_time)
 
-    return records, plans, instances, importances
+    return records, plans, instances, importances, indices
 
 def get_feature_index(feature_names, feature):
     for i in range(0, len(feature_names)):

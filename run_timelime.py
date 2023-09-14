@@ -24,24 +24,15 @@ def run_single_dataset():
 
         with open(model_path, "rb") as f:
             rf_model = pickle.load(f)
-
-        model_kwargs = {
-            "train_set": train.loc[:, train.columns != "target"],
-            "train_class": train[["target"]],
-            "cases": test.loc[:, test.columns != "target"],
-            "model": rf_model,
-            "output_path": "./output/generated/" + project,
-            "inverse": inverse,
-        }
         
         # TimeLIME Planner
-        rec, plans, instances, importances = TL(train, test, rf_model, inverse)
+        rec, plans, instances, importances, indices = TL(train, test, rf_model)
 
         # Inverse scale
         plans = np.array(plans)
         plans_left, plans_right = plans[:, :, 0], plans[:, :, 1]
-        plans_left = inverse.inverse_transform(plans_left)
-        plans_right = inverse.inverse_transform(plans_right)
+        plans_left = inverse(plans_left)
+        plans_right = inverse(plans_right)
         plans = np.stack([plans_left, plans_right], axis=2)
 
         feature_names = train.columns
@@ -60,7 +51,7 @@ def run_single_dataset():
         # Save supported plans
         supported_plans_path = Path("./output/supported_plans")
         supported_plans_path.mkdir(parents=True, exist_ok=True)
-        df = pd.DataFrame(supported_plans)
+        df = pd.DataFrame(supported_plans, columns=["feature", "importance", "left", "instance", "right"], index=indices)
         df.to_csv(supported_plans_path / f"{project}.csv", index=False)
 
         

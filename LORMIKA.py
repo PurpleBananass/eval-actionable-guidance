@@ -26,13 +26,15 @@ class LORMIKA:
         trainset_normalize = self.__train_set.copy()
         cases_normalize = self.__cases.copy()
 
-        train_objs_num = len(trainset_normalize)
         dataset = pd.concat(objs=[trainset_normalize, cases_normalize], axis=0)
         dataset = scaler.fit_transform(dataset)
         dataset = pd.DataFrame(dataset)
 
-        trainset_normalize = copy.copy(dataset[:train_objs_num])
-        cases_normalize = copy.copy(dataset[train_objs_num:])
+        trainset_normalize = pd.DataFrame(scaler.transform(trainset_normalize), index=trainset_normalize.index)
+        cases_normalize = pd.DataFrame(scaler.transform(cases_normalize), index=cases_normalize.index)
+
+        assert self.__train_set.index.equals(trainset_normalize.index)
+        assert self.__cases.index.equals(cases_normalize.index)
 
         # make dataframe to store similarities of the trained instances from the explained instance
         dist_df = pd.DataFrame(index=trainset_normalize.index.copy())
@@ -40,7 +42,7 @@ class LORMIKA:
         width = math.sqrt(len(self.__train_set.columns)) * 0.75
 
         for sample_number, test_instance in tqdm(cases_normalize.iterrows(), desc="Generating...", leave=False, total=len(cases_normalize)):
-            file_name = f"{self.__output_path}/{sample_number}.csv"
+            file_name = f"{self.__output_path}/{test_instance.name}.csv"
 
             # 파일이 이미 존재하는지 확인
             if os.path.exists(file_name):
@@ -183,4 +185,5 @@ class LORMIKA:
                 columns={0: self.__train_class.columns[0]}, inplace=True
             )
             new_df_case['target'] = new_df_case['target'].astype(int)
+            new_df_case['target'] = new_df_case['target'].astype(str)
             new_df_case.to_csv(file_name, index=False)

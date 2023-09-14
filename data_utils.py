@@ -150,6 +150,8 @@ def read_dataset():
     save_folder = "release_dataset"
     projects = {}
     for project in Path(save_folder).iterdir():
+        if not project.is_dir():
+            continue
         train = pd.read_csv(project / "train.csv", index_col=0)
         test = pd.read_csv(project / "test.csv", index_col=0)
         val = pd.read_csv(project / "val.csv", index_col=0)

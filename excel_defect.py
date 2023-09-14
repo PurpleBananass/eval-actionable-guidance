@@ -85,7 +85,7 @@ def printExcel(path,file, case_df,ff_df):
 
 	book.save(path+'/'+str(file)+'.xlsx')
 
-def generate_excels(project):
+def generate_plans(project):
 	username = os.environ['BIGML_USERNAME']
 	api_key = os.environ['BIGML_API_KEY']
 	api = BigML(username, api_key)
@@ -99,40 +99,45 @@ def generate_excels(project):
 		blackbox = pickle.load(f)
 
 	generated_path = "./output/generated/" + project
-	rules_path = Path("./rules") / project
+	rules_path = Path("./output/rules") / project
 	rules_path.mkdir(parents=True, exist_ok=True)
 	output_path = Path("./output/SQAPlanner") / project
 	output_path.mkdir(parents=True, exist_ok=True)
 
+	print(f"Working on {project}...")
+	for csv in tqdm(Path(generated_path).glob("*.csv"), desc="csv", leave=True, total=len(list(Path(generated_path).glob("*.csv")))):
+		if Path(output_path / f"{csv.stem}.csv").exists():
+			continue
+		if Path.exists(output_path / f"{csv.stem}.xlsx"):
+			continue
 
-	for csv in tqdm(Path(generated_path).glob("*.csv"), desc="csv", leave=False, total=len(list(Path(generated_path).glob("*.csv")))):
 		case_data = test.loc[int(csv.stem), :]
-		case_data['target'] = case_data['target'].astype(int)
-		case_data['target'] = case_data['target'].astype(str)
 		x_test = case_data.drop("target")
 		real_target = blackbox.predict(x_test.values.reshape(1, -1))
+
 		if case_data['target'] == 0 or real_target == 0:
 			continue
 
-		if Path.exists(output_path / f"{csv.stem}.xlsx"):
-			continue
 		dataset_id = get_or_create_dataset(api, str(csv), project)
 		options = {
 			'name': csv.stem,
 			'tags': [project],
-			'search_strategy': 'confidence',
+			'search_strategy': 'coverage',
 			'max_k': 30,
-			'rhs_predicate': [{"field": "target", "operator": "=", "value": "False"}]
+			"max_lhs": 5,
+			'rhs_predicate': [{"field": "target", "operator": "=", "value": "0"}]
 		}
-		file = rules_path / csv
+		file = rules_path / f'{csv.stem}.csv'
 		get_or_create_association(api, dataset_id, options, str(file))
 
 		ff_df= pd.DataFrame([])
 
 		real_target= 'target=='+str(real_target[0])+str('.000')
-		# Reading the file content to create a DataFrame
-		rules_df = pd.read_csv(file, encoding='utf-8')#rule file
 
+		rules_df = pd.read_csv(file, encoding='utf-8')
+
+		x_test = x_test.to_frame().T
+	
 		for  index, row in rules_df.iterrows():
 			rule = rules_df.iloc[index, 1]
 			rule = comparison(rule)
@@ -142,30 +147,48 @@ def generate_excels(project):
 
 			if real_target==class_val:
 				print("correctly predicted")
-			
+	
 			#Practices  to  follow  to  decrease  the  risk  of  having defects
 			elif x_test.eval(rule).all()==False and real_target!=class_val:
 				ff_df = pd.concat([ff_df,row.to_frame().T])
 
-		printExcel(output_path, f"{csv.stem}.xlsx", x_test, ff_df)
+		# Sort by coverage and confidence
+		ff_df = ff_df.sort_values(by=['Antecedent Coverage %', 'Confidence'], ascending=False)
+		ff_df = ff_df[['Antecedent', 'Antecedent Coverage %', 'Confidence']]
+		ff_df = ff_df.reset_index(drop=True)
+		ff_df = ff_df.head(10)
+		ff_df.to_csv(output_path / f"{csv.stem}.csv", index=False)
 				
 	# Setting the file name (without extension) as the index name
 def main():
-	generate_excels('camel@0')
-
+	projects = [
+		"activemq@0",
+		"activemq@2",
+		"camel@0",
+		"camel@1",
+		"derby@0",
+		"groovy@0",
+		"hbase@0",
+		"hive@0",
+		"jruby@0",
+		"jruby@1",
+		"wicket@0"
+	]
+	for proj in projects:
+		generate_plans(proj)
 
 if __name__ == '__main__':
-	main()
-	# count = 0
-	# while True:
-	# 	try:
-	# 		print(f"Running... ({count})")
-	# 		main()
-	# 		break
-	# 	except Exception as e:
-	# 		print(e)
-	# 		print("Error occurred. Restarting...")
-	# 		time.sleep(10)
-	# 		count += 1
+	# main()
+	count = 0
+	while True:
+		try:
+			print(f"Running... ({count})")
+			main()
+			break
+		except Exception as e:
+			print(e)
+			print("Error occurred. Restarting...")
+			time.sleep(10)
+			count += 1
 
 
