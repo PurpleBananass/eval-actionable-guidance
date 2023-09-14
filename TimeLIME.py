@@ -41,7 +41,8 @@ def TL(train, test, model, inverse):
     seen = []
     seen_id = []    
     plans = []
-
+    instances = []
+    importances = []
 
     itemsets = []
     common_indices = X_test.index.intersection(X_train.index)
@@ -100,10 +101,12 @@ def TL(train, test, model, inverse):
 
             records.append(rec)
             plans.append(plan)
+            instances.append(temp)
+            importances.append(ins.as_list(label=1))
             
     print("Runtime:", time.time() - start_time)
 
-    return records, plans
+    return records, plans, instances, importances
 
 def get_feature_index(feature_names, feature):
     for i in range(0, len(feature_names)):
