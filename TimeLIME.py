@@ -6,6 +6,7 @@ from lime.lime_tabular import LimeTabularExplainer
 from sklearn.preprocessing import MinMaxScaler
 from mlxtend.frequent_patterns import apriori
 from mlxtend.preprocessing import TransactionEncoder
+from tqdm import tqdm
 
 def TL(train, test, model):
     start_time = time.time()
@@ -47,7 +48,7 @@ def TL(train, test, model):
 
     itemsets = []
     common_indices = X_test.index.intersection(X_train.index)
-    for name in common_indices:
+    for name in tqdm(common_indices, desc="Generating itemsets", leave=False, total=len(common_indices)):
     
         changes = X_test.loc[name].values - X_train.loc[name].values
         changes = [
@@ -59,6 +60,7 @@ def TL(train, test, model):
         ]
         if len(changes) > 0:
             itemsets.append(changes)
+    print("Number of itemsets:", len(itemsets))
     te = TransactionEncoder()
     te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
     df = pd.DataFrame.sparse.from_spmatrix(te_ary, columns=te.columns_)
@@ -100,7 +102,7 @@ def TL(train, test, model):
             records.append(rec)
             plans.append(plan)
             instances.append(temp)
-            importances.append(ins.as_list(label=1))
+            importances.append(ind)
             indices.append(X_test.index[i])
             
     print("Runtime:", time.time() - start_time)
