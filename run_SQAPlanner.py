@@ -11,6 +11,7 @@ def run_single_dataset():
     models_path = Path("./models")
     models_path.mkdir(parents=True, exist_ok=True)
     for project in tqdm(projects, desc="projects", leave=True):
+        print(f"Working on {project}...")
         train, test, val = projects[project] # These are normalized datasets
         model_path = models_path / f"{project}.pkl"
 

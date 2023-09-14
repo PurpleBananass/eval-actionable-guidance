@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
+import argparse
 from pathlib import Path
 import time
 from bigml.api import BigML
@@ -93,7 +94,7 @@ def generate_plans(project):
 	projects = read_dataset()
 	models_path = Path("./models")
 
-	train, test, val, inverse = projects[project]
+	train, test, val = projects[project]
 	model_path = models_path / f"{project}.pkl"
 	with open(model_path, "rb") as f:
 		blackbox = pickle.load(f)
@@ -160,30 +161,37 @@ def generate_plans(project):
 		ff_df.to_csv(output_path / f"{csv.stem}.csv", index=False)
 				
 	# Setting the file name (without extension) as the index name
-def main():
-	projects = [
-		"activemq@0",
-		"activemq@2",
-		"camel@0",
-		"camel@1",
-		"derby@0",
-		"groovy@0",
-		"hbase@0",
-		"hive@0",
-		"jruby@0",
-		"jruby@1",
-		"wicket@0"
-	]
+def main(projects):
+	# projects = [
+	# 	"activemq@0",
+	# 	"activemq@2",
+	# 	"camel@0",
+	# 	"camel@1",
+	# 	"derby@0",
+	# 	"groovy@0",
+	# 	"hbase@0",
+	# 	"hive@0",
+	# 	"jruby@0",
+	# 	"jruby@1",
+	# 	"wicket@0"
+	# ]
 	for proj in projects:
 		generate_plans(proj)
 
 if __name__ == '__main__':
-	# main()
+	argparser = argparse.ArgumentParser()
+	argparser.add_argument('--project', type=str)
+	args = argparser.parse_args()
 	count = 0
 	while True:
 		try:
 			print(f"Running... ({count})")
-			main()
+			if args.project:
+				main(args.project.split(' '))
+			else:
+				projects = read_dataset()
+				projects = list(projects.keys())
+				main(projects)
 			break
 		except Exception as e:
 			print(e)
