@@ -109,8 +109,6 @@ def generate_plans(project):
 	for csv in tqdm(Path(generated_path).glob("*.csv"), desc="csv", leave=True, total=len(list(Path(generated_path).glob("*.csv")))):
 		if Path(output_path / f"{csv.stem}.csv").exists():
 			continue
-		if Path.exists(output_path / f"{csv.stem}.xlsx"):
-			continue
 
 		case_data = test.loc[int(csv.stem), :]
 		x_test = case_data.drop("target")
@@ -154,10 +152,15 @@ def generate_plans(project):
 				ff_df = pd.concat([ff_df,row.to_frame().T])
 
 		# Sort by coverage and confidence
-		ff_df = ff_df.sort_values(by=['Antecedent Coverage %', 'Confidence'], ascending=False)
-		ff_df = ff_df[['Antecedent', 'Antecedent Coverage %', 'Confidence']]
-		ff_df = ff_df.reset_index(drop=True)
-		ff_df = ff_df.head(10)
+		if ff_df.empty:
+			df = pd.DataFrame([], columns=['Antecedent', 'Antecedent Coverage %', 'Confidence'])
+			df = df.reset_index(drop=True)
+			df.to_csv(output_path / f"{csv.stem}.csv", index=False)
+		else:
+			ff_df = ff_df.sort_values(by=['Antecedent Coverage %', 'Confidence'], ascending=False)
+			ff_df = ff_df[['Antecedent', 'Antecedent Coverage %', 'Confidence']]
+			ff_df = ff_df.reset_index(drop=True)
+			ff_df = ff_df.head(10)
 		ff_df.to_csv(output_path / f"{csv.stem}.csv", index=False)
 				
 	# Setting the file name (without extension) as the index name

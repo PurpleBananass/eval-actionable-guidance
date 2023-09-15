@@ -42,6 +42,13 @@ class LORMIKA:
         width = math.sqrt(len(self.__train_set.columns)) * 0.75
 
         for sample_number, test_instance in tqdm(cases_normalize.iterrows(), desc="Generating...", leave=False, total=len(cases_normalize)):
+            # We only consider the instances that are predicted as buggy 
+            case_data = self.__cases.loc[sample_number, :]
+            
+            pred = self.__model.predict(case_data.values.reshape(1, -1))
+            if pred == 0:
+                continue
+
             file_name = f"{self.__output_path}/{test_instance.name}.csv"
 
             # 파일이 이미 존재하는지 확인
