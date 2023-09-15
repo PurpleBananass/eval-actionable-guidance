@@ -1,4 +1,5 @@
 import itertools
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import time
@@ -7,6 +8,19 @@ from sklearn.preprocessing import MinMaxScaler
 from mlxtend.frequent_patterns import apriori
 from mlxtend.preprocessing import TransactionEncoder
 from tqdm import tqdm
+
+def translate(rule, name, dtype):
+    items = rule.split(name)
+    items = [item.strip() for item in items]
+    for item in items:
+        item = item.strip("<")
+        item = item.strip("<=")
+        item = item.strip(">")
+        item = item.strip(">=")
+        item = item.strip()
+    return items
+
+
 
 def translate1(sentence,name):
     # do not aim to change the column
@@ -129,6 +143,7 @@ def TL(train, test, model):
 
                 seen.append(supported_plan_id)
 
+            
             for k in range(len(rec)):
                 if rec[k] != 0:
                     if (k not in supported_plan_id) and (
@@ -194,7 +209,7 @@ def flip(data_row,local_exp,ind, cols, actionable):
     return result,record
 
 
-def TimeLIME(train, test, model):
+def TimeLIME(train, test, model, output_path):
     start_time = time.time()
 
     X_train = train.iloc[:, :-1]
@@ -224,17 +239,13 @@ def TimeLIME(train, test, model):
         mode="classification",
     )
 
-    records = []
+
     seen = []
     seen_id = []    
-    plans = []
-    instances = []
-    importances = []
-    indices = []
 
     itemsets = []
     common_indices = X_test.index.intersection(X_train.index)
-    for name in tqdm(common_indices, desc="Generating itemsets", leave=False, total=len(common_indices)):
+    for name in common_indices:
     
         changes = X_test.loc[name].values - X_train.loc[name].values
         changes = [
@@ -256,48 +267,64 @@ def TimeLIME(train, test, model):
     max_val = X_train.max()
 
     predictions = model.predict(X_test.values)
-    for i in range(0, len(y_test)):
+    for i in tqdm(range(0, len(y_test)), desc="Generating explanations", leave=False, total=len(y_test)):
+        file_name = output_path / f"{X_test.index[i]}.csv"
+        if file_name.exists():
+            continue
         real_target = predictions[i]
-        if real_target == 1 and y_test.values[i] == 1:
-            ins = explainer.explain_instance(
-                data_row=X_test.values[i],
-                predict_fn=model.predict_proba,
-                num_features=len(X_train.columns),
-                num_samples=5000,
-            )
-            ind = ins.local_exp[1]
-            temp = X_test.values[i].copy()
+        if real_target == 0 or y_test.values[i] == 0:
+            continue
 
-            plan, rec = flip_non_normalized(
-                temp, ins.as_list(label=1), ind, X_train.columns, actionable, min_val, max_val
-            )
+        ins = explainer.explain_instance(
+            data_row=X_test.values[i],
+            predict_fn=model.predict_proba,
+            num_features=len(X_train.columns),
+            num_samples=5000,
+        )
+        ind = ins.local_exp[1]
+        temp = X_test.values[i].copy()
+        rule_pairs = ins.as_list(label=1)
 
-            if rec in seen_id:
-                supported_plan_id = seen[seen_id.index(rec)]
-            else:
-                supported_plan_id = find_supported_plan(rec, rules, top=5)
-                seen_id.append(rec.copy())
+        plan, rec = flip_non_normalized(
+            temp, ins.as_list(label=1), ind, X_train.columns, actionable, min_val, max_val
+        )
 
-                seen.append(supported_plan_id)
+        if rec in seen_id:
+            supported_plan_id = seen[seen_id.index(rec)]
+        else:
+            supported_plan_id = find_supported_plan(rec, rules, top=5)
+            seen_id.append(rec.copy())
 
-            for k in range(len(rec)):
-                if rec[k] != 0:
-                    if (k not in supported_plan_id) and (
-                        (0 - k) not in supported_plan_id
-                    ):
-                        perturbation_range = 0.05 * (max_val[k] - min_val[k])
-                        plan[k][0], plan[k][1] = temp[k] - perturbation_range, temp[k] + perturbation_range
-                        rec[k] = 0
+            seen.append(supported_plan_id)
 
-            records.append(rec)
-            plans.append(plan)
-            instances.append(temp)
-            importances.append(ind)
-            indices.append(X_test.index[i])
+        supported_plan = []
+        for k in range(len(rec)):
+            if rec[k] != 0:
+                if (k not in supported_plan_id) and (
+                    (0 - k) not in supported_plan_id
+                ):
+                    perturbation_range = 0.05 * (max_val[k] - min_val[k])
+                    plan[k][0], plan[k][1] = temp[k] - perturbation_range, temp[k] + perturbation_range
+                    rec[k] = 0
             
-    print("Runtime:", time.time() - start_time)
+            if rec[k] != 0:
+                feature_name = X_train.columns[k]
+                importance = [ pair[1] for pair in ind if pair[0] == k][0]
+                interval = [ pair[0] for pair in ins.as_list(label=1) if feature_name in pair[0]][0]
+                supported_plan.append([
+                    X_train.columns[k],
+                    temp[k],
+                    importance,
+                    plan[k][0],
+                    plan[k][1],
+                    rec[k],
+                    interval
+                ])
+        supported_plan = sorted(supported_plan, key=lambda x: abs(x[2]), reverse=True)
+        result_df = pd.DataFrame(supported_plan, columns=["feature", "value", "importance", "left", "right", "rec", "rule"])
+        result_df.to_csv(file_name, index=False)
 
-    return records, plans, instances, importances, indices
+  
 
 # Modify the flip function to handle non-normalized features while considering their min-max values
 def flip_non_normalized(data_row, local_exp, ind, cols, actionable, min_val, max_val):
@@ -328,19 +355,12 @@ def flip_non_normalized(data_row, local_exp, ind, cols, actionable, min_val, max
                 act = False
         
         if j in cnt and act:
-            # Obtain the original interval for this feature
-     
-            original_l, original_r = translate1(trans[j][0],cols[cache[j][0]])
-            # Flip the interval
-            flipped_l, flipped_r = flip_interval(original_l, original_r, min_val[index], max_val[index])
-            
-            # Update result
-            result[index][0], result[index][1] = flipped_l, flipped_r
-            
             if j in cntp:
-                record[index] = -1
+                result[index][0],result[index][1] = min_val[index],tem[index]
+                record[index]=-1
             else:
-                record[index] = 1
+                result[index][0],result[index][1] = tem[index],max_val[index]
+                record[index]=1
         else:
             if act:
                 # Just a small perturbation around the original value for non-actionable features
@@ -354,7 +374,7 @@ def flip_non_normalized(data_row, local_exp, ind, cols, actionable, min_val, max
     return result, record
 
 
-def flip_interval(l, r, min_val, max_val):
+def flip_interval(l, r, min_val, max_val, dtype):
     # Normalize the interval to [0, 1]
     normalized_l = (l - min_val) / (max_val - min_val)
     normalized_r = (r - min_val) / (max_val - min_val)
@@ -365,6 +385,10 @@ def flip_interval(l, r, min_val, max_val):
     # Denormalize the interval
     flipped_l = flipped_n_l * (max_val - min_val) + min_val
     flipped_r = flipped_n_r * (max_val - min_val) + min_val
+
+    if dtype == int:
+        flipped_l = int(round(flipped_l))
+        flipped_r = int(round(flipped_r))
 
     return flipped_l, flipped_r
 
