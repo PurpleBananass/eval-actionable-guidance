@@ -5,9 +5,6 @@ from scipy.optimize import differential_evolution
 from rpy2.robjects import numpy2ri, pandas2ri
 from rpy2.robjects.packages import importr
 import rpy2.robjects as ro
-import gc
-from TimeLIME import translate1, flip_interval
-
 
 DEoptim_pkg = importr('DEoptim')
 DEoptim_fn = DEoptim_pkg.DEoptim
@@ -30,11 +27,11 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
     def objective(params):
         num_samples = int(params[0])
         explanation = explainer.explain_instance(
-            test_instance, model.predict_proba, num_samples=num_samples
+            test_instance.values, model.predict_proba, num_samples=num_samples
         )
         local_model_predictions = explanation.local_pred
 
-        model_predictions = model.predict_proba(test_instance.reshape(1, -1))[0]
+        model_predictions = model.predict_proba(test_instance.values.reshape(1, -1))[0]
 
         residuals = model_predictions - local_model_predictions
 
@@ -58,25 +55,28 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
     num_samples = int(result.x[0])
 
     explanation = explainer.explain_instance(
-        test_instance, model.predict_proba, num_samples=num_samples, num_features=len(X_train.columns)
+        test_instance.values, model.predict_proba, num_samples=num_samples, num_features=len(X_train.columns)
     )
     
     top_features_rule = explanation.as_list()[:5]
     top_features = explanation.as_map()[1]
-    top_features_index = [feature[0] for feature in top_features]
+    top_features_index = [feature[0] for feature in top_features][:5]
     top_feature_names = X_train.columns[top_features_index]
-    top_feature_dtypes = X_train.dtypes[top_features_index]
 
     min_val = X_train.min()
     max_val = X_train.max()
 
-    rules = []
-    for i in range(len(top_features_rule)):
-        original_l, original_r = translate1(top_features_rule[i][0], top_feature_names[i], top_feature_dtypes[i])
-        l, r = flip_interval(original_l, original_r, min_val, max_val)
-        rules.append([top_feature_names[i],test_instance[top_feature_names[i]], top_features_rule[i][1], l, r])
+    rules, importances = zip(*top_features_rule)
 
-    rules_df = pd.DataFrame(rules, columns=['feature', 'value', 'importance', 'left', 'right'])
+    rules_df = pd.DataFrame({
+        'feature': top_feature_names,
+        'value': test_instance[top_feature_names],
+        'importance': importances,
+        'min': min_val[top_feature_names],
+        'max': max_val[top_feature_names],
+        'rule': rules
+    })
+    
     rules_df.to_csv(path, index=False)
 
 

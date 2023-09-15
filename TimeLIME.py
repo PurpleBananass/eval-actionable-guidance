@@ -318,10 +318,12 @@ def TimeLIME(train, test, model, output_path):
                     plan[k][0],
                     plan[k][1],
                     rec[k],
-                    interval
+                    interval,
+                    min_val[k],
+                    max_val[k]
                 ])
         supported_plan = sorted(supported_plan, key=lambda x: abs(x[2]), reverse=True)
-        result_df = pd.DataFrame(supported_plan, columns=["feature", "value", "importance", "left", "right", "rec", "rule"])
+        result_df = pd.DataFrame(supported_plan, columns=["feature", "value", "importance", "left", "right", "rec", "rule", "min", "max"])
         result_df.to_csv(file_name, index=False)
 
   
