@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import pickle
 import pandas as pd
@@ -12,163 +13,107 @@ from tqdm import tqdm
 from data_utils import read_dataset
 from hyparams import SEED, MODELS, MODEL_EVALUATION
 
-# def train_and_save_model(model, train, test, model_path):
-#     model.fit(
-#         train.iloc[:, train.columns != "target"].values, train["target"].values
-#     )
-#     with open(model_path, "wb") as f:
-#         pickle.dump(model, f)
+def train_and_save_model(model, train, model_path, sample_strategy=None, class_weight=None):
+    if sample_strategy:
+        sm = SMOTE(random_state=SEED, sampling_strategy=sample_strategy)
+        train.iloc[:, train.columns != "target"], train["target"] = sm.fit_resample(
+            train.iloc[:, train.columns != "target"], train["target"]
+        )
 
-# def evaluate_metrics(model, X, y):
-#     y_pred = model.predict(X)
-#     y_proba = model.predict_proba(X)[:, 1]
+    if class_weight == "balanced":
+        model.set_params(class_weight=class_weight)
+    elif class_weight != None:
+        model.set_params(class_weight={int(k): v for k, v in class_weight.items()})
 
-#     y_pred = y_pred.astype(bool)
+
+    model.fit(
+        train.iloc[:, train.columns != "target"].values, train["target"].values
+    )
+    with open(model_path, "wb") as f:
+        pickle.dump(model, f)
+
+def evaluate_metrics(model, X, y):
+    y_pred = model.predict(X)
+    y_proba = model.predict_proba(X)[:, 1]
+
+    y_pred = y_pred.astype(bool)
     
-#     return {
-#         'AUC-ROC': roc_auc_score(y, y_proba),
-#         'F1-score': f1_score(y, y_pred),
-#         'Precision': precision_score(y, y_pred),
-#         'Recall': recall_score(y, y_pred),
-#         'TP': sum(y_pred & y) / sum(y),
-#         '# of TP': sum(y_pred & y),
-#     }
+    return {
+        'AUC-ROC': roc_auc_score(y, y_proba),
+        'F1-score': f1_score(y, y_pred),
+        'Precision': precision_score(y, y_pred),
+        'Recall': recall_score(y, y_pred),
+        'TP': sum(y_pred & y) / sum(y),
+        '# of TP': sum(y_pred & y),
+    }
 
-# def load_and_evaluate_model(model_path, train, test):
-#     with open(model_path, "rb") as f:
-#         loaded_model = pickle.load(f)
+def load_and_evaluate_model(model_path, train, test):
+    with open(model_path, "rb") as f:
+        loaded_model = pickle.load(f)
 
-#     test_metrics = evaluate_metrics(loaded_model, test.iloc[:, test.columns != 'target'].values, test['target'].values)
+    test_metrics = evaluate_metrics(loaded_model, test.iloc[:, test.columns != 'target'].values, test['target'].values)
     
-#     # print(f"Test metrics: {test_metrics}")
+    return test_metrics
 
-#     return test_metrics
-
-# def train_single_project(project, train, test, metrics={}):
-#     models_path = Path(f"{MODELS}/{project}") 
-#     models_path.mkdir(parents=True, exist_ok=True)
-
-#     # Target label ratio
-#     print(f"Target label ratio: {sum(train['target']) / len(train)}")
-#     print(f"Target label ratio: {sum(test['target']) / len(test)}")
-
-#     for model, model_name in [
-#         (RandomForestClassifier(n_estimators=100, random_state=SEED), "RandomForest"),
-#         (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
-#         (CatBoostClassifier(verbose=False, random_state=SEED), "CatBoost"),
-#     ]:
-#         model_path = models_path / f"{model_name}.pkl"
-
-#         if not Path.exists(model_path):
-#             train_and_save_model(model, train, test, model_path)
-
-#         # print(f"Working on {project} with {model_name}...")
-#         test_metrics = load_and_evaluate_model(model_path, train, test)
-#         metrics[model_name][project] = test_metrics
-
-#     return metrics
-
-
-# def train_single_project(project, train, test):
-#     X_train = train.iloc[:, train.columns != 'target'].values
-#     y_train = train['target'].values
-#     X_test = test.iloc[:, test.columns != 'target'].values
-#     y_test = test['target'].values
-    
-#     models_path = Path(f"{MODELS}/{project}")
-#     models_path.mkdir(parents=True, exist_ok=True)
-
-#     for ratio in [10/1, 5/1, 3/1, 2/1, 1/1]:
-#         smote = SMOTE(sampling_strategy=ratio, random_state=SEED)
-#         X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
-        
-#         for model, model_name in [
-#             (RandomForestClassifier(n_estimators=100, random_state=SEED), "RandomForest"),
-#             (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
-#             (CatBoostClassifier(random_state=SEED), "CatBoost"),
-#         ]:
-#             model_path = models_path / f"{model_name}_ratio_{int(ratio)}.pkl"
-            
-#             if not Path.exists(model_path):
-#                 train_and_save_model(model, X_train_resampled, y_train_resampled, X_test, y_test, model_path)
-            
-#             print(f"Working on {project} with {model_name} at ratio {ratio}...")
-#             load_and_evaluate_model(model_path, train, test)
-
-# def train_all_project():
-#     projects = read_dataset()
-#     Path(MODEL_EVALUATION).mkdir(parents=True, exist_ok=True)
-#     metrics = {
-#         "RandomForest": {},
-#         "XGBoost": {},
-#         "CatBoost": {},
-#     }
-#     for project in projects:
-#         train, test = projects[project]
-#         metrics = train_single_project(project, train, test, metrics)
-
-#     # Save metrics per model as csv
-#     for model_name in metrics:
-#         model_metrics = metrics[model_name]
-#         df = pd.DataFrame(model_metrics)
-#         df.to_csv(f"{MODEL_EVALUATION}/{model_name}.csv")
-        
-# if __name__ == "__main__":
-#     train_all_project()
-
-
-def train_and_evaluate_model(model, X_train, y_train, X_test, y_test):
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    return precision_score(y_test, y_pred)
-
-def train_single_project(project, train, test):
-    X_train = train.iloc[:, train.columns != 'target'].values
-    y_train = train['target'].values
-    X_test = test.iloc[:, test.columns != 'target'].values
-    y_test = test['target'].values
-    
-    models_path = Path(f"{MODELS}/{project}")
+def train_single_project(project, train, test, metrics={}):
+    models_path = Path(f"{MODELS}/{project}") 
     models_path.mkdir(parents=True, exist_ok=True)
 
-    best_ratios = {}
+    with open("best_rf_params.json", "r") as f:
+        best_params = json.load(f)
+  
 
     for model, model_name in [
         (RandomForestClassifier(n_estimators=100, random_state=SEED), "RandomForest"),
-        (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
-        (CatBoostClassifier(random_state=SEED, verbose=0), "CatBoost"),
+        # (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
+        # (CatBoostClassifier(verbose=False, random_state=SEED), "CatBoost"),
     ]:
-        best_precision = 0
-        best_ratio = None
+        model_path = models_path / f"{model_name}.pkl"
 
-        for ratio in [10/1, 5/1, 3/1, 2/1, 1/1]:
-            smote = SMOTE(sampling_strategy=ratio, random_state=SEED)
-            X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
-            
-            current_precision = train_and_evaluate_model(model, X_train_resampled, y_train_resampled, X_test, y_test)
-            
-            print(f"Working on {project} with {model_name} at ratio {ratio}... Precision: {current_precision}")
-            
-            if current_precision > best_precision:
-                best_precision = current_precision
-                best_ratio = ratio
+        if model_name == "RandomForest":
+            smote_ratio = best_params.get(project, {}).get("smote_ratio")
+            class_weight = best_params.get(project, {}).get("class_weight")
 
-        best_ratios[model_name] = best_ratio
-        print(f"Best ratio for {model_name} on project {project} is {best_ratio} with precision {best_precision}")
-        
-    return best_ratios
+            
+            # class_weight = {int(k): v for k, v in class_weight.items()} if class_weight else None
+            
+            n_majority = len(train[train['target'] == 0])
+
+            if smote_ratio is None:
+                sampling_strategy = None
+            else:
+                    
+                n_minority_target = n_majority // smote_ratio  # Integer division
+                sampling_strategy = {0: n_majority, 1: n_minority_target} 
+
+
+        if not Path.exists(model_path):
+            train_and_save_model(model, train, model_path, sampling_strategy, class_weight)
+
+        # print(f"Working on {project} with {model_name}...")
+        test_metrics = load_and_evaluate_model(model_path, train, test)
+        metrics[model_name][project] = test_metrics
+
+    return metrics
+
 
 def train_all_project():
     projects = read_dataset()
-    best_ratios_per_project = {}
-
+    Path(MODEL_EVALUATION).mkdir(parents=True, exist_ok=True)
+    metrics = {
+        "RandomForest": {},
+        "XGBoost": {},
+        "CatBoost": {},
+    }
     for project in projects:
         train, test = projects[project]
-        best_ratios = train_single_project(project, train, test)
-        best_ratios_per_project[project] = best_ratios
+        metrics = train_single_project(project, train, test, metrics)
 
-    return best_ratios_per_project
-
+    # Save metrics per model as csv
+    for model_name in metrics:
+        model_metrics = metrics[model_name]
+        df = pd.DataFrame(model_metrics)
+        df.to_csv(f"{MODEL_EVALUATION}/{model_name}.csv")
+        
 if __name__ == "__main__":
-    best_ratios = train_all_project()
-    print("Best SMOTE ratios for each project and model:", best_ratios)
+    train_all_project()
