@@ -89,6 +89,7 @@ def printExcel(path,file, case_df,ff_df):
 def generate_plans(project):
 	username = os.environ['BIGML_USERNAME']
 	api_key = os.environ['BIGML_API_KEY']
+
 	api = BigML(username, api_key)
 
 	projects = read_dataset()
@@ -122,7 +123,7 @@ def generate_plans(project):
 			'name': csv.stem,
 			'tags': [project],
 			'search_strategy': 'coverage',
-			'max_k': 30,
+			'max_k': 10,
 			"max_lhs": 5,
 			'rhs_predicate': [{"field": "target", "operator": "=", "value": "0"}]
 		}
@@ -157,6 +158,7 @@ def generate_plans(project):
 			df = df.reset_index(drop=True)
 			df.to_csv(output_path / f"{csv.stem}.csv", index=False)
 		else:
+			print(ff_df.columns)
 			ff_df = ff_df.sort_values(by=['Antecedent Coverage %', 'Confidence'], ascending=False)
 			ff_df = ff_df[['Antecedent', 'Antecedent Coverage %', 'Confidence']]
 			ff_df = ff_df.reset_index(drop=True)
@@ -167,6 +169,7 @@ def generate_plans(project):
 def main(projects):
 	# projects = [
 	# 	"activemq@0",
+	# 	"activemq@1",
 	# 	"activemq@2",
 	# 	"camel@0",
 	# 	"camel@1",
@@ -176,10 +179,35 @@ def main(projects):
 	# 	"hive@0",
 	# 	"jruby@0",
 	# 	"jruby@1",
-	# 	"wicket@0"
+	# 	"lucene@0",
+	# 	"lucene@1",
+	# 	"wicket@0",
 	# ]
 	for proj in projects:
 		generate_plans(proj)
+
+def half():
+	projects = [
+		"activemq@0",
+		"activemq@1",
+		"activemq@2",
+		"camel@0",
+		"camel@1",
+		"derby@0",
+	]
+	for proj in projects:
+		generate_plans(proj)
+
+def half2():
+	projects = [
+		"groovy@0",
+		"hbase@0",
+		"hive@0",
+		"jruby@0",
+		"jruby@1",
+		"lucene@0",
+		"lucene@1",
+	]
 
 if __name__ == '__main__':
 	argparser = argparse.ArgumentParser()
@@ -195,6 +223,7 @@ if __name__ == '__main__':
 				projects = read_dataset()
 				projects = list(projects.keys())
 				main(projects)
+				# main()
 			break
 		except Exception as e:
 			print(e)

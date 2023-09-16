@@ -10,11 +10,11 @@ import pandas as pd
 def get_or_create_dataset(api, file_name, project):
     # 파일 이름을 데이터셋 이름으로 사용하거나 사용자가 지정한 이름을 사용합니다.
     dataset_name = Path(file_name).stem 
-    
+
     datasets = api.list_datasets()
     api.ok(datasets, wait_time=10)
     found_datasets = [d for d in datasets['objects'] if d['name'] == dataset_name and project in d['tags']]
-    
+
     if found_datasets:
         return found_datasets[0]['resource']
     
@@ -32,7 +32,6 @@ def get_or_create_association(api, dataset_id, options, file_path):
     
     if found_associations:
         association_id =  found_associations[0]['resource']
-    
     else:
         association = api.create_association(dataset_id, options)
         api.ok(association, wait_time=10)  # 리소스가 완전히 생성될 때까지 대기

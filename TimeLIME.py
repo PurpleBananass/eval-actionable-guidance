@@ -8,6 +8,20 @@ from sklearn.preprocessing import MinMaxScaler
 from mlxtend.frequent_patterns import apriori
 from mlxtend.preprocessing import TransactionEncoder
 from tqdm import tqdm
+import re
+
+def extract_name_from_condition(condition_str):
+    """Extract the name from a condition string."""
+    
+    # Regular expression pattern to match the 'name' in each condition type
+    pattern = re.compile(r'([a-zA-Z_]+)\s*(?:<=|>|<)?\s*val')
+    
+    match = pattern.search(condition_str)
+    
+    if match:
+        return match.group(1)
+    else:
+        return None
 
 def translate(rule, name, dtype):
     items = rule.split(name)
@@ -309,10 +323,12 @@ def TimeLIME(train, test, model, output_path):
             
             if rec[k] != 0:
                 feature_name = X_train.columns[k]
-                importance = [ pair[1] for pair in ind if pair[0] == k][0]
-                interval = [ pair[0] for pair in ins.as_list(label=1) if feature_name in pair[0]][0]
+                importance = [ (i, pair[1]) for i, pair in enumerate(ind) if pair[0] == k][0]
+                idx = importance[0]
+                importance = importance[1]
+                interval = ins.as_list(label=1)[idx][0]
                 supported_plan.append([
-                    X_train.columns[k],
+                    feature_name,
                     temp[k],
                     importance,
                     plan[k][0],

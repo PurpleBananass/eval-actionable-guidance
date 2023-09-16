@@ -18,18 +18,17 @@ def get_df(project: str, release: str, path_data: str = "project_dataset"):
     return df
 
 
-def map_indexes_to_int(train_df, test_df, validation_df):
+def map_indexes_to_int(train_df, test_df):
     all_files = (
-        train_df.index.append(test_df.index).append(validation_df.index).unique()
+        train_df.index.append(test_df.index).unique()
     )
     file_to_int = {file: i for i, file in enumerate(all_files)}
     int_to_file = {i: file for file, i in file_to_int.items()}  # 역매핑
 
     train_df.index = train_df.index.map(file_to_int)
     test_df.index = test_df.index.map(file_to_int)
-    validation_df.index = validation_df.index.map(file_to_int)
 
-    return train_df, test_df, validation_df, int_to_file  # 역매핑도 반환
+    return train_df, test_df, int_to_file  # 역매핑도 반환
 
 
 def map_indexes_to_file(df, int_to_file):
@@ -40,15 +39,12 @@ def map_indexes_to_file(df, int_to_file):
 def preprocess(project, releases: list[str]):
     dataset_trn = get_df(project, releases[0])
     dataset_tst = get_df(project, releases[1])
-    dataset_val = get_df(project, releases[2])
 
     duplicated_index_trn = dataset_trn.index.duplicated(keep="first")
     duplicated_index_tst = dataset_tst.index.duplicated(keep="first")
-    duplicated_index_val = dataset_val.index.duplicated(keep="first")
 
     dataset_trn = dataset_trn[~duplicated_index_trn]
     dataset_tst = dataset_tst[~duplicated_index_tst]
-    dataset_val = dataset_val[~duplicated_index_val]
 
     # dataset_tst에서 dataset_trn에 존재하는 동일한 인덱스와 모든 칼럼의 값이 동일한 행을 제거
     dataset_tst = dataset_tst.drop(
@@ -58,21 +54,19 @@ def preprocess(project, releases: list[str]):
         errors="ignore",
     )
 
-    # dataset_tst = dataset_tst[dataset_tst["RealBug"] == 1]
-    # dataset_val과 dataset_tst는 동일한 파일이 있어야 함
-    dataset_val = dataset_val[dataset_val.index.isin(dataset_tst.index)]
 
     vars_to_remove = ["HeuBug", "RealBugCount", "HeuBugCount"]
     remove_variables(dataset_trn, vars_to_remove)
     remove_variables(dataset_tst, vars_to_remove)
-    remove_variables(dataset_val, vars_to_remove)
 
     dataset_trn = dataset_trn.rename(columns={"RealBug": "target"})
     dataset_tst = dataset_tst.rename(columns={"RealBug": "target"})
-    dataset_val = dataset_val.rename(columns={"RealBug": "target"})
 
-    dataset_trn, dataset_tst, dataset_val, int_to_file = map_indexes_to_int(
-        dataset_trn, dataset_tst, dataset_val
+    dataset_trn['target'] = dataset_trn['target'].astype(bool)
+    dataset_tst['target'] = dataset_tst['target'].astype(bool)
+
+    dataset_trn, dataset_tst, mapping = map_indexes_to_int(
+        dataset_trn, dataset_tst
     )
 
     features_names = dataset_trn.columns.tolist()[:-1]
@@ -85,10 +79,11 @@ def preprocess(project, releases: list[str]):
     selected_features = list(selected_features) + ["target"]
     train = dataset_trn.loc[:, selected_features]
     test = dataset_tst.loc[:, selected_features]
-    val = dataset_val.loc[:, selected_features]
 
-    print(f"{project}/{releases[0]}: {len(selected_features)} features selected")
-    return train, test, val
+
+    print(f"| {project} | {releases[0].replace('.csv', '')} | {len(selected_features)} | {releases[1].replace('.csv', '')} | {len(test[test['target'] == 1])} |")
+
+    return train, test, mapping
 
 
 def project_dataset(project: Path):
@@ -98,7 +93,7 @@ def project_dataset(project: Path):
         releases.append(release)
     releases = natsort.natsorted(releases)
     k_releases = []
-    window = 3
+    window = 2
     for i in range(len(releases) - window + 1):
         k_releases.append(releases[i : i + window])
     return k_releases
@@ -124,12 +119,17 @@ def prepare_release_dataset():
     projects = all_dataset()
     for project, releases in projects.items():
         for i, release in enumerate(releases):
-            dataset_trn, dataset_tst, dataset_val = preprocess(project, release)
+            dataset_trn, dataset_tst, mapping = preprocess(project, release)
             save_folder = f"release_dataset/{project}@{i}"
             Path(save_folder).mkdir(parents=True, exist_ok=True)
             dataset_trn.to_csv(save_folder + "/train.csv", index=True, header=True)
             dataset_tst.to_csv(save_folder + "/test.csv", index=True, header=True)
-            dataset_val.to_csv(save_folder + "/val.csv", index=True, header=True)
+            
+            # Save mapping as csv
+            mapping_df = pd.DataFrame.from_dict(mapping, orient="index")
+            mapping_df.to_csv(save_folder + "/mapping.csv", index=True, header=False)
+
+            
 
 
 def read_dataset(normalize=False):
@@ -140,7 +140,6 @@ def read_dataset(normalize=False):
             continue
         train = pd.read_csv(project / "train.csv", index_col=0)
         test = pd.read_csv(project / "test.csv", index_col=0)
-        val = pd.read_csv(project / "val.csv", index_col=0)
 
         if normalize:
             
@@ -149,14 +148,11 @@ def read_dataset(normalize=False):
             y_train = train["target"]
             X_test = test.iloc[:, test.columns != "target"]
             y_test = test["target"]
-            X_val = val.iloc[:, val.columns != "target"]
-            y_val = val["target"]
 
             scaler = MinMaxScaler()
             scaler.fit(X_train.values)
             X_train_norm = scaler.transform(X_train.values)
             X_test_norm = scaler.transform(X_test.values)
-            X_val_norm = scaler.transform(X_val.values)
 
             train = pd.DataFrame(X_train_norm, columns=X_train.columns, index=X_train.index)
             train["target"] = y_train
@@ -164,13 +160,11 @@ def read_dataset(normalize=False):
             test = pd.DataFrame(X_test_norm, columns=X_test.columns, index=X_test.index)
             test["target"] = y_test
             test = test.astype(original_dtypes)
-            val = pd.DataFrame(X_val_norm, columns=X_val.columns, index=X_val.index)
-            val["target"] = y_val
             val = val.astype(original_dtypes)
 
-            projects[project.name] = [train, test, val, scaler]
+            projects[project.name] = [train, test, scaler]
         else:
-            projects[project.name] = [train, test, val]
+            projects[project.name] = [train, test]
     return projects
 
 def inverse_transform(df: pd.DataFrame, scaler):
@@ -222,32 +216,14 @@ def organize_original_dataset():
 
 if __name__ == "__main__":
     # organize_original_dataset()
-    # prepare_release_dataset()
+    prepare_release_dataset()
+
+    # projects = all_dataset()
+    # for project, releases in projects.items():
+    #     for i, release in enumerate(releases):
+    #         dataset_trn, dataset_tst = preprocess(project, release)
     
-    # Inverse가 제대로 되는지 확인
-    projects = read_dataset()
-    project = projects["activemq@0"]
-    train, test, val, scaler = project
-    X_train = train.iloc[:, train.columns != "target"]
-    y_train = train["target"]
-    X_test = test.iloc[:, test.columns != "target"]
-    y_test = test["target"]
-
-    X_train_inv = inverse_transform(X_train, scaler)
-    X_test_inv = inverse_transform(X_test, scaler)
-
-    projects_no_norm = read_dataset(normalize=False)
-    project_no_norm = projects_no_norm["activemq@0"]
-    train_no_norm, test_no_norm, val_no_norm = project_no_norm
-    X_train_no_norm = train_no_norm.iloc[:, train_no_norm.columns != "target"]
-    y_train_no_norm = train_no_norm["target"]
-    X_test_no_norm = test_no_norm.iloc[:, test_no_norm.columns != "target"]
-    y_test_no_norm = test_no_norm["target"]
-
-    print(X_train_inv.equals(X_train_no_norm))
-    print(X_test_inv.equals(X_test_no_norm))
-    print(y_train.equals(y_train_no_norm))
-    print(y_test.equals(y_test_no_norm))
+   
 
 
 

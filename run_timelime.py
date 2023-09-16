@@ -16,7 +16,7 @@ def run_single_dataset():
     project_list = list(projects.keys())
     i = 0
     for project in tqdm(project_list, desc=f"{project_list[i]}", leave=True):
-        train, test, val = projects[project]  # These are normalized datasets
+        train, test, val = projects[project]  
         model_path = models_path / f"{project}.pkl"
 
         if not Path.exists(model_path):

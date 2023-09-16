@@ -3,7 +3,6 @@ import pickle
 from sklearn.ensemble import RandomForestClassifier
 from tqdm import tqdm
 
-# from tqdm import tqdm
 from data_utils import read_dataset
 from LIME_HPO import LIME_HPO
 
@@ -13,10 +12,11 @@ def run_single_dataset():
     models_path = Path("./models")
     models_path.mkdir(parents=True, exist_ok=True)
     output_path = Path("./output/LIMEHPO")
-    project_list = list(projects.keys())
+    # project_list = list(projects.keys())
+    project_list = ["wicket@0"]
 
     for project in tqdm(project_list, desc=f"{'LIME-HPO'}", leave=True):
-        train, test, val = projects[project]  # These are normalized datasets
+        train, test, val = projects[project] 
         model_path = models_path / f"{project}.pkl"
 
         if not Path.exists(model_path):

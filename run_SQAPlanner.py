@@ -10,9 +10,9 @@ def run_single_dataset():
     projects = read_dataset()
     models_path = Path("./models")
     models_path.mkdir(parents=True, exist_ok=True)
-    for project in tqdm(projects, desc="projects", leave=True):
+    for project in tqdm(["wicket@0"], desc="projects", leave=True):
         print(f"Working on {project}...")
-        train, test, val = projects[project] # These are normalized datasets
+        train, test, val = projects[project]
         model_path = models_path / f"{project}.pkl"
 
         if not Path.exists(model_path):
