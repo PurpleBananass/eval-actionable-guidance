@@ -81,7 +81,7 @@ def preprocess(project, releases: list[str]):
     test = dataset_tst.loc[:, selected_features]
 
 
-    print(f"| {project} | {releases[0].replace('.csv', '')} | {len(selected_features)} | {releases[1].replace('.csv', '')} | {len(test[test['target'] == 1])} |")
+    print(f"| {project} | {releases[0].replace('.csv', '')} | {len(selected_features)} | {releases[1].replace('.csv', '')} | {len(test)} | {len(test[test['target'] == 1])} | {len(test[test['target'] == 1]) / len(test) * 100:.2f}% |")
 
     return train, test, mapping
 
@@ -216,12 +216,24 @@ def organize_original_dataset():
 
 if __name__ == "__main__":
     # organize_original_dataset()
-    prepare_release_dataset()
+    # prepare_release_dataset()
 
-    # projects = all_dataset()
-    # for project, releases in projects.items():
-    #     for i, release in enumerate(releases):
-    #         dataset_trn, dataset_tst = preprocess(project, release)
+    projects = read_dataset()
+    for project in projects:
+        train, test = projects[project]
+        
+        print(f"Project: {project}")
+        # dtype이 float인 칼럼의 분포를 확인
+        float_cols = train.select_dtypes(include=['float']).columns
+        for col in float_cols:
+            if train[col].describe()["max"] > 1.0:
+                print(f"{col}: {train[col].describe()}")
+
+        # dtype이 float인 칼럼의 분포를 확인
+        # float_cols = test.select_dtypes(include=['float']).columns
+        # for col in float_cols:
+        #     print(f"{col}: {test[col].describe()}")
+
     
    
 

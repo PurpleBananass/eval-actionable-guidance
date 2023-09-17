@@ -17,6 +17,7 @@ from tqdm import tqdm
 from bigml_mining import get_or_create_association, get_or_create_dataset
 
 from data_utils import read_dataset
+from hyparams import MODELS, OUTPUT, PLANS
 
 def comparison(word):
 	regexp =re.finditer(r'\w+=[0-9]+',word)
@@ -29,91 +30,37 @@ def comparison(word):
 		word=word.replace(matched_word, new_word)
 	return word
 
-
-def import_excel(fileName, sheetName, title, dataframe):
-    # Create a new workbook and add a worksheet
-    book = Workbook()
-    book.create_sheet(sheetName)
-    
-    # Acquire the sheet by its name
-    sheet = book[sheetName]
-    
-    # Writing the title
-    sheet.cell(row=1, column=1).value = title
-    
-    # Writing the dataframe to sheet
-    rows = dataframe_to_rows(dataframe, index=False, header=True)
-    for r_idx, row in enumerate(rows, 2):  # start from row 2 to leave room for the title
-        for c_idx, value in enumerate(row, 1):
-            sheet.cell(row=r_idx, column=c_idx, value=value)
-    
-    # Save the workbook
-    book.save(fileName + '.xlsx')
-
-
-def print_df(df_name,row_pos,col_pos,sheet_name):
-	rows = dataframe_to_rows(df_name)
-	
-	for r_idx, row in enumerate(rows, row_pos):
-		for c_idx, value in enumerate(row, col_pos):
-			 sheet_name.cell(row=r_idx, column=c_idx, value=value)
-	
-
-def checkSheet(file_handler,sheet_name):
-	if sheet_name in file_handler.sheetnames:
-		sheet_name = file_handler[sheet_name]
-	else:
-		file_handler.create_sheet(sheet_name)#don't give extension
-		sheet_name = file_handler[sheet_name]
-	return sheet_name
-
-
-def checkFile(path,filename):
-	my_file = Path(path+filename)
-	if my_file.is_file():
-		book = load_workbook(filename)
-	else:
-		book = Workbook()
-	return book
-
-
-def printExcel(path,file, case_df,ff_df):
-	book=checkFile(path,str(file)+'.xlsx')
-
-	ff_results =checkSheet(book,'ff_results')
-	print_df(case_df,1,1,ff_results)
-	print_df(ff_df,2,1,ff_results)
-
-	book.save(path+'/'+str(file)+'.xlsx')
-
-def generate_plans(project):
+def generate_plans(project, mode):
+	assert mode in ["coverage", "confidence", "lift"]
 	username = os.environ['BIGML_USERNAME']
 	api_key = os.environ['BIGML_API_KEY']
-
 	api = BigML(username, api_key)
 
 	projects = read_dataset()
-	models_path = Path("./models")
 
-	train, test, val = projects[project]
-	model_path = models_path / f"{project}.pkl"
+	train, test = projects[project]
+	model_path = Path(MODELS) / f"{project}/RandomForest.pkl"
 	with open(model_path, "rb") as f:
 		blackbox = pickle.load(f)
 
-	generated_path = "./output/generated/" + project
-	rules_path = Path("./output/rules") / project
+	generated_path = Path(OUTPUT) / f"{project}/generated"
+	rules_path = Path(OUTPUT) / f"{project}/SQARules/{mode}"
 	rules_path.mkdir(parents=True, exist_ok=True)
-	output_path = Path("./output/SQAPlanner") / project
-	output_path.mkdir(parents=True, exist_ok=True)
+	plan_path = Path(PLANS) / f"{project}/SQAPlanner/{mode}"
+	plan_path.mkdir(parents=True, exist_ok=True)
 
-	print(f"Working on {project}...")
-	for csv in tqdm(Path(generated_path).glob("*.csv"), desc="csv", leave=True, total=len(list(Path(generated_path).glob("*.csv")))):
-		if Path(output_path / f"{csv.stem}.csv").exists():
+	len_csv = len(list(generated_path.glob("*.csv")))
+	if len_csv == 0:
+		return
+
+	for csv in tqdm(generated_path.glob("*.csv"), desc=f"{project}", leave=False, total=len_csv):
+		if Path(plan_path / f"{csv.stem}.csv").exists():
 			continue
 
 		case_data = test.loc[int(csv.stem), :]
 		x_test = case_data.drop("target")
 		real_target = blackbox.predict(x_test.values.reshape(1, -1))
+
 
 		if case_data['target'] == 0 or real_target == 0:
 			continue
@@ -121,8 +68,8 @@ def generate_plans(project):
 		dataset_id = get_or_create_dataset(api, str(csv), project)
 		options = {
 			'name': csv.stem,
-			'tags': [project],
-			'search_strategy': 'coverage',
+			'tags': [project, mode],
+			'search_strategy': mode,
 			'max_k': 10,
 			"max_lhs": 5,
 			'rhs_predicate': [{"field": "target", "operator": "=", "value": "0"}]
@@ -154,76 +101,36 @@ def generate_plans(project):
 
 		# Sort by coverage and confidence
 		if ff_df.empty:
-			df = pd.DataFrame([], columns=['Antecedent', 'Antecedent Coverage %', 'Confidence'])
+			df = pd.DataFrame([], columns=['Antecedent', 'Antecedent Coverage %', 'Confidence', 'Lift'])
 			df = df.reset_index(drop=True)
-			df.to_csv(output_path / f"{csv.stem}.csv", index=False)
+			df.to_csv(plan_path / f"{csv.stem}.csv", index=False)
 		else:
-			print(ff_df.columns)
-			ff_df = ff_df.sort_values(by=['Antecedent Coverage %', 'Confidence'], ascending=False)
-			ff_df = ff_df[['Antecedent', 'Antecedent Coverage %', 'Confidence']]
+			ff_df = ff_df[['Antecedent', 'Antecedent Coverage %', 'Confidence', 'Lift']]
 			ff_df = ff_df.reset_index(drop=True)
 			ff_df = ff_df.head(10)
-		ff_df.to_csv(output_path / f"{csv.stem}.csv", index=False)
+		ff_df.to_csv(plan_path / f"{csv.stem}.csv", index=False)
 				
 	# Setting the file name (without extension) as the index name
-def main(projects):
-	# projects = [
-	# 	"activemq@0",
-	# 	"activemq@1",
-	# 	"activemq@2",
-	# 	"camel@0",
-	# 	"camel@1",
-	# 	"derby@0",
-	# 	"groovy@0",
-	# 	"hbase@0",
-	# 	"hive@0",
-	# 	"jruby@0",
-	# 	"jruby@1",
-	# 	"lucene@0",
-	# 	"lucene@1",
-	# 	"wicket@0",
-	# ]
-	for proj in projects:
-		generate_plans(proj)
-
-def half():
-	projects = [
-		"activemq@0",
-		"activemq@1",
-		"activemq@2",
-		"camel@0",
-		"camel@1",
-		"derby@0",
-	]
-	for proj in projects:
-		generate_plans(proj)
-
-def half2():
-	projects = [
-		"groovy@0",
-		"hbase@0",
-		"hive@0",
-		"jruby@0",
-		"jruby@1",
-		"lucene@0",
-		"lucene@1",
-	]
+def main(projects, mode):
+	for proj in tqdm(projects, desc="Generating Plans ...", leave=True):
+		generate_plans(proj, mode)
 
 if __name__ == '__main__':
 	argparser = argparse.ArgumentParser()
 	argparser.add_argument('--project', type=str)
+	argparser.add_argument('--mode', type=str, default="coverage")
 	args = argparser.parse_args()
 	count = 0
 	while True:
 		try:
 			print(f"Running... ({count})")
 			if args.project:
-				main(args.project.split(' '))
+				main(args.project.split(' '), args.mode)
 			else:
 				projects = read_dataset()
 				projects = list(projects.keys())
-				main(projects)
-				# main()
+				main(projects, args.mode)
+				
 			break
 		except Exception as e:
 			print(e)

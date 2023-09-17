@@ -15,7 +15,6 @@ class LORMIKA:
         self.__cases: pd.DataFrame = kwargs["cases"]
         self.__model = kwargs["model"]
         self.__output_path = kwargs["output_path"]
-        # self.__inverse = kwargs["inverse"]
         Path(self.__output_path).mkdir(parents=True, exist_ok=True)
 
     def instance_generation(self):
@@ -41,7 +40,7 @@ class LORMIKA:
 
         width = math.sqrt(len(self.__train_set.columns)) * 0.75
 
-        for sample_number, test_instance in tqdm(cases_normalize.iterrows(), desc="Generating...", leave=False, total=len(cases_normalize)):
+        for sample_number, test_instance in tqdm(cases_normalize.iterrows(), desc=f"{Path(self.__output_path).parent.name}", leave=False, total=len(cases_normalize)):
             # We only consider the instances that are predicted as buggy 
             case_data = self.__cases.loc[sample_number, :]
             

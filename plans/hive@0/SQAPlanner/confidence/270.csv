@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+AvgLineComment > 3.45 & 0.982 < AvgEssential <= 1.108,0.07985,0.98214,1.20914
+-0.21 < MAJOR_LINE <= 0.135 & 0.885 < CountPath_Min <= 1.115,0.27804,0.95726,1.17852
+1.11 < CountInput_Mean <= 2.25 & 0.885 < CountPath_Min <= 1.115,0.15827,0.95495,1.17567
+-0.9 < CountClassCoupled <= 2.2 & 0.885 < CountPath_Min <= 1.115,0.23384,0.93902,1.15606
+3 < PercentLackOfCohesion <= 27,0.18298,0.93506,1.15119
+27.2 < CountLineComment <= 38.3,0.19724,0.93494,1.15103
+RatioCommentToCode > 1.18,0.19724,0.93253,1.14807
+17.8 < CountLineComment <= 27.2,0.24335,0.92969,1.14457
+-0.02 < OWN_COMMIT <= 0.026 & 0.885 < CountPath_Min <= 1.115,0.30751,0.9289,1.1436
+0.72 < RatioCommentToCode <= 1.18,0.19249,0.92593,1.13993

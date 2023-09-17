@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MINOR_LINE <= 1.05,0.2581,0.95018,1.06307
+MAJOR_COMMIT <= 0.1,0.22286,1.0,1.11881
+OWN_COMMIT <= 0.05,0.21286,0.97987,1.09628
+CountDeclMethodPublic <= 0.56,0.21048,0.96154,1.07578
+CountClassCoupled <= 0.82,0.19048,0.9925,1.11042
+CountClassBase <= 0.845,0.17286,0.98898,1.10648
+MaxInheritanceTree <= 0.93,0.17238,0.95856,1.07245
+0.1 < MAJOR_COMMIT <= 0.825,0.17143,0.98611,1.10327
+AvgCyclomaticModified <= 0.79,0.14952,0.98089,1.09743

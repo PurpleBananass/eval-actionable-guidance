@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+24 < PercentLackOfCohesion <= 54,0.2039,1.0,1.05729
+1.32 < CountOutput_Mean <= 2.23,0.20247,1.0,1.05729
+CountClassBase <= 0.88,0.16017,1.0,1.05729
+-0.006 < MaxNesting_Mean <= 0.18,0.30133,0.99842,1.05562
+OWN_COMMIT <= 0.005 & -0.224 < MINOR_COMMIT <= 0.031,0.2961,0.99839,1.05559
+-2.44 < CountDeclClassMethod <= 0.2,0.48812,0.99805,1.05523
+0.73 < CountDeclClass <= 1.02,0.62025,0.9977,1.05486
+RatioCommentToCode > 1.395,0.20057,0.99763,1.05478
+CountInput_Mean <= 1.32,0.19819,0.9976,1.05475

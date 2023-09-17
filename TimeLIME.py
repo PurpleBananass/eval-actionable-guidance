@@ -354,10 +354,10 @@ def flip_non_normalized(data_row, local_exp, ind, cols, actionable, min_val, max
         cache.append(ind[i])
         trans.append(local_exp[i])
         
-        if ind[i][1] > 0:
+        if ind[i][1] > 0.01:
             cntp.append(i)
             cnt.append(i)
-        elif ind[i][1] < 0:
+        elif ind[i][1] < -0.01:
             cntn.append(i)
             cnt.append(i)
     
