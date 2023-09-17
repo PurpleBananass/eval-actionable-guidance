@@ -10,18 +10,6 @@ from mlxtend.preprocessing import TransactionEncoder
 from tqdm import tqdm
 import re
 
-def extract_name_from_condition(condition_str):
-    """Extract the name from a condition string."""
-    
-    # Regular expression pattern to match the 'name' in each condition type
-    pattern = re.compile(r'([a-zA-Z_]+)\s*(?:<=|>|<)?\s*val')
-    
-    match = pattern.search(condition_str)
-    
-    if match:
-        return match.group(1)
-    else:
-        return None
 
 def translate(rule, name, dtype):
     items = rule.split(name)
