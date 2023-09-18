@@ -27,16 +27,14 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
         model = pickle.load(f)
 
     predictions = model.predict(test.loc[:, test.columns != "target"].values)
-    print(sum(predictions))
 
     all_plans = {}
-    for i in range(len(test)):
+    for i in tqdm(range(len(test)), desc=f"{project_name}", leave=False):
         test_instance = test.iloc[i, :]
         test_idx = test_instance.name
         if test_instance["target"] == 0 or predictions[i] == 0:
             continue
 
-        print(f"Test instance: {test_idx}")
         if explainer_type == "LIMEHPO" or explainer_type == "LIME":
             explanation_path = Path(f"{output_path}/{test_idx}.csv")
             if not explanation_path.exists():
@@ -59,14 +57,14 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
                     perturbations = perturb_feature(proposed_changes[0][0], proposed_changes[0][2], dtype) + perturb_feature(proposed_changes[1][0], proposed_changes[1][2], dtype)
                     perturbations = list(set(perturbations))
                     perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                    perturb_features[feature] = perturbations
+                    perturb_features[feature] = perturbations[:20]
                 else:
                     assert len(proposed_changes) == 3
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
                     perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], dtype)
                     perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                    perturb_features[feature] = perturbations
+                    perturb_features[feature] = perturbations[:20]
             top_perturb_features.append(perturb_features)
 
         elif explainer_type == "TimeLIME":
@@ -88,13 +86,15 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
                 dtype = train.dtypes[feature]
                 perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], dtype)
                 perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                perturb_features[feature] = perturbations
+                perturb_features[feature] = perturbations[:20]
             top_perturb_features.append(perturb_features)
 
         elif explainer_type == "SQAPlanner":
-            confidience_plan = pd.read_csv(plans_path / f"confidence/{test_idx}.csv")
-            coverage_plan = pd.read_csv(plans_path / f"coverage/{test_idx}.csv")
-
+            try:
+                confidience_plan = pd.read_csv(plans_path / f"confidence/{test_idx}.csv")
+                coverage_plan = pd.read_csv(plans_path / f"coverage/{test_idx}.csv")
+            except pd.errors.EmptyDataError:
+                continue
             if len(confidience_plan) == 0 or len(coverage_plan) == 0:
                 continue
          
@@ -124,14 +124,14 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
                     dtype = train.dtypes[feature]
                     perturbations = perturb_feature(plan[0], plan[2], dtype)
                     perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                    perturb_features[feature] = perturbations
+                    perturb_features[feature] = perturbations[:20]
                 else:
                     for sub_plan in plan:
                         feature = sub_plan[1]
                         dtype = train.dtypes[feature]
                         perturbations = perturb_feature(sub_plan[0], sub_plan[2], dtype)
                         perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                        perturb_features[feature] = perturbations
+                        perturb_features[feature] = perturbations[:20]
                 top_perturb_features.append(perturb_features)
         
         all_plans[int(test_idx)] = top_perturb_features
@@ -140,16 +140,10 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
     with open(plans_path / "plans.json", "w") as f:
         json.dump(all_plans, f, indent=4)
 
-
-
-
-
-
-
 def perturb_feature(low, high, dtype):
     if dtype == "int64":    
-        low = int(floor(float(low)))
-        high = int(ceil(float(high)))
+        low = int(ceil(float(low)))
+        high = int(floor(float(high)))
         step = 1
         perturbations = list(range(low, high + 1, step))
         
@@ -201,7 +195,7 @@ def flip_feature_range(feature, min_val, max_val, importance, rule_str):
 
 def run_all_project(model_type, explainer_type):
     projects = read_dataset()
-    for project in projects:
+    for project in tqdm(projects, desc="Projects", leave=True):
         train, test = projects[project]
         run_single_project(train, test, project, model_type, explainer_type)
 
