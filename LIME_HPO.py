@@ -58,6 +58,11 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
     max_val = X_train.max()
 
     rules, importances = zip(*top_features_rule)
+    
+    total_rules, total_importances = zip(*explanation.as_list())
+    total_importances = np.array(total_importances)
+    abs_importances = np.abs(total_importances)
+    importance_ratio = np.abs(np.array(importances)) / np.sum(abs_importances)
 
     rules_df = pd.DataFrame({
         'feature': top_feature_names,
@@ -65,7 +70,8 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
         'importance': importances,
         'min': min_val[top_feature_names],
         'max': max_val[top_feature_names],
-        'rule': rules
+        'rule': rules,
+        'importance_ratio': importance_ratio
     })
     
     rules_df.to_csv(path, index=False)

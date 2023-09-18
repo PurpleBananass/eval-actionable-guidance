@@ -46,6 +46,10 @@ def preprocess(project, releases: list[str]):
     dataset_trn = dataset_trn[~duplicated_index_trn]
     dataset_tst = dataset_tst[~duplicated_index_tst]
 
+    print(f"Project: {project}")
+    print(f"Release: {releases[0]} total: {len(dataset_trn)} bug: {len(dataset_trn[dataset_trn['RealBug'] == 1])}")
+    print(f"Release: {releases[1]} total: {len(dataset_tst)} bug: {len(dataset_tst[dataset_tst['RealBug'] == 1])}")
+
     # dataset_tst에서 dataset_trn에 존재하는 동일한 인덱스와 모든 칼럼의 값이 동일한 행을 제거
     dataset_tst = dataset_tst.drop(
         dataset_tst.index[
@@ -81,7 +85,7 @@ def preprocess(project, releases: list[str]):
     test = dataset_tst.loc[:, selected_features]
 
 
-    print(f"| {project} | {releases[0].replace('.csv', '')} | {len(selected_features)} | {releases[1].replace('.csv', '')} | {len(test)} | {len(test[test['target'] == 1])} | {len(test[test['target'] == 1]) / len(test) * 100:.2f}% |")
+    # print(f"| {project} | {releases[0].replace('.csv', '')} | {len(selected_features)} | {releases[1].replace('.csv', '')} | {len(test)} | {len(test[test['target'] == 1])} | {len(test[test['target'] == 1]) / len(test) * 100:.2f}% |")
 
     return train, test, mapping
 
@@ -218,16 +222,16 @@ if __name__ == "__main__":
     # organize_original_dataset()
     # prepare_release_dataset()
 
-    projects = read_dataset()
-    for project in projects:
-        train, test = projects[project]
-        
-        print(f"Project: {project}")
-        # dtype이 float인 칼럼의 분포를 확인
-        float_cols = train.select_dtypes(include=['float']).columns
-        for col in float_cols:
-            if train[col].describe()["max"] > 1.0:
-                print(f"{col}: {train[col].describe()}")
+    projects = all_dataset()
+    for project, releases in projects.items():
+        for i, release in enumerate(releases):
+            dataset_trn, dataset_tst, mapping = preprocess(project, release)
+        # print(f"Project: {project}")
+        # # dtype이 float인 칼럼의 분포를 확인
+        # float_cols = train.select_dtypes(include=['float']).columns
+        # for col in float_cols:
+        #     if train[col].describe()["max"] > 1.0:
+        #         print(f"{col}: {train[col].describe()}")
 
         # dtype이 float인 칼럼의 분포를 확인
         # float_cols = test.select_dtypes(include=['float']).columns
