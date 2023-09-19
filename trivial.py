@@ -19,4 +19,3 @@ for d in output_dir.iterdir():
                     df = pd.concat([df, pd.DataFrame({'sum_ratio': sum_ratio}, index=[f.name])])
             print(f"{d.name} | {df['sum_ratio'].mean():.2f}")
             
-# %%

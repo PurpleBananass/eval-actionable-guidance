@@ -20,7 +20,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
 
     predictions = model.predict(test.loc[:, test.columns != "target"].values)
 
-    if explainer_type == "LIMEHPO_":
+    if explainer_type == "LIMEHPO":
         for i in tqdm(range(len(test)), desc=f"{project_name}", leave=False):
             test_instance = test.iloc[i, :]
             test_idx = test_instance.name

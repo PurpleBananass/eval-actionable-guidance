@@ -91,9 +91,9 @@ def LIME_Planner(X_train, test_instance, training_labels, model, path):
         test_instance.values, model.predict_proba, num_features=len(X_train.columns)
     )
     
-    top_features_rule = explanation.as_list()[:5]
+    top_features_rule = explanation.as_list()
     top_features = explanation.as_map()[1]
-    top_features_index = [feature[0] for feature in top_features][:5]
+    top_features_index = [feature[0] for feature in top_features]
     top_feature_names = X_train.columns[top_features_index]
 
     min_val = X_train.min()

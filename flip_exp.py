@@ -1,5 +1,5 @@
 # %%
-from itertools import product
+from argparse import ArgumentParser
 import json
 from pathlib import Path
 import pickle
@@ -7,43 +7,60 @@ import numpy as np
 import pandas as pd
 from data_utils import read_dataset
 
-from hyparams import MODELS, PLANS, SEED
+from hyparams import MODELS, PLANS, SEED, EXPERIMENTS
 
-PROJ = 'derby@0'
-INSTANCE = 108
 np.random.seed(SEED)
-projects = read_dataset()
-train, test = projects[PROJ]
 
-query = test.loc[INSTANCE, test.columns != "target"].to_frame().T
+def flip_single_project(test, project_name, explainer_type, search_strategy, verbose=False):
+    model_path = Path(f"{MODELS}/{project_name}/RandomForest.pkl") 
+    exp_path = Path(f"{EXPERIMENTS}/{project_name}")
+    plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans.json")
 
-model_path = Path(f"{MODELS}/{PROJ}/RandomForest.pkl") 
-with open(model_path, "rb") as f:
-    model = pickle.load(f)
+    if search_strategy is not None:
+        plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/{search_strategy}/plans.json")
+        exp_path = Path(f"{EXPERIMENTS}/{project_name}/{search_strategy}")
+        
+    exp_path.mkdir(parents=True, exist_ok=True)
+    plan_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
 
-assert model.predict(query.values) == test.loc[INSTANCE, "target"]
-
-explainers = ['LIMEHPO', 'TimeLIME', 'SQAPlanner']
-plan_paths = [ Path(f"{PLANS}/{PROJ}/{explainer}/plans.json") for explainer in explainers ]
-
-plan_q = []
-for plan_path in plan_paths:
     with open(plan_path, "r") as f:
         plans = json.load(f)
-    if isinstance(plans)
-    plan_q.append(plans[str(INSTANCE)])
-        
+
+    test_names = list(plans.keys())
+    flipped_instances = {}
+    for test_name in test_names:
+        original_instance = test.loc[int(test_name), test.columns != "target"]
+        flipped_instance = original_instance.copy()
+        features = list(plans[test_name].keys())
+        flipped_instance[features] = [plans[test_name][feature] for feature in features ]
+
+        prediction = model.predict_proba(flipped_instance.values.reshape(1, -1))[:, 0]
+        if prediction >= 0.5:
+            flipped_instances[test_name] = flipped_instance
+
+    if verbose:
+        print(f"Number of flipped instances: {len(flipped_instances)} / {len(test_names)}")
+    df = pd.DataFrame(flipped_instances).T
+    df.to_csv(exp_path / f"{explainer_type}.csv")
+
 # %%
-def find_counterfactual_all_features(instance: pd.Series, top_features, training_data: pd.DataFrame, classifier):
+        
+if __name__ == "__main__":
+    argparser = ArgumentParser()
+    argparser.add_argument("--project", type=str, default="all")
+    argparser.add_argument("--explainer_type", type=str, required=True)
+    argparser.add_argument("--search_strategy", type=str, default=None)
+    argparser.add_argument("--verbose", action="store_true")
 
-    for values in product(*changeable_ranges):
-        modified_instance = instance.copy()
-        for feature, value in zip(top_features, values):
-            modified_instance[feature] = value
-
-        new_pred = classifier.predict_proba(modified_instance.values.reshape(1, -1))[:, 0]
-        if new_pred >= 0.5:
-            counterfactual = modified_instance
-            break
-
-    return counterfactual
+    args = argparser.parse_args()
+    projects = read_dataset()
+    if args.project == "all":
+        for project in projects:
+            _, test = projects[project]
+            flip_single_project(test, project, args.explainer_type, args.search_strategy, verbose=args.verbose)
+    else:
+        _, test = projects[args.project]
+        flip_single_project(test, args.project, args.explainer_type, args.search_strategy, verbose=args.verbose)
