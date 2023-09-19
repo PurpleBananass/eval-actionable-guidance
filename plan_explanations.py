@@ -57,14 +57,14 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
                     perturbations = perturb_feature(proposed_changes[0][0], proposed_changes[0][2], dtype) + perturb_feature(proposed_changes[1][0], proposed_changes[1][2], dtype)
                     perturbations = list(set(perturbations))
                     perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                    perturb_features[feature] = perturbations[:20]
+                    perturb_features[feature] = perturbations
                 else:
                     assert len(proposed_changes) == 3
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
                     perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], dtype)
                     perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                    perturb_features[feature] = perturbations[:20]
+                    perturb_features[feature] = perturbations
             top_perturb_features.append(perturb_features)
 
         elif explainer_type == "TimeLIME":
@@ -86,21 +86,23 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
                 dtype = train.dtypes[feature]
                 perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], dtype)
                 perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                perturb_features[feature] = perturbations[:20]
+                perturb_features[feature] = perturbations
             top_perturb_features.append(perturb_features)
 
         elif explainer_type == "SQAPlanner":
             try:
                 confidience_plan = pd.read_csv(plans_path / f"confidence/{test_idx}.csv")
                 coverage_plan = pd.read_csv(plans_path / f"coverage/{test_idx}.csv")
+                lift_plan = pd.read_csv(plans_path / f"lift/{test_idx}.csv")
             except pd.errors.EmptyDataError:
                 continue
-            if len(confidience_plan) == 0 or len(coverage_plan) == 0:
+            if len(confidience_plan) == 0 or len(coverage_plan) == 0 or len(lift_plan) == 0:
                 continue
          
             top_plans = [
                 split_inequality(confidience_plan.loc[:, "Antecedent"][0]),
-                split_inequality(coverage_plan.loc[:, "Antecedent"][0])
+                split_inequality(coverage_plan.loc[:, "Antecedent"][0]),
+                split_inequality(lift_plan.loc[:, "Antecedent"][0]),
             ]
             
             for proposed_changes in top_plans:
@@ -124,14 +126,14 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
                     dtype = train.dtypes[feature]
                     perturbations = perturb_feature(plan[0], plan[2], dtype)
                     perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                    perturb_features[feature] = perturbations[:20]
+                    perturb_features[feature] = perturbations
                 else:
                     for sub_plan in plan:
                         feature = sub_plan[1]
                         dtype = train.dtypes[feature]
                         perturbations = perturb_feature(sub_plan[0], sub_plan[2], dtype)
                         perturbations = sorted(perturbations, key=lambda x: abs(x - test_instance[feature]))
-                        perturb_features[feature] = perturbations[:20]
+                        perturb_features[feature] = perturbations
                 top_perturb_features.append(perturb_features)
         
         all_plans[int(test_idx)] = top_perturb_features
