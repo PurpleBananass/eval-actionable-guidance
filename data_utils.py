@@ -136,7 +136,7 @@ def prepare_release_dataset():
             
 
 
-def read_dataset(normalize=False):
+def read_dataset(normalize=False) -> dict[str, list[pd.DataFrame]]:
     save_folder = "release_dataset"
     projects = {}
     for project in Path(save_folder).iterdir():
