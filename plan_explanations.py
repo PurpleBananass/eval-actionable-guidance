@@ -34,7 +34,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
 
 
     all_plans = {}
-    for i in tqdm(range(len(test)), desc=f"{project_name}", leave=False):
+    for i in tqdm(range(len(test)), desc=f"{project_name}", leave=False, disable=not verbose):
         test_instance = test.iloc[i, :]
         test_idx = test_instance.name
         if test_instance["target"] == 0 or predictions[i] == 0:
@@ -159,15 +159,6 @@ def flip_feature_range(feature, min_val, max_val, importance, rule_str):
     if match:
         b = float(match.group(1))
         return [b, feature, max_val]
-
-def run_all_project(model_type, explainer_type):
-    projects = read_dataset()
-    for project in tqdm(projects, desc="Projects", leave=True):
-        train, test = projects[project]
-        run_single_project(train, test, project, model_type, explainer_type)
-
-
-
     
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -180,7 +171,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.project == "all":
-        run_all_project(args.model_type, args.explainer_type)
+        projects = read_dataset()
+        for project in tqdm(projects, desc="Projects", leave=True, disable=not args.verbose):
+            train, test = projects[project]
+            run_single_project(train, test, project, args.model_type, args.explainer_type, args.search_strategy, args.verbose)
     else:
         projects = read_dataset()
         train, test = projects[args.project]

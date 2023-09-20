@@ -64,7 +64,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type):
 
     elif explainer_type == "SQAPlanner":
         # 1. Generate instances
-        gen_instances_path = output_path.parent / "generated"
+        gen_instances_path = output_path.parent / "SQAGenInstances"
         gen_instances_path.mkdir(parents=True, exist_ok=True)
         lormika = LORMIKA(
             train_set=train.loc[:, train.columns != "target"],

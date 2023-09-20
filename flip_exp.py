@@ -1,10 +1,10 @@
-# %%
 from argparse import ArgumentParser
 import json
 from pathlib import Path
 import pickle
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from data_utils import read_dataset
 
 from hyparams import MODELS, PLANS, SEED, EXPERIMENTS
@@ -31,11 +31,11 @@ def flip_single_project(test, project_name, explainer_type, search_strategy, ver
 
     test_names = list(plans.keys())
     flipped_instances = {}
-    for test_name in test_names:
+    for test_name in tqdm(test_names, desc=f"{project_name}", leave=False, disable=not verbose):
         original_instance = test.loc[int(test_name), test.columns != "target"]
         flipped_instance = original_instance.copy()
         features = list(plans[test_name].keys())
-        flipped_instance[features] = [plans[test_name][feature] for feature in features ]
+        flipped_instance[features] = [ plans[test_name][feature] for feature in features ]
 
         prediction = model.predict_proba(flipped_instance.values.reshape(1, -1))[:, 0]
         if prediction >= 0.5:
@@ -45,8 +45,6 @@ def flip_single_project(test, project_name, explainer_type, search_strategy, ver
         print(f"Number of flipped instances: {len(flipped_instances)} / {len(test_names)}")
     df = pd.DataFrame(flipped_instances).T
     df.to_csv(exp_path / f"{explainer_type}.csv")
-
-# %%
         
 if __name__ == "__main__":
     argparser = ArgumentParser()
@@ -58,7 +56,7 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     projects = read_dataset()
     if args.project == "all":
-        for project in projects:
+        for project in tqdm(projects, desc="Projects", leave=True, disable=not args.verbose):
             _, test = projects[project]
             flip_single_project(test, project, args.explainer_type, args.search_strategy, verbose=args.verbose)
     else:
