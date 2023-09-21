@@ -48,10 +48,6 @@ def train_single_project(project, train, test, metrics={}):
     models_path = Path(f"{MODELS}/{project}") 
     models_path.mkdir(parents=True, exist_ok=True)
 
-    with open("best_rf_params.json", "r") as f:
-        best_params = json.load(f)
-  
-
     for model, model_name in [
         (RandomForestClassifier(n_estimators=100, random_state=SEED), "RandomForest"),
         (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
@@ -62,7 +58,7 @@ def train_single_project(project, train, test, metrics={}):
         if not Path.exists(model_path):
             train_and_save_model(model, train, model_path)
 
-        # print(f"Working on {project} with {model_name}...")
+        tqdm.write(f"Working on {project} with {model_name}...")
         test_metrics = load_and_evaluate_model(model_path, train, test)
         metrics[model_name][project] = test_metrics
 

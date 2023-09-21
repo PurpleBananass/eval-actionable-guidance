@@ -18,17 +18,12 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
     output_path = Path(f"{OUTPUT}/{project_name}/{explainer_type}")
     plans_path = Path(f"{PLANS}/{project_name}/{explainer_type}")
     if search_strategy is not None:
-        plans_path = plans_path / search_strategy
+        plans_path = Path(f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}")
         output_path = output_path / search_strategy
     output_path.mkdir(parents=True, exist_ok=True)
     plans_path.mkdir(parents=True, exist_ok=True)
 
     file_name = "plans.json" if only_minimum else "plans_all.json"
-
-    if Path(plans_path / file_name).exists():
-        if verbose:
-            print(f"Skipping {project_name}")
-        return
 
     pattern = re.compile(r'([-]?[\d.]+)?\s*(<|>)?\s*([a-zA-Z_]+)\s*(<=|>=|<|>)?\s*([-]?[\d.]+)?')
 
@@ -107,6 +102,8 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                             break
                         perturbations = perturb_feature(*ranges, test_instance[feature], train.dtypes[feature], only_minimum)
                         
+                        if not perturbations:
+                            continue
                         perturb_features[feature] = perturbations
                     
         all_plans[int(test_idx)] = perturb_features
@@ -138,6 +135,8 @@ def perturb_feature(low, high, current, dtype, only_minimum=False):
 
     sorted_publications = sorted(perturbations, key=lambda x: abs(x - current))
 
+    if len(sorted_publications) == 0:
+        return None
     return sorted_publications[0] if only_minimum else sorted_publications
 
 def split_inequality(rule, min_val, max_val, pattern): 

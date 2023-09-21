@@ -14,7 +14,7 @@ import dice_ml
 import warnings
 
 np.random.seed(SEED)
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore", message="UserConfigValidationException will be deprecated from dice_ml.utils")
 
 
 class DeFlip:
@@ -40,11 +40,14 @@ class DeFlip:
         self.exp = dice_ml.Dice(self.data, self.dice_model, method="random")
 
     def run(self, query_instances: pd.DataFrame):
+        if (self.save_path / "DeFlip.csv").exists():
+            return
         result = {}
         dice_exp = self.exp.generate_counterfactuals(
             query_instances,
             total_CFs=self.total_CFs,
             desired_class="opposite",
+            random_seed=SEED,
         )
         
         for i, idx in enumerate(query_instances.index):
@@ -67,10 +70,8 @@ class DeFlip:
             
         result_df = pd.DataFrame(result).T
         result_df.to_csv(self.save_path / "DeFlip.csv" )
-
-        print(f"Number of flipped instances: {len(result_df)} / {len(query_instances)}")
-
-
+        return result_df
+        
 
     def get_num_changed(self, query_instance: pd.Series, cf_instance: pd.Series):
         num_changed = np.sum(query_instance != cf_instance)
@@ -101,7 +102,9 @@ def run_single_dataset(
     predictions = model.predict(positives.drop("target", axis=1))
     true_positives = positives[predictions == 1]
     query_instances = true_positives.drop("target", axis=1)
-    deflip.run(query_instances)
+    flipped_instances = deflip.run(query_instances)
+
+    tqdm.write(f"| {project} | {len(flipped_instances)} | {len(query_instances)} |")
 
 def filpped_instances(project, candidates):
     flip_path = Path(f"{OUTPUT}/{project}/deflip")
@@ -125,6 +128,8 @@ if __name__ == "__main__":
 
     args = argparser.parse_args()
     projects = read_dataset()
+    tqdm.write("| Project | Flipped | Total |")
+    tqdm.write("| ------- | ------- | ----- |")
     if args.project == "all":
         for project in tqdm(projects, desc="Projects", leave=True, disable=not args.verbose):
             train, test = projects[project]
