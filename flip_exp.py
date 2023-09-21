@@ -49,15 +49,18 @@ def flip_single_project(test, project_name, explainer_type, search_strategy, onl
     exp_path.parent.mkdir(parents=True, exist_ok=True)
     
     if exp_path.exists():
-        computed_test_names = set(pd.read_csv(exp_path, index_col=0).index.astype(str))
+        file = pd.read_csv(exp_path, index_col=0)
+        computed_test_names = set(file.index.astype(str))
+        flipped_instances = {test_name: file.loc[test_name, :] for test_name in file.index}
     else:
         computed_test_names = set()
+        flipped_instances = {}
 
     with open(plan_path, "r") as f:
         plans = json.load(f)
 
     test_names = list(plans.keys())
-    flipped_instances = {}
+    
 
     if only_minimum:
         with open(model_path, "rb") as f:
@@ -116,9 +119,10 @@ def flip_single_project(test, project_name, explainer_type, search_strategy, onl
                     traceback.print_exc()
                     exit()
     
-    if verbose:
-        tqdm.write(f"| {project_name} | {len(flipped_instances)} | {len(test_names)} |")
+    
     df = pd.DataFrame(flipped_instances).T
+    if verbose:
+        tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(test_names)} |")
     df.to_csv(exp_path)
 
 if __name__ == "__main__":
