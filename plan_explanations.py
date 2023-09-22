@@ -9,8 +9,10 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from argparse import ArgumentParser
 from math import ceil, floor
-from data_utils import read_dataset
+from data_utils import read_dataset, load_historical_changes
 from hyparams import MODELS, OUTPUT, PLANS
+
+MAX_RATIO = 20
 
 # Aussme there are generated explanations
 def run_single_project(train, test, project_name, model_type, explainer_type, search_strategy, only_minimum=True, verbose=False):
@@ -29,6 +31,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
 
     train_min = train.min()
     train_max = train.max()
+    historical_changes = load_historical_changes(project_name)['mean_change']
 
     with open(model_path, "rb") as f:
         model = pickle.load(f)
@@ -59,7 +62,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                 for proposed_changes in plan:
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
-                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, only_minimum)
+                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature], MAX_RATIO, only_minimum)
                     perturb_features[feature] = perturbations
 
             case "TimeLIME":
@@ -77,7 +80,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                 for proposed_changes in plan:
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
-                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2],test_instance[feature], dtype, only_minimum)
+                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2],test_instance[feature], dtype, historical_changes[feature], MAX_RATIO, only_minimum)
                     perturb_features[feature] = perturbations
 
             case "SQAPlanner":
@@ -100,7 +103,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                         feature, ranges = split_inequality(rule, train_min, train_max, pattern)
                         if ranges[0] > ranges[1]:
                             break
-                        perturbations = perturb_feature(*ranges, test_instance[feature], train.dtypes[feature], only_minimum)
+                        perturbations = perturb_feature(*ranges, test_instance[feature], train.dtypes[feature], historical_changes[feature], MAX_RATIO, only_minimum)
                         
                         if not perturbations:
                             continue
@@ -112,17 +115,28 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
     with open(plans_path / file_name, "w") as f:
         json.dump(all_plans, f, indent=4)
 
-def perturb_feature(low, high, current, dtype, only_minimum=False):
+def perturb_feature(low, high, current, dtype, mean_change=None, max_ratio=30, only_minimum=False):
     if dtype == "int64":    
         low = int(ceil(float(low)))
         high = int(floor(float(high)))
         step = 1
+        if mean_change is not None:
+            if abs(high - current) / mean_change > max_ratio:
+                high = int(current + mean_change * max_ratio)
+            if abs(current - low) / mean_change > max_ratio:
+                low = int(current - mean_change * max_ratio)
+        
         perturbations = list(range(low, high + 1, step))
         
     elif dtype == "float64":
         low = float(low)
         high = float(high)
         step = 0.05
+        if mean_change is not None:
+            if abs(high - current) / mean_change > max_ratio:
+                high = current + mean_change * max_ratio
+            if abs(current - low) / mean_change > max_ratio:
+                low = current - mean_change * max_ratio
         if low <= current <= high:
             perturbations = list(np.arange(current, low, -1 * step)) + list(np.arange(current, high + step, step))
         else:

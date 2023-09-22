@@ -1,11 +1,14 @@
 from pathlib import Path
+from matplotlib import pyplot as plt
+import numpy as np
+import seaborn as sns
 import natsort
 import pandas as pd
 import rpy2.robjects as ro
 from rpy2.robjects.packages import importr
 from rpy2.robjects import pandas2ri, StrVector
 from sklearn.preprocessing import MinMaxScaler
-
+from hyparams import RELEASE_DATASET
 Rnalytica = importr("Rnalytica")
 
 
@@ -34,7 +37,6 @@ def map_indexes_to_int(train_df, test_df):
 def map_indexes_to_file(df, int_to_file):
     df.index = df.index.map(int_to_file)
     return df
-
 
 def preprocess(project, releases: list[str]):
     dataset_trn = get_df(project, releases[0])
@@ -171,6 +173,35 @@ def read_dataset(normalize=False) -> dict[str, list[pd.DataFrame]]:
             projects[project.name] = [train, test]
     return projects
 
+def historical_changes():
+    save_folder = Path("historical_dataset")
+    save_folder.mkdir(parents=True, exist_ok=True)
+    history = {}
+    for project in Path(RELEASE_DATASET).iterdir():
+        if not project.is_dir():
+            continue
+        history[project.name] = {}
+        train = pd.read_csv(project / "train.csv", index_col=0)
+        test = pd.read_csv(project / "test.csv", index_col=0)
+        exist_indices = train.index.intersection(test.index)
+        deltas = test.loc[exist_indices, test.columns != "target"] - train.loc[exist_indices, train.columns != "target"]
+
+        for feature in deltas.columns:
+            nonzeros = deltas[deltas[feature] != 0][feature]
+            nonzeros = nonzeros.abs()
+            history[project.name][feature] = [round(nonzeros.mean(), 2), round(nonzeros.max(), 2), round(nonzeros.max() / nonzeros.mean(), 2), round(train[feature].max(), 2), round(train[feature].max() / nonzeros.mean(), 2), nonzeros.dtype]
+
+    for project, features in history.items():
+        df = pd.DataFrame.from_dict(features, orient="index", columns=["mean_change", "max change", "MAXChange/mean", "max value",  "MAX/mean", "dtype"])
+
+        df.to_csv(save_folder / f"{project}.csv")
+
+def load_historical_changes(project):
+    save_folder = Path("historical_dataset")
+    df = pd.read_csv(save_folder / f"{project}.csv", index_col=0)
+    return df
+        
+
 def inverse_transform(df: pd.DataFrame, scaler):
     origianl_dtypes = df.dtypes
     inversed = scaler.inverse_transform(df.values)
@@ -221,11 +252,12 @@ def organize_original_dataset():
 if __name__ == "__main__":
     # organize_original_dataset()
     # prepare_release_dataset()
-
-    projects = all_dataset()
-    for project, releases in projects.items():
-        for i, release in enumerate(releases):
-            dataset_trn, dataset_tst, mapping = preprocess(project, release)
+    historical_changes()
+    # projects = all_dataset()
+    # for project, releases in projects.items():
+    #     for i, release in enumerate(releases):
+    #         
+            # dataset_trn, dataset_tst, mapping = preprocess(project, release)
         # print(f"Project: {project}")
         # # dtype이 float인 칼럼의 분포를 확인
         # float_cols = train.select_dtypes(include=['float']).columns
