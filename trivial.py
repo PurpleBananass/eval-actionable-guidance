@@ -4,18 +4,16 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import json
 
+project = "activemq@0"
+explainer = "LIMEHPO"
+plan_path = f"plans/{project}/{explainer}/plans_all.json"
+with open(plan_path, "r") as f:
+    plan = json.load(f)
+df = pd.read_csv(f"experiments/{project}/{explainer}_all.csv", index_col=0)
+set(list(plan.keys())) - set(df.index.tolist())
+ 
 # %%
-output_dir = Path('Output')
-for d in output_dir.iterdir():
-    if d.is_dir():
-        if (d / 'LIMEHPO_').exists():
-            
-            df = pd.DataFrame()
-            for f in (d / 'LIMEHPO_').iterdir():
-                if f.suffix == '.csv':
-                    df_csv = pd.read_csv(f)
-                    sum_ratio = df_csv['importance_ratio'].sum()
-                    df = pd.concat([df, pd.DataFrame({'sum_ratio': sum_ratio}, index=[f.name])])
-            print(f"{d.name} | {df['sum_ratio'].mean():.2f}")
-            
+plan
+# %%

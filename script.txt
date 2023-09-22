@@ -1,0 +1,31 @@
+cd  /mnt/c/Users/juhansae/DeFlip
+poetry run python flip_exp.py --verbose --explainer LIMEHPO --project "hbase@0 hbase@1 hive@0 hive@1"
+
+poetry run python flip_exp.py --verbose --explainer LIMEHPO --project "derby@0 derby@1"
+
+poetry run python flip_exp.py --verbose --explainer LIMEHPO --project "groovy@0 groovy@1"
+
+poetry run python flip_exp.py --verbose --explainer LIMEHPO --project "camel@0 camel@1 camel@2"
+
+poetry run python flip_exp.py --verbose --explainer LIMEHPO --project "activemq@0 activemq@1 activemq@2 activemq@3"
+
+poetry run python flip_exp.py --verbose --explainer LIMEHPO --project "jruby@0 jruby@1 jruby@2"
+
+poetry run python flip_exp.py --verbose --explainer LIMEHPO --project "lucene@0 lucene@1 lucene@2 wicket@0 wicket@1"
+
+
+poetry run python flip_exp.py --verbose --explainer TimeLIME --project "hbase@0 hbase@1 hive@0 hive@1"
+
+poetry run python flip_exp.py --verbose --explainer TimeLIME --project "derby@0 derby@1"
+
+poetry run python flip_exp.py --verbose --explainer TimeLIME --project "groovy@0 groovy@1"
+
+poetry run python flip_exp.py --verbose --explainer TimeLIME --project "camel@0 camel@1 camel@2"
+
+poetry run python flip_exp.py --verbose --explainer TimeLIME --project "activemq@0 activemq@1 activemq@2 activemq@3"
+
+poetry run python flip_exp.py --verbose --explainer TimeLIME --project "jruby@0 jruby@1 jruby@2"
+
+poetry run python flip_exp.py --verbose --explainer TimeLIME --project "lucene@0 lucene@1 lucene@2 wicket@0 wicket@1"
+
+
