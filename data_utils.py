@@ -253,9 +253,12 @@ if __name__ == "__main__":
     # organize_original_dataset()
     # prepare_release_dataset()
     historical_changes()
-    # projects = all_dataset()
-    # for project, releases in projects.items():
-    #     for i, release in enumerate(releases):
+    projects = read_dataset()
+    columns = set()
+    for project in projects:
+        train, test = projects[project]
+        columns = columns.union(set(train.columns.tolist()))
+    print(columns)
     #         
             # dataset_trn, dataset_tst, mapping = preprocess(project, release)
         # print(f"Project: {project}")
