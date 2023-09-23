@@ -29,3 +29,8 @@ poetry run python flip_exp.py --verbose --explainer TimeLIME --project "jruby@0 
 poetry run python flip_exp.py --verbose --explainer TimeLIME --project "lucene@0 lucene@1 lucene@2 wicket@0 wicket@1"
 
 
+poetry run python flip_exp.py --verbose --explainer SQAPlanner --search_strategy confidence
+
+poetry run python flip_exp.py --verbose --explainer SQAPlanner --search_strategy coverage
+
+poetry run python flip_exp.py --verbose --explainer SQAPlanner --search_strategy lift
