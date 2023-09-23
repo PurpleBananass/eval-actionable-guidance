@@ -111,6 +111,9 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                         feature, ranges = split_inequality(rule, train_min, train_max, pattern)
                         if ranges[0] > ranges[1]:
                             break
+                        if ranges[0] < train_min[feature]:
+                            ranges[0] = max(0, train_min[feature])
+                     
                         perturbations = perturb_feature(*ranges, test_instance[feature], train.dtypes[feature], historical_changes[feature], MAX_RATIO, only_minimum)
                         max_change_ratio = calculate_max_change_ratio(*ranges, test_instance[feature], train.dtypes[feature], historical_changes[feature])
                         if not perturbations:
@@ -122,8 +125,8 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
         all_ratios[int(test_idx)] = max_change_ratios
 
     
-    # with open(plans_path / file_name, "w") as f:
-    #     json.dump(all_plans, f, indent=4)
+    with open(plans_path / file_name, "w") as f:
+        json.dump(all_plans, f, indent=4)
 
     with open(plans_path / "max_change_ratios.json", "w") as f:
         json.dump(all_ratios, f, indent=4)
