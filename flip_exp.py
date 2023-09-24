@@ -100,6 +100,7 @@ def flip_single_project(
     else:
         with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
             futures = {}
+            np.random.shuffle(test_names)
             for test_name in tqdm(
                 test_names, desc=f"{project_name}", leave=False, disable=not verbose
             ):

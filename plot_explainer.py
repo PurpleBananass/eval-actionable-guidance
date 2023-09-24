@@ -8,6 +8,28 @@ from data_utils import historical_changes, load_historical_changes, read_dataset
 
 from hyparams import PLANS
 
+projects = read_dataset()
+
+for target_explainer in ["LIMEHPO", "TimeLIME", "SQAPlanner_confidence", "SQAPlanner_coverage", "SQAPlanner_lift"]:
+    candidates = {}
+    print(f'Target: {target_explainer}')
+    total = 0
+    len_plan = 0
+    for target_project in projects.keys():
+        plan_file = Path(PLANS) / target_project / target_explainer / "plans_all.json"
+        
+        with open(plan_file, "r") as f:
+            plans = json.load(f)
+
+        lime_hpo = Path(PLANS) / target_project / "LIMEHPO" / "plans_all.json"
+
+        with open(lime_hpo, "r") as f:
+            lime = json.load(f)
+        
+        len_plan += len(plans.keys())
+        total += len(lime.keys())
+
+    print(f'{target_explainer}: {len_plan} / {total} : ({1- len_plan / total})')
 
 # %%
 def num_features_in_plan_of(target_explaienr, threshold=3):
@@ -23,7 +45,7 @@ def num_features_in_plan_of(target_explaienr, threshold=3):
         train, test = projects[target_project]
         train_x = train.loc[:, train.columns != "target"]
         test_x = test.loc[:, test.columns != "target"]
-
+        
         for test_name in plans.keys():
             target_plan = plans[test_name]
             number_of_features = len(target_plan)

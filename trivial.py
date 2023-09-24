@@ -5,15 +5,27 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import json
+from hyparams import PLANS, EXPERIMENTS
+from data_utils import read_dataset
 
-project = "activemq@0"
-explainer = "LIMEHPO"
-plan_path = f"plans/{project}/{explainer}/plans_all.json"
-with open(plan_path, "r") as f:
-    plan = json.load(f)
-df = pd.read_csv(f"experiments/{project}/{explainer}_all.csv", index_col=0)
-set(list(plan.keys())) - set(df.index.tolist())
+def left_instances(project, explainer):
+    plan_path = Path(PLANS) / project / explainer / "plans_all.json"
+    exp_path = Path(EXPERIMENTS) / project / f"{explainer}_all.csv"
+    with open(plan_path, "r") as f:
+        plan = json.load(f)
+    exp = pd.read_csv(exp_path, index_col=0)
+    left_indices= list(set(plan.keys()) - set(exp.index.tolist()))
+    return left_indices
+
+EXPLAINERS = ["LIMEHPO", "TimeLIME", "SQAPlanner_coverage", "SQAPlanner_confidence", "SQAPlanner_lift"]
  
 # %%
-plan
+projects = read_dataset()
+for project in projects:
+    train, test = projects[project]
+    for explainer in EXPLAINERS:
+        print(explainer)
+        print(left_instances(project, explainer))
+
+
 # %%
