@@ -4,16 +4,16 @@
 echo "Starting the script..."
 
 # # Generate plans with LIMEHPO
-# echo "Generating plans with LIMEHPO..."
-# poetry run python plan_explanations.py --explainer_type LIMEHPO
-# # echo "Generating plans with LIMEHPO (only minimum)..."
-# # poetry run python plan_explanations.py --explainer_type LIMEHPO --only_minimum
+echo "Generating plans with LIMEHPO..."
+poetry run python plan_explanations.py --explainer_type LIMEHPO
+echo "Generating plans with LIMEHPO (only minimum)..."
+poetry run python plan_explanations.py --explainer_type LIMEHPO --only_minimum
 
-# # Generate plans with TimeLIME
-# echo "Generating plans with TimeLIME..."
-# poetry run python plan_explanations.py --explainer_type TimeLIME
-# echo "Generating plans with TimeLIME (only minimum)..."
-# poetry run python plan_explanations.py --explainer_type TimeLIME --only_minimum
+# Generate plans with TimeLIME
+echo "Generating plans with TimeLIME..."
+poetry run python plan_explanations.py --explainer_type TimeLIME
+echo "Generating plans with TimeLIME (only minimum)..."
+poetry run python plan_explanations.py --explainer_type TimeLIME --only_minimum
 
 # Generate plans with SQAPlanner and search strategy: confidence
 echo "Generating plans with SQAPlanner using confidence as search strategy..."

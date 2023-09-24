@@ -11,7 +11,7 @@ from tqdm import tqdm
 from data_utils import read_dataset, get_true_positives
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from hyparams import MODELS, PLANS, SEED, EXPERIMENTS
+from hyparams import MODELS, PLANS, SEED, EXPERIMENTS, RESULTS
 
 np.random.seed(SEED)
 
@@ -29,41 +29,62 @@ def find_smallest_perturbation(
             return modified_instance
     return None  # Return None if no perturbation flips the prediction
 
-def get_flip_rates(test, project_name, explainer_type, search_strategy, only_minimum):
-    model_path = Path(f"{MODELS}/{project_name}/RandomForest.pkl")
-
-    match (only_minimum, search_strategy):
-        case (True, None):
-            plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans.json")
-            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}.csv")
-        case (False, None):
-            plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans_all.json")
-            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}_all.csv")
-        case (True, _):
-            plan_path = Path(
-                f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
-            )
-            exp_path = Path(
-                f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}.csv"
-            )
-        case (False, _):
-            plan_path = Path(
-                f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
-            )
-            exp_path = Path(
-                f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}_all.csv"
-            )
-    file = pd.read_csv(exp_path, index_col=0)
-    computed_test_names = set(file.index.astype(str))
-    flipped_instances = {
-        test_name: file.loc[test_name, :] for test_name in file.index
-    }
-    with open(plan_path, "r") as f:
-        plans = json.load(f)
+def get_flip_rates(explainer_type, search_strategy, only_minimum):
     
-    true_positives = get_true_positives(model_path, test)
-    df = pd.DataFrame(flipped_instances).T
-    tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} | {len(plans.keys())} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} |")
+    projects = read_dataset()
+    result = {
+        "Project": [],
+        "Flip": [],
+        "Computed": [],
+        "Plan": [],
+        "TP": [],
+    }
+    for project_name in projects:
+        _, test = projects[project_name]
+        model_path = Path(f"{MODELS}/{project_name}/RandomForest.pkl")
+        
+        match (only_minimum, search_strategy):
+            case (True, None):
+                plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans.json")
+                exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}.csv")
+                result_path = Path(RESULTS) / f"{explainer_type}.csv"
+            case (False, None):
+                plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans_all.json")
+                exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}_all.csv")
+                result_path = Path(RESULTS) / f"{explainer_type}_all.csv"
+            case (True, _):
+                plan_path = Path(
+                    f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
+                )
+                exp_path = Path(
+                    f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}.csv"
+                )
+                result_path = Path(RESULTS) / f"{explainer_type}_{search_strategy}.csv"
+            case (False, _):
+                plan_path = Path(
+                    f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
+                )
+                exp_path = Path(
+                    f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}_all.csv"
+                )
+                result_path = Path(RESULTS) / f"{explainer_type}_{search_strategy}_all.csv"
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+        file = pd.read_csv(exp_path, index_col=0)
+        flipped_instances = {
+            test_name: file.loc[test_name, :] for test_name in file.index
+        }
+        with open(plan_path, "r") as f:
+            plans = json.load(f)
+        
+        true_positives = get_true_positives(model_path, test)
+        df = pd.DataFrame(flipped_instances).T
+        result["Project"].append(project_name)
+        result["Flip"].append(len(df.dropna()))
+        result["Computed"].append(len(df))
+        result["Plan"].append(len(plans.keys()))
+        result["TP"].append(len(true_positives))
+    pd.DataFrame(result, index=result["Project"]).to_csv(result_path)
+
 
 
 def flip_single_project(
@@ -143,9 +164,21 @@ def flip_single_project(
     else:
         with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
             futures = {}
-            np.random.shuffle(test_names)
+            max_perturbations = []
+            for test_name in tqdm(test_names, desc=f"{project_name} queing...", leave=False, disable=not verbose):
+                # Calcuate the number of perturbations (len(A) * len(B) * ...)
+                features = list(plans[test_name].keys())
+                computation = 1
+                for feature in features:
+                    computation * (len(plans[test_name][feature]) + 1) # +1 for original value
+                max_perturbations.append([test_name, computation])
+            max_perturbations = sorted(max_perturbations, key=lambda x: x[1])
+
+            # Start from the test with the smallest number of perturbations
+            test_indices = [x[0] for x in max_perturbations]
+
             for test_name in tqdm(
-                test_names, desc=f"{project_name}", leave=False, disable=not verbose
+                test_indices, desc=f"{project_name}", leave=False, disable=not verbose
             ):
                 if test_name in computed_test_names:
                     continue
@@ -157,11 +190,11 @@ def flip_single_project(
                 for feature in features:
                     if original_instance[feature] <= min(plans[test_name][feature]):
                         changeable_features = [
-                            plans[test_name][feature]
+                            [original_instance[feature]] + plans[test_name][feature]
                         ] + changeable_features
                     else:
                         changeable_features = changeable_features + [
-                            plans[test_name][feature]
+                            [original_instance[feature]] + plans[test_name][feature]
                         ]
                 # Submitting the task for parallel execution
                 future = executor.submit(
@@ -216,24 +249,16 @@ if __name__ == "__main__":
     argparser.add_argument("--only_flip_rate", action="store_true")
 
     args = argparser.parse_args()
-    projects = read_dataset()
 
-    tqdm.write("| Project | #Flip | #Computed | #Plan | Rate | #TP |")
-    tqdm.write("| ------- | ------| --------- | ----- | ---- | --- |")
-    
     if args.only_flip_rate:
-        for project in tqdm(
-            list(sorted(projects.keys())), desc="Projects", leave=True, disable=not args.verbose
-        ):
-            _, test = projects[project]
-            get_flip_rates(
-                test,
-                project,
-                args.explainer_type,
-                args.search_strategy,
-                args.only_minimum,
-            )
+        # RQ 1
+        get_flip_rates(
+            args.explainer_type, args.search_strategy, args.only_minimum
+        )
     else:
+        tqdm.write("| Project | Flipped | Computed | Flip Rate | TP |")
+        tqdm.write("| --- | --- | --- | --- | --- |")
+        projects = read_dataset()
         if args.project == "all":
             project_list = list(sorted(projects.keys()))
         else:
@@ -252,3 +277,6 @@ if __name__ == "__main__":
                 verbose=args.verbose,
                 load=not args.new
             )
+
+        get_flip_rates(
+            args.explainer_type, args.search_strategy, args.only_minimum)

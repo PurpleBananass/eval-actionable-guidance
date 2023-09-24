@@ -64,10 +64,15 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                 for proposed_changes in plan:
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
-                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature], MAX_RATIO, only_minimum)
-                    max_change_ratio = calculate_max_change_ratio(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature])
-                    perturb_features[feature] = perturbations
-                    max_change_ratios[feature] = max_change_ratio
+                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype)
+                    if not perturbations:
+                        continue
+                    if only_minimum:
+                        perturb_features[feature] = perturbations[0]
+                    else:
+                        perturb_features[feature] = perturbations
+                        max_change_ratio = calculate_max_change_ratio(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature])
+                        max_change_ratios[feature] = max_change_ratio
 
             case "TimeLIME":
                 explanation_path = Path(f"{output_path}/{test_idx}.csv")
@@ -85,10 +90,15 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                 for proposed_changes in plan:
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
-                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2],test_instance[feature], dtype, historical_changes[feature], MAX_RATIO, only_minimum)
-                    max_change_ratio = calculate_max_change_ratio(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature])
-                    perturb_features[feature] = perturbations
-                    max_change_ratios[feature] = max_change_ratio
+                    perturbations = perturb_feature(proposed_changes[0], proposed_changes[2],test_instance[feature], dtype)
+                    if not perturbations:
+                        continue
+                    if only_minimum:
+                        perturb_features[feature] = perturbations[0]
+                    else:                        
+                        perturb_features[feature] = perturbations
+                        max_change_ratio = calculate_max_change_ratio(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature])
+                        max_change_ratios[feature] = max_change_ratio
 
             case "SQAPlanner":
                 try:
@@ -114,62 +124,51 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                         if ranges[0] < train_min[feature]:
                             ranges[0] = max(0, train_min[feature])
                      
-                        perturbations = perturb_feature(*ranges, test_instance[feature], train.dtypes[feature], historical_changes[feature], MAX_RATIO, only_minimum)
-                        max_change_ratio = calculate_max_change_ratio(*ranges, test_instance[feature], train.dtypes[feature], historical_changes[feature])
+                        perturbations = perturb_feature(ranges[0], ranges[1], test_instance[feature], train.dtypes[feature])
                         if not perturbations:
                             continue
-                        perturb_features[feature] = perturbations
-                        max_change_ratios[feature] = max_change_ratio
+                        if only_minimum:
+                            perturb_features[feature] = perturbations[0]
+                        else:
+                            perturb_features[feature] = perturbations
+                            max_change_ratio = calculate_max_change_ratio(*ranges, test_instance[feature], train.dtypes[feature], historical_changes[feature]) 
+                            max_change_ratios[feature] = max_change_ratio
+
                     
         all_plans[int(test_idx)] = perturb_features
         all_ratios[int(test_idx)] = max_change_ratios
 
-    
     with open(plans_path / file_name, "w") as f:
         json.dump(all_plans, f, indent=4)
 
     with open(plans_path / "max_change_ratios.json", "w") as f:
         json.dump(all_ratios, f, indent=4)
 
-def perturb_feature(low, high, current, dtype, mean_change=None, max_ratio=30, only_minimum=False):
+def perturb_feature(low, high, current, dtype):
     if dtype == "int64":    
         low = int(ceil(float(low)))
         high = int(floor(float(high)))
         step = 1
-        if mean_change is not None:
-            max_change_ratio = max([abs(high - current), abs(current - low)]) / mean_change
-            if abs(high - current) / mean_change > max_ratio:
-                high = int(current + mean_change * max_ratio)
-            if abs(current - low) / mean_change > max_ratio:
-                low = int(current - mean_change * max_ratio)
-        
         perturbations = list(range(low, high + 1, step))
         
     elif dtype == "float64":
         low = float(low)
         high = float(high)
         step = 0.05
-        if mean_change is not None:
-            max_change_ratio = max([abs(high - current), abs(current - low)]) / mean_change
-            if abs(high - current) / mean_change > max_ratio:
-                high = current + mean_change * max_ratio
-            if abs(current - low) / mean_change > max_ratio:
-                low = current - mean_change * max_ratio
+    
         if low <= current <= high:
             perturbations = list(np.arange(current, low, -1 * step)) + list(np.arange(current, high + step, step))
         else:
             perturbations = list(np.arange(low, high + step, step))
+    else:
+        raise ValueError(f"Unknown dtype: {dtype}")
 
-    if perturbations == [current]:
-        pass
-    elif current in perturbations and only_minimum:
+    if current in perturbations:
         perturbations.remove(current)
 
     sorted_publications = sorted(perturbations, key=lambda x: abs(x - current))
 
-    if len(sorted_publications) == 0:
-        return None
-    return sorted_publications[0] if only_minimum else sorted_publications
+    return sorted_publications
 
 def calculate_max_change_ratio(low, high, current, dtype, mean_change=None):
     if mean_change is None:
@@ -185,8 +184,6 @@ def calculate_max_change_ratio(low, high, current, dtype, mean_change=None):
     max_change_ratio = max([abs(high - current), abs(current - low)]) / mean_change
     return max_change_ratio
           
-
-
 def split_inequality(rule, min_val, max_val, pattern): 
     match pattern.search(rule).groups():
         case v1, "<", feature_name, "<=", v2:
@@ -229,6 +226,27 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if False:
+        projects = read_dataset()
+        for project in projects:
+            
+            if args.search_strategy is not None:
+                plans_path = Path(f"{PLANS}/{project}/{args.explainer_type}_{args.search_strategy}")
+            else:
+                plans_path = Path(f"{PLANS}/{project}/{args.explainer_type}")
+
+            min_file = plans_path / "plans.json"
+            all_file = plans_path / "plans_all.json"
+
+            with open(min_file) as f:
+                min_plans = json.load(f)
+            with open(all_file) as f:
+                all_plans = json.load(f)
+
+            assert len(min_plans.keys()) == len(all_plans.keys())
+            assert len(set((min_plans.keys()))) == len(min_plans.keys())
+            assert len(set(all_plans.keys())) == len(all_plans.keys())
+            
     if args.project == "all":
         projects = read_dataset()
         for project in tqdm(projects, desc="Projects", leave=True, disable=not args.verbose):
