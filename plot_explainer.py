@@ -63,10 +63,16 @@ target_instance = target_instance.to_frame()
 target_instance["mean_change"] = hist_changes["mean_change"]
 target_instance
 # %%
+
 deflip_ex = pd.read_csv("experiments/derby@0/DeFlip.csv", index_col=0)
-deflip_ex = deflip_ex.loc[target_test, :]
-deflip_ex - test.loc[target_test, test.columns != "target"]
-deflip_ex[['MaxInheritanceTree', 'MaxNesting_Mean']]
+for idx in deflip_ex.index:
+    diff = deflip_ex.loc[idx, deflip_ex.columns != 'effort'] - test.loc[idx, test.columns != "target"]
+    for col in diff.index:
+        if diff[col] != 0:
+            print(idx, col, diff[col])
+# %%
+print(deflip_ex.loc[2168, ["CountDeclMethodPrivate", "CountClassBase"]])
+print(test.loc[2168, ["CountDeclMethodPrivate", "CountClassBase"]])
 # %%
 
 time_lime_data = {
