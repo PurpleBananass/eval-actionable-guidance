@@ -1,9 +1,19 @@
 from pathlib import Path
 import natsort
 import pandas as pd
+import pickle
 
 from sklearn.preprocessing import MinMaxScaler
 from hyparams import RELEASE_DATASET
+
+def get_true_positives(model_path, test):
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+    ground_truth = test.loc[test['target'] == True, test.columns != 'target']
+    predictions = model.predict(ground_truth.values)
+    true_positives = ground_truth[predictions == True]
+    return true_positives
+
 
 def map_indexes_to_file(df, int_to_file):
     df.index = df.index.map(int_to_file)
