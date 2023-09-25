@@ -10,6 +10,7 @@ from data_utils import read_dataset, load_historical_changes
 from hyparams import PLOTS, PLANS, EXPERIMENTS  
 # %% RQ1
 ex1 = [
+    './results/DeFlip.csv',
     './results/LIMEHPO.csv', 
     './results/TimeLIME.csv', 
     './results/SQAPlanner_confidence.csv', 
@@ -32,7 +33,7 @@ def plot_rq1(results, fname):
     for result in others:
         result = Path(result)
         df = pd.read_csv(result, index_col=0)
-        df['Flip_Rate'] = df['Flip'] / df['Plan']
+        df['Flip_Rate'] = df['Flip'] / df['TP']
         name = result.stem.replace('_all', '')
         total_others[name] = df['Flip_Rate'].values
     
@@ -50,7 +51,7 @@ def plot_rq1(results, fname):
     for result in sqap:
         result = Path(result)
         df = pd.read_csv(result, index_col=0)
-        df['Flip_Rate'] = df['Flip'] / df['Plan']
+        df['Flip_Rate'] = df['Flip'] / df['TP']
         name = result.stem.replace('_all', '')
         sqa, strategy = name.split('_')
         df['Explainer'] = sqa
@@ -110,8 +111,8 @@ def plot_rq1(results, fname):
     plt.show()
     plt.close()
 
-plot_rq1(ex1, 'rq1_ex1.svg')
-plot_rq1(ex2, 'rq1_ex2.svg')
+plot_rq1(ex1, 'rq1_ex1_tp.svg')
+plot_rq1(ex2, 'rq1_ex2_tp.svg')
 # %% RQ2
 # Calculating the  flipped P.C. / min. P.C. ratio, called 'incorrectness' 
 # incorrectness per one plan is average of incorrectness of consisting features
@@ -356,5 +357,4 @@ def plot_rq3(results_df):
 
 # %%
 plot_rq3(results_df)
-# %% RQ4
-
+# %% RQ4 (DeFlip vs Winners of each RQ1~3)

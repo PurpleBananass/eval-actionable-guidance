@@ -5,10 +5,10 @@ import pickle
 import numpy as np
 from tqdm import tqdm
 import pandas as pd
-from data_utils import read_dataset
+from data_utils import get_true_positives, read_dataset
 
 from sklearn.metrics.pairwise import cosine_similarity
-from hyparams import MODELS, SEED, EXPERIMENTS, OUTPUT
+from hyparams import MODELS, RESULTS, SEED, EXPERIMENTS, OUTPUT
 import dice_ml
 
 import warnings
@@ -85,6 +85,28 @@ class DeFlip:
         effort = 1 - similarity
         return effort
 
+def get_flip_rates():
+    projects = read_dataset()
+    result = {
+        "Project": [],
+        "Flip": [],
+        "Plan": [],
+        "TP": [],
+    }
+    
+    for project in projects:
+        train, test = projects[project]
+        model_path = Path(f"{MODELS}/{project}/RandomForest.pkl")
+        true_positives = get_true_positives(model_path, test)
+    
+        exp_path = Path(f"{EXPERIMENTS}/{project}/DeFlip.csv")
+        df = pd.read_csv(exp_path, index_col=0)
+        flipped_instances = df.drop("effort", axis=1)
+        result["Project"].append(project)
+        result["Flip"].append(len(flipped_instances))
+        result["Plan"].append(len(flipped_instances))
+        result["TP"].append(len(true_positives))
+    return pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1).to_csv(Path(RESULTS) / "DeFlip.csv")
 
 
 def run_single_dataset(
@@ -125,11 +147,16 @@ if __name__ == "__main__":
     argparser = ArgumentParser()
     argparser.add_argument("--project", type=str, default="all")
     argparser.add_argument("--verbose", action="store_true")
+    argparser.add_argument("--only_flip_rate", action="store_true")
 
     args = argparser.parse_args()
+
+    if args.only_flip_rate:
+        get_flip_rates()
+        exit(0)
     projects = read_dataset()
-    tqdm.write("| Project | Flipped | Total |")
-    tqdm.write("| ------- | ------- | ----- |")
+    tqdm.write("| Project | Flip | Plan | TP |")
+    tqdm.write("| ------- | ----- | --- | --- |")
     if args.project == "all":
         for project in tqdm(projects, desc="Projects", leave=True, disable=not args.verbose):
             train, test = projects[project]
