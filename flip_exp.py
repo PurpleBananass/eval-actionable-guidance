@@ -83,7 +83,8 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
         result["Computed"].append(len(df))
         result["Plan"].append(len(plans.keys()))
         result["TP"].append(len(true_positives))
-    pd.DataFrame(result, index=result["Project"]).to_csv(result_path)
+    print(set(list(plans.keys())) - set(df.index.tolist()), len(set(list(plans.keys())) - set(df.index.tolist())))
+    # pd.DataFrame(result, index=result["Project"]).to_csv(result_path)
 
 
 
