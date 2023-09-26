@@ -34,9 +34,9 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
     projects = read_dataset()
     result = {
         "Project": [],
-        "Flip": [],
-        "Computed": [],
+        "Flipped": [],
         "Plan": [],
+        "Flip_Rate": [],
         "TP": [],
     }
     for project_name in projects:
@@ -68,6 +68,7 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
                     f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}_all.csv"
                 )
                 result_path = Path(RESULTS) / f"{explainer_type}_{search_strategy}_all.csv"
+        
         result_path.parent.mkdir(parents=True, exist_ok=True)
         file = pd.read_csv(exp_path, index_col=0)
         flipped_instances = {
@@ -80,11 +81,13 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
         df = pd.DataFrame(flipped_instances).T
         result["Project"].append(project_name)
         result["Flip"].append(len(df.dropna()))
-        result["Computed"].append(len(df))
         result["Plan"].append(len(plans.keys()))
+
         result["TP"].append(len(true_positives))
     print(set(list(plans.keys())) - set(df.index.tolist()), len(set(list(plans.keys())) - set(df.index.tolist())))
-    # pd.DataFrame(result, index=result["Project"]).to_csv(result_path)
+    result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1).to_csv(result_path)
+    result_df['Flip_Rate'] = result_df['Flip'] / result_df['Plan']
+    result_df.to_csv(result_path)
 
 
 
@@ -124,6 +127,7 @@ def flip_single_project(
         flipped_instances = {
             test_name: file.loc[test_name, :] for test_name in file.index
         }
+        
     else:
         computed_test_names = set()
         flipped_instances = {}
@@ -134,7 +138,11 @@ def flip_single_project(
     test_names = list(plans.keys())
     
     true_positives = get_true_positives(model_path, test)
-
+    if verbose and load and len(flipped_instances) > 0:
+        df = pd.DataFrame(flipped_instances).T
+        if len(df) < len(test_names):
+            tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} | Loaded !")
+    
     if only_minimum:
         with open(model_path, "rb") as f:
             model = pickle.load(f)
@@ -235,7 +243,7 @@ def flip_single_project(
 
     df = pd.DataFrame(flipped_instances).T
     if verbose:
-        tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} |")
+        tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} |")
     df.to_csv(exp_path)
 
 
@@ -257,8 +265,8 @@ if __name__ == "__main__":
             args.explainer_type, args.search_strategy, args.only_minimum
         )
     else:
-        tqdm.write("| Project | Flipped | Computed | Flip Rate | TP |")
-        tqdm.write("| --- | --- | --- | --- | --- |")
+        tqdm.write("| Project | Flipped | Computed | Plan | Flip Rate | TP |")
+        tqdm.write("| ------- | ------- | -------- | ---- | --------- | -- |")
         projects = read_dataset()
         if args.project == "all":
             project_list = list(sorted(projects.keys()))
@@ -278,6 +286,3 @@ if __name__ == "__main__":
                 verbose=args.verbose,
                 load=not args.new
             )
-
-        get_flip_rates(
-            args.explainer_type, args.search_strategy, args.only_minimum)

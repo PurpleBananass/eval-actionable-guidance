@@ -64,8 +64,11 @@ class DeFlip:
             if len(candidates) == 0:
                 continue
             candidates = pd.DataFrame(candidates)
+            candidates = candidates.drop_duplicates(ignore_index=True, keep="first")
             candidates["effort"] = candidates.apply(lambda x: self.effort(original_instance, x), axis=1)
             candidates = candidates.sort_values(by="effort")
+            candidates = candidates.drop("effort", axis=1)
+
             result[idx] = candidates.iloc[0, :]
             
         result_df = pd.DataFrame(result).T
@@ -89,7 +92,7 @@ def get_flip_rates():
     projects = read_dataset()
     result = {
         "Project": [],
-        "Flip": [],
+        "Flipped": [],
         "Plan": [],
         "TP": [],
     }
