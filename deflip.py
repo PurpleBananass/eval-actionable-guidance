@@ -106,10 +106,13 @@ def get_flip_rates():
         df = pd.read_csv(exp_path, index_col=0)
         flipped_instances = df.drop("effort", axis=1)
         result["Project"].append(project)
-        result["Flip"].append(len(flipped_instances))
+        result["Flipped"].append(len(flipped_instances))
         result["Plan"].append(len(flipped_instances))
         result["TP"].append(len(true_positives))
-    return pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1).to_csv(Path(RESULTS) / "DeFlip.csv")
+    result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1)
+    # result_df = result_df.dropna()
+    result_df['Flip_rate'] = result_df['Flipped'] / result_df['Plan']
+    return result_df.to_csv(Path(RESULTS) / "DeFlip.csv")
 
 
 def run_single_dataset(

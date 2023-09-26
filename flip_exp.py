@@ -36,7 +36,6 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
         "Project": [],
         "Flipped": [],
         "Plan": [],
-        "Flip_Rate": [],
         "TP": [],
     }
     for project_name in projects:
@@ -80,13 +79,17 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
         true_positives = get_true_positives(model_path, test)
         df = pd.DataFrame(flipped_instances).T
         result["Project"].append(project_name)
-        result["Flip"].append(len(df.dropna()))
+        result["Flipped"].append(len(df.dropna()))
         result["Plan"].append(len(plans.keys()))
 
         result["TP"].append(len(true_positives))
-    print(set(list(plans.keys())) - set(df.index.tolist()), len(set(list(plans.keys())) - set(df.index.tolist())))
-    result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1).to_csv(result_path)
-    result_df['Flip_Rate'] = result_df['Flip'] / result_df['Plan']
+        left_indices = list(set(df.index.astype(str)) - set(plans.keys()))
+        if len(left_indices) > 0:
+            print(f"{project_name}: {left_indices}")
+
+    result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1)
+    result_df = result_df.dropna()
+    result_df['Flip_Rate'] = result_df['Flipped'] / result_df['Plan']
     result_df.to_csv(result_path)
 
 
