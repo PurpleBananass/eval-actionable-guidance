@@ -29,3 +29,24 @@ for project in projects:
 
 
 # %%
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# 샘플 데이터 생성
+import pandas as pd
+import numpy as np
+
+np.random.seed(0)
+df = pd.DataFrame({
+    'time': np.tile(np.arange(10), 3),
+    'value': np.random.randn(30),
+    'group': np.repeat(['A', 'B', 'C'], 10)
+})
+
+# lineplot 그리기
+plt.figure(figsize=(10,6))
+sns.lineplot(x='time', y='value', hue='group', data=df)
+
+plt.show()
+
+# %%

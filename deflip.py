@@ -14,8 +14,10 @@ import dice_ml
 import warnings
 
 np.random.seed(SEED)
-warnings.filterwarnings("ignore", message="UserConfigValidationException will be deprecated from dice_ml.utils")
+warnings.filterwarnings("ignore", category=UserWarning)
 
+# DEFLIP_CSV = "DeFlip.csv"
+DEFLIP_CSV = "DeFlip.csv"
 
 class DeFlip:
     total_CFs = 10
@@ -40,8 +42,8 @@ class DeFlip:
         self.exp = dice_ml.Dice(self.data, self.dice_model, method="random")
 
     def run(self, query_instances: pd.DataFrame):
-        if (self.save_path / "DeFlip.csv").exists():
-            return
+        if (self.save_path / DEFLIP_CSV).exists():
+            pass
         result = {}
         dice_exp = self.exp.generate_counterfactuals(
             query_instances,
@@ -56,23 +58,30 @@ class DeFlip:
             single_instance_result = single_instance_result.drop("target", axis=1)
 
             original_instance = query_instances.loc[idx, :]
+            
             candidates = []
             for j, cf_instance in single_instance_result.iterrows():
+                try:
+                    assert cf_instance.index.equals(original_instance.index)
+                except AssertionError:
+                    print(cf_instance.index)
+                    print(original_instance.index)
+                    exit()
                 num_changed = self.get_num_changed(original_instance, cf_instance)
                 if num_changed <= self.max_varied_features:
+                
                     candidates.append(cf_instance)
             if len(candidates) == 0:
                 continue
             candidates = pd.DataFrame(candidates)
-            candidates = candidates.drop_duplicates(ignore_index=True, keep="first")
-            candidates["effort"] = candidates.apply(lambda x: self.effort(original_instance, x), axis=1)
-            candidates = candidates.sort_values(by="effort")
-            candidates = candidates.drop("effort", axis=1)
+            candidates["similarity"] = candidates.apply(lambda x: self.get_similarity(original_instance, x), axis=1)
+            candidates = candidates.sort_values(by="similarity", ascending=True)
+            candidates = candidates.drop("similarity", axis=1)
 
             result[idx] = candidates.iloc[0, :]
             
         result_df = pd.DataFrame(result).T
-        result_df.to_csv(self.save_path / "DeFlip.csv" )
+        result_df.to_csv(self.save_path / DEFLIP_CSV )
         return result_df
         
 
@@ -80,13 +89,12 @@ class DeFlip:
         num_changed = np.sum(query_instance != cf_instance)
         return num_changed
 
-    def effort(self, query_instance: pd.Series, cf_instance: pd.Series):
+    def get_similarity(self, query_instance: pd.Series, cf_instance: pd.Series):
         query_instance = query_instance.values.reshape(1, -1)
         cf_instance = cf_instance.values.reshape(1, -1)
 
         similarity = cosine_similarity(query_instance, cf_instance)[0][0]
-        effort = 1 - similarity
-        return effort
+        return similarity
 
 def get_flip_rates():
     projects = read_dataset()
@@ -112,7 +120,7 @@ def get_flip_rates():
     result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1)
     # result_df = result_df.dropna()
     result_df['Flip_rate'] = result_df['Flipped'] / result_df['Plan']
-    return result_df.to_csv(Path(RESULTS) / "DeFlip.csv")
+    return result_df.to_csv(Path(RESULTS) / DEFLIP_CSV)
 
 
 def run_single_dataset(
@@ -168,5 +176,7 @@ if __name__ == "__main__":
             train, test = projects[project]
             run_single_dataset(project, train, test, verbose=args.verbose)
     else:
-        train, test = projects[args.project]
-        run_single_dataset(args.project, train, test, verbose=args.verbose)
+        project_list = args.project.split(" ")
+        for project in tqdm(project_list, desc="Projects", leave=True, disable=not args.verbose):
+            train, test = projects[project]
+            run_single_dataset(project, train, test, verbose=args.verbose)

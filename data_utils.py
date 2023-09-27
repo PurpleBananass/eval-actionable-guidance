@@ -4,7 +4,14 @@ import pandas as pd
 import pickle
 
 from sklearn.preprocessing import MinMaxScaler
-from hyparams import RELEASE_DATASET
+from hyparams import PROJECT_DATASET, RELEASE_DATASET
+
+def get_release_names(project_release):
+    project, release_idx = project_release.split("@")
+    release_idx = int(release_idx)
+    releases = [ release.stem for release in (Path(PROJECT_DATASET) / project).glob('*.csv')]
+    releases = natsort.natsorted(releases)
+    return f'{project} {releases[release_idx + 1]}'
 
 def get_true_positives(model_path, test):
     with open(model_path, 'rb') as f:

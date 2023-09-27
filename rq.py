@@ -101,22 +101,22 @@ def plot_rq1(results, fname):
             color="white",
         )
 
-    # # Adding median points for 'sqa'
-    # for explainer in total_sqa_df['Explainer'].unique():
-    #     for strategy in strategy_order:
-    #         filtered_df = total_sqa_df[(total_sqa_df['Explainer'] == explainer) & (total_sqa_df['Strategy'] == strategy)]
-    #         median = filtered_df['Flip_Rate'].median()
-    #         x_pos = explainer_order.index(explainer)
+    # Adding median points for 'sqa'
+    for explainer in total_sqa_df['Explainer'].unique():
+        for strategy in strategy_order:
+            filtered_df = total_sqa_df[(total_sqa_df['Explainer'] == explainer) & (total_sqa_df['Strategy'] == strategy)]
+            median = filtered_df['Flip_Rate'].median()
+            x_pos = explainer_order.index(explainer)
 
-    #         # Calculate the offset for each hue
-    #         num_strategies = len(strategy_order)
-    #         width = 0.9  # The width of the boxes in the boxplot
-    #         offset = width / num_strategies
-    #         strategy_index = strategy_order.index(strategy)
-    #         x_pos = x_pos + (strategy_index - num_strategies / 2) * offset + offset / 2
+            # Calculate the offset for each hue
+            num_strategies = len(strategy_order)
+            width = 0.9  # The width of the boxes in the boxplot
+            offset = width / num_strategies
+            strategy_index = strategy_order.index(strategy)
+            x_pos = x_pos + (strategy_index - num_strategies / 2) * offset + offset / 2
 
-    #         ax.annotate(f'{median:.2f}', xy=(x_pos, median), xytext=(0, -6),
-    #                     textcoords='offset points', ha='center', va='center', fontsize=12, color='white')
+            ax.annotate(f'{median:.2f}', xy=(x_pos, median), xytext=(0, -6),
+                        textcoords='offset points', ha='center', va='center', fontsize=12, color='white')
 
     ax.set_xlabel("Explainer", fontsize=12, fontweight="bold", labelpad=10)
     ax.set_ylabel("Flip Rate", fontsize=12, fontweight="bold", labelpad=10)
