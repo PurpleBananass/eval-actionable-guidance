@@ -172,8 +172,8 @@ if __name__ == "__main__":
         exit(0)
     
         
-    tqdm.write("| Project | Flip | Plan | TP |")
-    tqdm.write("| ------- | ----- | --- | --- |")
+    tqdm.write("| Project | Flip  | #TP |")
+    tqdm.write("| ------- | ----- | --- |")
 
     projects = read_dataset()
 
