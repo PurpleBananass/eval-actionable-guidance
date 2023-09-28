@@ -31,10 +31,9 @@ class DeFlip:
         "Del_lines",
     ]
 
-    def __init__(self, training_data: pd.DataFrame, model, save_path, verbose=False, actionable=False):
+    def __init__(self, training_data: pd.DataFrame, model, save_path, actionable=False):
         self.training_data = training_data
         self.model = model
-        self.verbose = verbose
         self.save_path = save_path / "DeFlip_actionable.csv" if actionable else save_path / "DeFlip.csv"
         self.actionable = actionable
 
@@ -142,7 +141,7 @@ def get_flip_rates(actionable=False):
 
 
 def run_single_dataset(
-    project: str, train: pd.DataFrame, test: pd.DataFrame, verbose: bool = False, actionable: bool = False
+    project: str, train: pd.DataFrame, test: pd.DataFrame, actionable: bool = False
 ):
     model_path = Path(f"{MODELS}/{project}/RandomForest.pkl")
     with open(model_path, "rb") as f:
@@ -150,7 +149,7 @@ def run_single_dataset(
     save_path = Path(f"{EXPERIMENTS}/{project}")
     save_path.mkdir(parents=True, exist_ok=True)
 
-    deflip = DeFlip(train, model, save_path, verbose=verbose, actionable=actionable)
+    deflip = DeFlip(train, model, save_path, actionable=actionable)
 
     positives = test[test["target"] == 1]
     predictions = model.predict(positives.drop("target", axis=1))
@@ -163,23 +162,26 @@ def run_single_dataset(
 if __name__ == "__main__":
     argparser = ArgumentParser()
     argparser.add_argument("--project", type=str, default="all")
-    argparser.add_argument("--verbose", action="store_true")
-    argparser.add_argument("--only_flip_rate", action="store_true")
+    argparser.add_argument("--get_flip_rate", action="store_true")
     argparser.add_argument("--actionable", action="store_true")
 
     args = argparser.parse_args()
 
-    if args.only_flip_rate:
+    if args.get_flip_rate:
         get_flip_rates(args.actionable)
         exit(0)
-    projects = read_dataset()
+    
+        
     tqdm.write("| Project | Flip | Plan | TP |")
     tqdm.write("| ------- | ----- | --- | --- |")
+
+    projects = read_dataset()
+
     if args.project == "all":
         project_list = list(sorted(projects.keys()))
     else:
         project_list = args.project.split(" ")
     
-    for project in tqdm(project_list, desc="Projects", leave=True, disable=not args.verbose):
+    for project in tqdm(project_list, desc="Projects", leave=True):
         train, test = projects[project]
-        run_single_dataset(project, train, test, verbose=args.verbose, actionable=args.actionable)
+        run_single_dataset(project, train, test, actionable=args.actionable)

@@ -123,7 +123,7 @@ def read_dataset(normalize=False) -> dict[str, list[pd.DataFrame]]:
     return projects
 
 def historical_changes():
-    save_folder = Path("historical_dataset")
+    save_folder = Path("Dataset/historical_dataset")
     save_folder.mkdir(parents=True, exist_ok=True)
     history = {}
     for project in Path(RELEASE_DATASET).iterdir():
@@ -146,7 +146,7 @@ def historical_changes():
         df.to_csv(save_folder / f"{project}.csv")
 
 def load_historical_changes(project):
-    save_folder = Path("historical_dataset")
+    save_folder = Path("Dataset/historical_dataset")
     df = pd.read_csv(save_folder / f"{project}.csv", index_col=0)
     return df
         

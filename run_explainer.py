@@ -3,9 +3,9 @@ from pathlib import Path
 import pickle
 from argparse import ArgumentParser
 from tqdm import tqdm
-from LIME_HPO import LIME_HPO, LIME_Planner
-from LORMIKA import LORMIKA
-from TimeLIME import TimeLIME
+from Explainer.LIME_HPO import LIME_HPO
+from Explainer.SQAPlanner.LORMIKA import LORMIKA
+from Explainer.TimeLIME import TimeLIME
 from data_utils import get_true_positives, load_model, read_dataset, get_model_file, get_output_dir
 from hyparams import *
 
@@ -19,7 +19,7 @@ def run_single_project(train_data, test_data, project_name, model_type, explaine
     match explainer_type:
         case "LIMEHPO":
             for test_idx in tqdm(true_positives.index, desc=f"{project_name}", leave=False, disable=not verbose):
-                test_instance = true_positives.loc[test_idx, test_data.columns != "target"]
+                test_instance = true_positives.loc[test_idx, :]
                 output_file = output_path / f"{test_idx}.csv"
 
                 if output_file.exists():
@@ -54,7 +54,7 @@ def run_single_project(train_data, test_data, project_name, model_type, explaine
 if __name__ == "__main__":
     argparser = ArgumentParser()
     argparser.add_argument("--model_type", type=str, default="RandomForest")
-    argparser.argadd_argument("--explainer_type", type=str, default="LIMEHPO")
+    argparser.add_argument("--explainer_type", type=str, default="LIMEHPO")
     argparser.add_argument("--project", type=str, default="all")
     args = argparser.parse_args()
 

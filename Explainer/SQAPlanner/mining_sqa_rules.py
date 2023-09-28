@@ -10,7 +10,7 @@ from pathlib import Path
 import pickle
 
 from tqdm import tqdm
-from bigml_mining import get_or_create_association, get_or_create_dataset
+from Explainer.SQAPlanner.bigml_mining import get_or_create_association, get_or_create_dataset
 
 from data_utils import get_model_file, read_dataset, get_output_dir, load_model
 from hyparams import MODELS, OUTPUT
