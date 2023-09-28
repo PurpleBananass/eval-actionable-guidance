@@ -12,7 +12,7 @@ from data_utils import (
     load_historical_changes,
     get_release_names,
 )
-from hyparams import PLOTS, PLANS, EXPERIMENTS, RESULTS
+from hyparams import PLOTS, PROPOSED_CHANGES, EXPERIMENTS, RESULTS
 
 DISPLAY_NAME_2 = {
     "DeFlip": "DeFlip",

@@ -16,7 +16,7 @@ from data_utils import (
     get_release_names,
     get_release_ratio,
 )
-from hyparams import MODELS, PLOTS, PLANS, EXPERIMENTS, RESULTS
+from hyparams import MODELS, PLOTS, PROPOSED_CHANGES, EXPERIMENTS, RESULTS
 
 
 # %%
@@ -67,7 +67,7 @@ GET_STRATEGY = {
 
 
 def mean_accuracy_project(project, explainer):
-    plan_path = Path(PLANS) / project / explainer / "plans_all.json"
+    plan_path = Path(PROPOSED_CHANGES) / project / explainer / "plans_all.json"
     with open(plan_path) as f:
         plans = json.load(f)
     projects = read_dataset()

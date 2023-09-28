@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 import pickle
 import pandas as pd
@@ -6,7 +5,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
-from imblearn.over_sampling import SMOTE
 
 from tqdm import tqdm
 

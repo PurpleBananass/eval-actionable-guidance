@@ -6,95 +6,65 @@ from tqdm import tqdm
 from LIME_HPO import LIME_HPO, LIME_Planner
 from LORMIKA import LORMIKA
 from TimeLIME import TimeLIME
-from data_utils import read_dataset
+from data_utils import get_true_positives, load_model, read_dataset, get_model_file, get_output_dir
 from hyparams import *
 
-# Aussme there are trained models
-def run_single_project(train, test, project_name, model_type, explainer_type):
-    model_path = Path(f"{MODELS}/{project_name}/{model_type}.pkl") 
-    output_path = Path(f"{OUTPUT}/{project_name}/{explainer_type}")
-    output_path.mkdir(parents=True, exist_ok=True)
+def run_single_project(train_data, test_data, project_name, model_type, explainer_type, verbose=True):
+    model_file = get_model_file(project_name, model_type)
+    output_path = get_output_dir(project_name, explainer_type)
+    model = load_model(model_file)
 
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
+    true_positives = get_true_positives(model_file, test_data)
 
-    predictions = model.predict(test.loc[:, test.columns != "target"].values)
+    match explainer_type:
+        case "LIMEHPO":
+            for test_idx in tqdm(true_positives.index, desc=f"{project_name}", leave=False, disable=not verbose):
+                test_instance = true_positives.loc[test_idx, test_data.columns != "target"]
+                output_file = output_path / f"{test_idx}.csv"
 
-    if explainer_type == "LIMEHPO":
-        for i in tqdm(range(len(test)), desc=f"{project_name}", leave=False):
-            test_instance = test.iloc[i, :]
-            test_idx = test_instance.name
-            result_path = output_path / f"{test_idx}.csv"
-            if result_path.exists():
-                continue
-            result_path.parent.mkdir(parents=True, exist_ok=True)
+                if output_file.exists():
+                    continue
 
-            if test_instance["target"] == 0 or predictions[i] == 0:
-                continue
+                LIME_HPO(
+                    X_train=train_data.drop(columns=["target"]),
+                    test_instance=test_instance,
+                    training_labels=train_data[["target"]],
+                    model=model,
+                    path=output_file,
+                )
+                
+        case "TimeLIME":
+            TimeLIME(train_data, test_data, model, output_path)
 
-            LIME_HPO(
-                X_train=train.loc[:, train.columns != "target"],
-                test_instance=test.loc[test_idx, test.columns != "target"],
-                training_labels=train[["target"]],
+        case "SQAPlanner":
+            # 1. Generate instances
+            gen_instances_path = output_path / "generated_instances"
+            gen_instances_path.mkdir(parents=True, exist_ok=True)
+            lormika = LORMIKA(
+                train_set=train_data.loc[:, train_data.columns != "target"],
+                train_class=train_data[["target"]],
+                cases=test_data.loc[:, test_data.columns != "target"],
                 model=model,
-                path=result_path,
+                output_path=gen_instances_path,
             )
-    elif explainer_type == "LIME":
-        for i in tqdm(range(len(test)), desc=f"{project_name}", leave=False):
-            test_instance = test.iloc[i, :]
-            test_idx = test_instance.name
-            result_path = output_path / f"{test_idx}.csv"
-            if result_path.exists():
-                continue
-            result_path.parent.mkdir(parents=True, exist_ok=True)
+            lormika.instance_generation()
 
-            if test_instance["target"] == 0 or predictions[i] == 0:
-                continue
-
-            LIME_Planner(
-                X_train=train.loc[:, train.columns != "target"],
-                test_instance=test.loc[test_idx, test.columns != "target"],
-                training_labels=train[["target"]],
-                model=model,
-                path=result_path,
-            )
-
-    elif explainer_type == "TimeLIME":
-        TimeLIME(train, test, model, output_path)
-
-    elif explainer_type == "SQAPlanner":
-        # 1. Generate instances
-        gen_instances_path = output_path.parent / "SQAGenInstances"
-        gen_instances_path.mkdir(parents=True, exist_ok=True)
-        lormika = LORMIKA(
-            train_set=train.loc[:, train.columns != "target"],
-            train_class=train[["target"]],
-            cases=test.loc[:, test.columns != "target"],
-            model=model,
-            output_path=gen_instances_path,
-        )
-        lormika.instance_generation()
-
-        # 2. Generate Association Rules -> generate_plans_SQA.py
-        
-
-
-def run_all_project(model_type, explainer_type):
-    projects = read_dataset()
-    for project in tqdm(projects, desc="Generating Explanations ...", leave=True):
-        train, test = projects[project]
-        run_single_project(train, test, project, model_type, explainer_type)
+            # 2. Generate Association Rules on BigML -> generate_plans_SQA.py
 
 if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument("--model_type", type=str, default="RandomForest")
-    parser.add_argument("--explainer_type", type=str, default="LIMEHPO")
-    parser.add_argument("--project", type=str, default="all")
-    args = parser.parse_args()
+    argparser = ArgumentParser()
+    argparser.add_argument("--model_type", type=str, default="RandomForest")
+    argparser.argadd_argument("--explainer_type", type=str, default="LIMEHPO")
+    argparser.add_argument("--project", type=str, default="all")
+    args = argparser.parse_args()
+
+    projects = read_dataset()
 
     if args.project == "all":
-        run_all_project(args.model_type, args.explainer_type)
+        projct_list = list(sorted(projects.key()))
     else:
-        projects = read_dataset()
-        train, test = projects[args.project]
+        project_list = args.project.split(" ")
+
+    for project in tqdm(project_list, desc="Generating Explanations ...", leave=True):
+        train, test = projects[project]
         run_single_project(train, test, args.project, args.model_type, args.explainer_type)

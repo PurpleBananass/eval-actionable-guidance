@@ -1,7 +1,7 @@
 SEED = 1
 MODELS = "./models"
 OUTPUT = "./output"
-PLANS = "./plans"
+PROPOSED_CHANGES = "./proposed_changes"
 PLOTS = "./plots"
 MODEL_EVALUATION = "./model_evaluation"
 ORIGINAL_DATASET = "./original_dataset"

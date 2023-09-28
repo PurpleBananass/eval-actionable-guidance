@@ -2,9 +2,22 @@ from pathlib import Path
 import natsort
 import pandas as pd
 import pickle
-
+from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler
-from hyparams import MODELS, PROJECT_DATASET, RELEASE_DATASET
+from hyparams import MODELS, OUTPUT, PROJECT_DATASET, RELEASE_DATASET
+
+def get_model_file(project_name: str, model_name: str="RandomForest") -> Path:
+    return Path(f"{MODELS}/{project_name}/{model_name}.pkl")
+
+def get_output_dir(project_name: str, explainer_type: str) -> Path:
+    path = Path(OUTPUT) / project_name / explainer_type
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+def load_model(model_file: Path):
+    with open(model_file, 'rb') as f:
+        model = pickle.load(f)
+    return model
 
 def get_release_ratio(project_release):
     projects = read_dataset()
@@ -31,12 +44,14 @@ def get_release_names(project_release, with_num_tp=True):
     
     return f'{project} {releases[release_idx + 1]} ({num_tp:.1f}%)'
 
-def get_true_positives(model_path, test):
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    ground_truth = test.loc[test['target'] == True, test.columns != 'target']
+def get_true_positives(model_file: Path, test_data: DataFrame, label: str='target') -> DataFrame:
+    assert label in test_data.columns 
+
+    model = load_model(model_file)
+    ground_truth = test_data.loc[test_data[label] == True, test_data.columns != label]
     predictions = model.predict(ground_truth.values)
     true_positives = ground_truth[predictions == True]
+
     return true_positives
 
 

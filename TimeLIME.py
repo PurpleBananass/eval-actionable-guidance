@@ -1,10 +1,7 @@
 import itertools
-from pathlib import Path
 import numpy as np
 import pandas as pd
-import time
 from lime.lime_tabular import LimeTabularExplainer
-from sklearn.preprocessing import MinMaxScaler
 from mlxtend.frequent_patterns import apriori
 from mlxtend.preprocessing import TransactionEncoder
 from tqdm import tqdm

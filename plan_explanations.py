@@ -1,29 +1,25 @@
 import json
-import pickle
 import re
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from sklearn.ensemble import RandomForestClassifier
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 from argparse import ArgumentParser
 from math import ceil, floor
-from data_utils import read_dataset, load_historical_changes
-from hyparams import MODELS, OUTPUT, PLANS
-
-MAX_RATIO = 20
+from data_utils import load_model, read_dataset, get_output_dir, get_model_file
+from hyparams import PROPOSED_CHANGES
 
 # Aussme there are generated explanations
 def run_single_project(train, test, project_name, model_type, explainer_type, search_strategy, only_minimum=True, verbose=False):
-    model_path = Path(f"{MODELS}/{project_name}/{model_type}.pkl") 
-    output_path = Path(f"{OUTPUT}/{project_name}/{explainer_type}")
-    plans_path = Path(f"{PLANS}/{project_name}/{explainer_type}")
+    model_path = get_model_file(project_name, model_type)
+    model = load_model(model_path)
+    output_path = get_output_dir(project_name, explainer_type)
+    proposed_change_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}")
     if search_strategy is not None:
-        plans_path = Path(f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}")
+        proposed_change_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}")
         output_path = output_path / search_strategy
     output_path.mkdir(parents=True, exist_ok=True)
-    plans_path.mkdir(parents=True, exist_ok=True)
+    proposed_change_path.mkdir(parents=True, exist_ok=True)
 
     file_name = "plans.json" if only_minimum else "plans_all.json"
 
@@ -31,15 +27,11 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
 
     train_min = train.min()
     train_max = train.max()
-    historical_changes = load_historical_changes(project_name)['mean_change']
-
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
 
     predictions = model.predict(test.loc[:, test.columns != "target"].values)
 
     all_plans = {}
-    all_ratios = {}
+
     for i in tqdm(range(len(test)), desc=f"{project_name}", leave=False, disable=not verbose):
         test_instance = test.iloc[i, :]
         test_idx = test_instance.name
@@ -60,7 +52,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                     plan.append(proposed_changes)
 
                 perturb_features = {}
-                max_change_ratios = {}
+               
                 for proposed_changes in plan:
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
@@ -71,8 +63,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                         perturb_features[feature] = perturbations[0]
                     else:
                         perturb_features[feature] = perturbations
-                        max_change_ratio = calculate_max_change_ratio(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature])
-                        max_change_ratios[feature] = max_change_ratio
+                        
 
             case "TimeLIME":
                 explanation_path = Path(f"{output_path}/{test_idx}.csv")
@@ -86,7 +77,6 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                     plan.append([left, feature, right])
 
                 perturb_features = {}
-                max_change_ratios = {}
                 for proposed_changes in plan:
                     feature = proposed_changes[1]
                     dtype = train.dtypes[feature]
@@ -97,9 +87,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                         perturb_features[feature] = perturbations[0]
                     else:                        
                         perturb_features[feature] = perturbations
-                        max_change_ratio = calculate_max_change_ratio(proposed_changes[0], proposed_changes[2], test_instance[feature], dtype, historical_changes[feature])
-                        max_change_ratios[feature] = max_change_ratio
-
+                       
             case "SQAPlanner":
                 try:
                     plan = pd.read_csv(output_path / f"{test_idx}.csv")
@@ -112,7 +100,6 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                     continue
             
                 perturb_features = {}
-                max_change_ratios = {}
                 for _, row in plan.iterrows():
                     if len(perturb_features) > 0:
                         break
@@ -131,18 +118,13 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                             perturb_features[feature] = perturbations[0]
                         else:
                             perturb_features[feature] = perturbations
-                            max_change_ratio = calculate_max_change_ratio(*ranges, test_instance[feature], train.dtypes[feature], historical_changes[feature]) 
-                            max_change_ratios[feature] = max_change_ratio
 
                     
         all_plans[int(test_idx)] = perturb_features
-        all_ratios[int(test_idx)] = max_change_ratios
 
-    with open(plans_path / file_name, "w") as f:
+    with open(proposed_change_path / file_name, "w") as f:
         json.dump(all_plans, f, indent=4)
 
-    with open(plans_path / "max_change_ratios.json", "w") as f:
-        json.dump(all_ratios, f, indent=4)
 
 def perturb_feature(low, high, current, dtype):
     if dtype == "int64":    
@@ -169,20 +151,6 @@ def perturb_feature(low, high, current, dtype):
     sorted_publications = sorted(perturbations, key=lambda x: abs(x - current))
 
     return sorted_publications
-
-def calculate_max_change_ratio(low, high, current, dtype, mean_change=None):
-    if mean_change is None:
-        return None
-    if dtype == "int64":    
-        low = int(ceil(float(low)))
-        high = int(floor(float(high)))
-  
-    elif dtype == "float64":
-        low = float(low)
-        high = float(high)
-
-    max_change_ratio = max([abs(high - current), abs(current - low)]) / mean_change
-    return max_change_ratio
           
 def split_inequality(rule, min_val, max_val, pattern): 
     match pattern.search(rule).groups():
@@ -225,34 +193,13 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", action="store_true")
 
     args = parser.parse_args()
+    projects = read_dataset()  
 
-    if False:
-        projects = read_dataset()
-        for project in projects:
-            
-            if args.search_strategy is not None:
-                plans_path = Path(f"{PLANS}/{project}/{args.explainer_type}_{args.search_strategy}")
-            else:
-                plans_path = Path(f"{PLANS}/{project}/{args.explainer_type}")
-
-            min_file = plans_path / "plans.json"
-            all_file = plans_path / "plans_all.json"
-
-            with open(min_file) as f:
-                min_plans = json.load(f)
-            with open(all_file) as f:
-                all_plans = json.load(f)
-
-            assert len(min_plans.keys()) == len(all_plans.keys())
-            assert len(set((min_plans.keys()))) == len(min_plans.keys())
-            assert len(set(all_plans.keys())) == len(all_plans.keys())
-            
     if args.project == "all":
-        projects = read_dataset()
-        for project in tqdm(projects, desc="Projects", leave=True, disable=not args.verbose):
-            train, test = projects[project]
-            run_single_project(train, test, project, args.model_type, args.explainer_type, args.search_strategy, args.only_minimum, args.verbose)
+        project_list = list(sorted(projects.keys()))
     else:
-        projects = read_dataset()
-        train, test = projects[args.project]
-        run_single_project(train, test, args.project, args.model_type, args.explainer_type, args.search_strategy, args.only_minimum, args.verbose)
+        project_list = args.project.split(" ")
+    for project in tqdm(project_list, desc="Projects", leave=True, disable=not args.verbose):
+        train, test = projects[project]
+        run_single_project(train, test, project, args.model_type, args.explainer_type, args.search_strategy, args.only_minimum, args.verbose)
+   

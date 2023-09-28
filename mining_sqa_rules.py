@@ -12,7 +12,7 @@ import pickle
 from tqdm import tqdm
 from bigml_mining import get_or_create_association, get_or_create_dataset
 
-from data_utils import read_dataset
+from data_utils import get_model_file, read_dataset, get_output_dir, load_model
 from hyparams import MODELS, OUTPUT
 
 
@@ -34,15 +34,16 @@ def generate_plans(project, search_strategy):
     projects = read_dataset()
 
     train, test = projects[project]
-    model_path = Path(MODELS) / f"{project}/RandomForest.pkl"
-    with open(model_path, "rb") as f:
-        blackbox = pickle.load(f)
+    model_path = get_model_file(projects)
+    model = load_model(model_path)
 
-    generated_path = Path(OUTPUT) / f"{project}/SQAGenInstances"
-    rules_path = Path(OUTPUT) / f"{project}/SQARules/{search_strategy}"
+    generated_path = get_output_dir(project, "SQAPlanner") / "generated_instances"
+    rules_path = get_output_dir(project, "SQAPlanner") / f"rules/{search_strategy}"
     rules_path.mkdir(parents=True, exist_ok=True)
-    output_path = Path(OUTPUT) / f"{project}/SQAPlanner/{search_strategy}"
+
+    output_path = get_output_dir(project, "SQAPlanner") / f"{search_strategy}"
     output_path.mkdir(parents=True, exist_ok=True)
+    
 
     len_csv = len(list(generated_path.glob("*.csv")))
     if len_csv == 0:
@@ -51,12 +52,13 @@ def generate_plans(project, search_strategy):
     for csv in tqdm(
         generated_path.glob("*.csv"), desc=f"{project}", leave=False, total=len_csv
     ):
-        if Path(output_path / f"{csv.stem}.csv").exists():
+        output_file = output_path / f"{csv.stem}.csv"
+        if output_file.exists():
             continue
 
         case_data = test.loc[int(csv.stem), :]
         x_test = case_data.drop("target")
-        real_target = blackbox.predict(x_test.values.reshape(1, -1))
+        real_target = model.predict(x_test.values.reshape(1, -1))
 
         if case_data["target"] == 0 or real_target == 0:
             continue
@@ -96,7 +98,6 @@ def generate_plans(project, search_strategy):
             elif x_test.eval(rule).all() == False and real_target != class_val:
                 ff_df = pd.concat([ff_df, row.to_frame().T])
 
-        # Sort by coverage and confidence
         if ff_df.empty:
             df = pd.DataFrame(
                 [],
@@ -108,7 +109,7 @@ def generate_plans(project, search_strategy):
             ff_df = ff_df[["Antecedent", "Antecedent Coverage %", "Confidence", "Lift"]]
             ff_df = ff_df.reset_index(drop=True)
             ff_df = ff_df.head(10)
-        ff_df.to_csv(output_path / f"{csv.stem}.csv", index=False)
+        ff_df.to_csv(output_file, index=False)
 
 
 def main(projects, search_strategy):

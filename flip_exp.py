@@ -11,7 +11,7 @@ from tqdm import tqdm
 from data_utils import read_dataset, get_true_positives
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from hyparams import MODELS, PLANS, SEED, EXPERIMENTS, RESULTS
+from hyparams import MODELS, PROPOSED_CHANGES, SEED, EXPERIMENTS, RESULTS
 
 np.random.seed(SEED)
 
@@ -44,16 +44,16 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
         
         match (only_minimum, search_strategy):
             case (True, None):
-                plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans.json")
+                plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans.json")
                 exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}.csv")
                 result_path = Path(RESULTS) / f"{explainer_type}.csv"
             case (False, None):
-                plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans_all.json")
+                plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans_all.json")
                 exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}_all.csv")
                 result_path = Path(RESULTS) / f"{explainer_type}_all.csv"
             case (True, _):
                 plan_path = Path(
-                    f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
+                    f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
                 )
                 exp_path = Path(
                     f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}.csv"
@@ -61,7 +61,7 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
                 result_path = Path(RESULTS) / f"{explainer_type}_{search_strategy}.csv"
             case (False, _):
                 plan_path = Path(
-                    f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
+                    f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
                 )
                 exp_path = Path(
                     f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}_all.csv"
@@ -101,21 +101,21 @@ def flip_single_project(
 
     match (only_minimum, search_strategy):
         case (True, None):
-            plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans.json")
+            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans.json")
             exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}.csv")
         case (False, None):
-            plan_path = Path(f"{PLANS}/{project_name}/{explainer_type}/plans_all.json")
+            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans_all.json")
             exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}_all.csv")
         case (True, _):
             plan_path = Path(
-                f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
+                f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
             )
             exp_path = Path(
                 f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}.csv"
             )
         case (False, _):
             plan_path = Path(
-                f"{PLANS}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
+                f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
             )
             exp_path = Path(
                 f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}_all.csv"
