@@ -1,0 +1,16 @@
+Explainer_1,Explainer_2,Average Jaccard Similarity
+SQAPlanner(conf.),SQAPlanner(lift),1.00
+SQAPlanner(cove.),SQAPlanner(conf.),0.26
+SQAPlanner(cove.),SQAPlanner(lift),0.26
+LIME-HPO,TimeLIME,0.24
+DeFlip,SQAPlanner(conf.),0.16
+DeFlip,SQAPlanner(lift),0.16
+LIME-HPO,SQAPlanner(conf.),0.14
+LIME-HPO,SQAPlanner(lift),0.14
+TimeLIME,SQAPlanner(conf.),0.13
+TimeLIME,SQAPlanner(lift),0.13
+LIME-HPO,SQAPlanner(cove.),0.12
+DeFlip,LIME-HPO,0.09
+DeFlip,SQAPlanner(cove.),0.09
+DeFlip,TimeLIME,0.09
+TimeLIME,SQAPlanner(cove.),0.06

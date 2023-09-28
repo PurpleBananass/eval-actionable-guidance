@@ -4,14 +4,32 @@ import pandas as pd
 import pickle
 
 from sklearn.preprocessing import MinMaxScaler
-from hyparams import PROJECT_DATASET, RELEASE_DATASET
+from hyparams import MODELS, PROJECT_DATASET, RELEASE_DATASET
 
-def get_release_names(project_release):
+def get_release_ratio(project_release):
+    projects = read_dataset()
+    totals = []
+    target_release_num = None
+    for project in projects:
+        train, test = projects[project]
+        model_path = Path(f"{MODELS}/{project}/RandomForest.pkl")
+        true_positives = get_true_positives(model_path, test)
+        num_tp = len(true_positives)
+        totals.append(num_tp)
+        if project_release == project:
+            target_release_num = num_tp
+    total_tp = sum(totals)
+    return target_release_num / total_tp * 100
+
+def get_release_names(project_release, with_num_tp=True):
     project, release_idx = project_release.split("@")
     release_idx = int(release_idx)
     releases = [ release.stem for release in (Path(PROJECT_DATASET) / project).glob('*.csv')]
     releases = natsort.natsorted(releases)
-    return f'{project} {releases[release_idx + 1]}'
+    if with_num_tp:
+        num_tp = get_release_ratio(project_release)
+    
+    return f'{project} {releases[release_idx + 1]} ({num_tp:.1f}%)'
 
 def get_true_positives(model_path, test):
     with open(model_path, 'rb') as f:
@@ -126,14 +144,14 @@ def inverse_transform(df: pd.DataFrame, scaler):
     return inversed_df
 
 if __name__ == "__main__":
-
-    historical_changes()
-    projects = read_dataset()
-    columns = set()
-    for project in projects:
-        train, test = projects[project]
-        columns = columns.union(set(train.columns.tolist()))
-    print(columns)
+    get_release_names("derby@0")
+    # historical_changes()
+    # projects = read_dataset()
+    # columns = set()
+    # for project in projects:
+    #     train, test = projects[project]
+    #     columns = columns.union(set(train.columns.tolist()))
+    # print(columns)
 
     
    

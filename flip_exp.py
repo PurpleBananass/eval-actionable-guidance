@@ -89,7 +89,7 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
 
     result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1)
     result_df = result_df.dropna()
-    result_df['Flip_Rate'] = result_df['Flipped'] / result_df['Plan']
+    result_df['Flip_Rate'] = result_df['Flipped'] / result_df['TP']
     result_df.to_csv(result_path)
 
 

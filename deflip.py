@@ -16,18 +16,27 @@ import warnings
 np.random.seed(SEED)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-# DEFLIP_CSV = "DeFlip.csv"
-DEFLIP_CSV = "DeFlip.csv"
-
 class DeFlip:
     total_CFs = 10
     max_varied_features = 5
+    incationable_features = [
+        "MAJOR_COMMIT",
+        "MAJOR_LINE",
+        "MINOR_COMMIT",
+        "MINOR_LINE",
+        "OWN_COMMIT",
+        "OWN_LINE",
+        "ADEV",
+        "Added_lines",
+        "Del_lines",
+    ]
 
-    def __init__(self, training_data: pd.DataFrame, model, save_path, verbose=False):
+    def __init__(self, training_data: pd.DataFrame, model, save_path, verbose=False, actionable=False):
         self.training_data = training_data
         self.model = model
         self.verbose = verbose
-        self.save_path = save_path
+        self.save_path = save_path / "DeFlip_actionable.csv" if actionable else save_path / "DeFlip.csv"
+        self.actionable = actionable
 
         self.min_values = self.training_data.min()
         self.max_values = self.training_data.max()
@@ -41,32 +50,40 @@ class DeFlip:
         self.dice_model = dice_ml.Model(model=model, backend="sklearn")
         self.exp = dice_ml.Dice(self.data, self.dice_model, method="random")
 
+        self.actionable_features = list(set(self.training_data.columns) - set(self.incationable_features) - set(["target"]))
+
     def run(self, query_instances: pd.DataFrame):
-        if (self.save_path / DEFLIP_CSV).exists():
+        if self.save_path.exists():
             pass
         result = {}
-        dice_exp = self.exp.generate_counterfactuals(
-            query_instances,
-            total_CFs=self.total_CFs,
-            desired_class="opposite",
-            random_seed=SEED,
-        )
+        if self.actionable:
+            dice_exp = self.exp.generate_counterfactuals(
+                query_instances,
+                total_CFs=self.total_CFs,
+                desired_class="opposite",
+                random_seed=SEED,
+                features_to_vary=self.actionable_features,
+            )
+        else:
+            dice_exp = self.exp.generate_counterfactuals(
+                query_instances,
+                total_CFs=self.total_CFs,
+                desired_class="opposite",
+                random_seed=SEED,
+            )
         
         for i, idx in enumerate(query_instances.index):
+            
             single_instance_result = dice_exp.cf_examples_list[i].final_cfs_df
-            assert single_instance_result.loc[lambda x: x["target"] == 1].empty
+            if single_instance_result is None:
+                continue
             single_instance_result = single_instance_result.drop("target", axis=1)
 
             original_instance = query_instances.loc[idx, :]
             
             candidates = []
             for j, cf_instance in single_instance_result.iterrows():
-                try:
-                    assert cf_instance.index.equals(original_instance.index)
-                except AssertionError:
-                    print(cf_instance.index)
-                    print(original_instance.index)
-                    exit()
+  
                 num_changed = self.get_num_changed(original_instance, cf_instance)
                 if num_changed <= self.max_varied_features:
                 
@@ -75,15 +92,14 @@ class DeFlip:
                 continue
             candidates = pd.DataFrame(candidates)
             candidates["similarity"] = candidates.apply(lambda x: self.get_similarity(original_instance, x), axis=1)
-            candidates = candidates.sort_values(by="similarity", ascending=True)
+            candidates = candidates.sort_values(by="similarity", ascending=False)
             candidates = candidates.drop("similarity", axis=1)
 
             result[idx] = candidates.iloc[0, :]
             
         result_df = pd.DataFrame(result).T
-        result_df.to_csv(self.save_path / DEFLIP_CSV )
-        return result_df
-        
+        result_df.to_csv(self.save_path)
+        return result_df 
 
     def get_num_changed(self, query_instance: pd.Series, cf_instance: pd.Series):
         num_changed = np.sum(query_instance != cf_instance)
@@ -96,7 +112,7 @@ class DeFlip:
         similarity = cosine_similarity(query_instance, cf_instance)[0][0]
         return similarity
 
-def get_flip_rates():
+def get_flip_rates(actionable=False):
     projects = read_dataset()
     result = {
         "Project": [],
@@ -109,22 +125,24 @@ def get_flip_rates():
         train, test = projects[project]
         model_path = Path(f"{MODELS}/{project}/RandomForest.pkl")
         true_positives = get_true_positives(model_path, test)
-    
-        exp_path = Path(f"{EXPERIMENTS}/{project}/DeFlip.csv")
+        if actionable:
+            exp_path = Path(f"{EXPERIMENTS}/{project}/DeFlip_actionable.csv")
+        else:
+            exp_path = Path(f"{EXPERIMENTS}/{project}/DeFlip.csv")
         df = pd.read_csv(exp_path, index_col=0)
-        flipped_instances = df.drop("effort", axis=1)
+        flipped_instances = df
         result["Project"].append(project)
         result["Flipped"].append(len(flipped_instances))
         result["Plan"].append(len(flipped_instances))
         result["TP"].append(len(true_positives))
     result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1)
     # result_df = result_df.dropna()
-    result_df['Flip_rate'] = result_df['Flipped'] / result_df['Plan']
-    return result_df.to_csv(Path(RESULTS) / DEFLIP_CSV)
+    result_df['Flip_Rate'] = result_df['Flipped'] / result_df['TP']
+    return result_df.to_csv(Path(RESULTS) / "DeFlip.csv" if not actionable else Path(RESULTS) / "DeFlip_actionable.csv")
 
 
 def run_single_dataset(
-    project: str, train: pd.DataFrame, test: pd.DataFrame, verbose: bool = False
+    project: str, train: pd.DataFrame, test: pd.DataFrame, verbose: bool = False, actionable: bool = False
 ):
     model_path = Path(f"{MODELS}/{project}/RandomForest.pkl")
     with open(model_path, "rb") as f:
@@ -132,7 +150,7 @@ def run_single_dataset(
     save_path = Path(f"{EXPERIMENTS}/{project}")
     save_path.mkdir(parents=True, exist_ok=True)
 
-    deflip = DeFlip(train, model, save_path, verbose=verbose)
+    deflip = DeFlip(train, model, save_path, verbose=verbose, actionable=actionable)
 
     positives = test[test["target"] == 1]
     predictions = model.predict(positives.drop("target", axis=1))
@@ -162,21 +180,21 @@ if __name__ == "__main__":
     argparser.add_argument("--project", type=str, default="all")
     argparser.add_argument("--verbose", action="store_true")
     argparser.add_argument("--only_flip_rate", action="store_true")
+    argparser.add_argument("--actionable", action="store_true")
 
     args = argparser.parse_args()
 
     if args.only_flip_rate:
-        get_flip_rates()
+        get_flip_rates(args.actionable)
         exit(0)
     projects = read_dataset()
     tqdm.write("| Project | Flip | Plan | TP |")
     tqdm.write("| ------- | ----- | --- | --- |")
     if args.project == "all":
-        for project in tqdm(projects, desc="Projects", leave=True, disable=not args.verbose):
-            train, test = projects[project]
-            run_single_dataset(project, train, test, verbose=args.verbose)
+        project_list = list(sorted(projects.keys()))
     else:
         project_list = args.project.split(" ")
-        for project in tqdm(project_list, desc="Projects", leave=True, disable=not args.verbose):
-            train, test = projects[project]
-            run_single_dataset(project, train, test, verbose=args.verbose)
+    
+    for project in tqdm(project_list, desc="Projects", leave=True, disable=not args.verbose):
+        train, test = projects[project]
+        run_single_dataset(project, train, test, verbose=args.verbose, actionable=args.actionable)
