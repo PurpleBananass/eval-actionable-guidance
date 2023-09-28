@@ -160,21 +160,6 @@ def run_single_dataset(
 
     tqdm.write(f"| {project} | {len(flipped_instances)} | {len(query_instances)} |")
 
-def filpped_instances(project, candidates):
-    flip_path = Path(f"{OUTPUT}/{project}/deflip")
-    indices = []
-    for file in flip_path.glob("*.csv"):
-        if file.stem not in candidates:
-            continue
-        try:
-            df = pd.read_csv(file)
-            if len(df) == 0:
-                continue
-        except pd.errors.EmptyDataError:
-            continue
-        indices.append(file.stem)
-    return indices
-
 if __name__ == "__main__":
     argparser = ArgumentParser()
     argparser.add_argument("--project", type=str, default="all")
