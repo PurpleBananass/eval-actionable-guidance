@@ -1,6 +1,5 @@
 from argparse import ArgumentParser
 from pathlib import Path
-import pickle
 
 import numpy as np
 from tqdm import tqdm

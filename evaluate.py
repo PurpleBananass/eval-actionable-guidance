@@ -187,10 +187,12 @@ if __name__ == "__main__":
         get_flip_rate(explainers)
     
     if args.accuracy:
-        assert set(explainers).issubset(set(['LIME-HPO', 'TimeLIME', 'SQAPlanner_confidence', 'SQAPlanner_coverage', 'SQAPlanner_lift']))
-        get_accuracy(explainers)
+        fpc_explainers = ['LIME-HPO', 'TimeLIME', 'SQAPlanner_confidence', 'SQAPlanner_coverage', 'SQAPlanner_lift']
+        if args.explainer != "all":
+            assert set(explainers).issubset(set(fpc_explainers))
+            get_accuracy(explainers)
+        else:
+            get_accuracy(fpc_explainers)
         
     if args.feasibility:
         get_feasibility(explainers)
-)
-    
