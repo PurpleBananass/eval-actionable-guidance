@@ -15,7 +15,7 @@ from hyparams import MODELS, PROPOSED_CHANGES, SEED, EXPERIMENTS, RESULTS
 
 np.random.seed(SEED)
 
-def find_smallest_perturbation(
+def flip_instance(
     original_instance, features, changeable_features, model_path
 ):
     with open(model_path, "rb") as f:
@@ -210,7 +210,7 @@ def flip_single_project(
                         ]
                 # Submitting the task for parallel execution
                 future = executor.submit(
-                    find_smallest_perturbation,
+                    flip_instance,
                     original_instance,
                     features,
                     changeable_features,
@@ -258,11 +258,11 @@ if __name__ == "__main__":
     argparser.add_argument("--only_minimum", action="store_true")
     argparser.add_argument("--verbose", action="store_true")
     argparser.add_argument("--new", action="store_true")
-    argparser.add_argument("--only_flip_rate", action="store_true")
+    argparser.add_argument("--get_flip_rate", action="store_true")
 
     args = argparser.parse_args()
 
-    if args.only_flip_rate:
+    if args.get_flip_rate:
         # RQ 1
         get_flip_rates(
             args.explainer_type, args.search_strategy, args.only_minimum

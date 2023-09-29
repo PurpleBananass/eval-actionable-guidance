@@ -39,7 +39,7 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
             continue
 
         match explainer_type:
-            case "LIMEHPO" | "LIME":
+            case "LIME-HPO":
                 explanation_path = Path(f"{output_path}/{test_idx}.csv")
                 if not explanation_path.exists():
                     continue

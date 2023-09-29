@@ -7,8 +7,14 @@ from mlxtend.preprocessing import TransactionEncoder
 from tqdm import tqdm
 import re
 
-
 def TimeLIME(train, test, model, output_path, top=5):
+    """
+    Based on https://github.com/ai-se/TimeLIME and https://github.com/kpeng2019/TimeLIME
+    modified to work with our dataset
+    - no normalization
+    - no (k+1) release information when calculating historical feature changes
+
+    """
     X_train = train.iloc[:, :-1]
     y_train = train.iloc[:, -1]
     X_test = test.iloc[:, :-1]

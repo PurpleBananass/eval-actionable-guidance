@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 from tqdm import tqdm
 import pandas as pd
-from data_utils import get_true_positives, read_dataset
+from data_utils import get_true_positives, read_dataset, load_model, get_model_file
 
 from sklearn.metrics.pairwise import cosine_similarity
 from hyparams import MODELS, RESULTS, SEED, EXPERIMENTS, OUTPUT
@@ -143,9 +143,8 @@ def get_flip_rates(actionable=False):
 def run_single_dataset(
     project: str, train: pd.DataFrame, test: pd.DataFrame, actionable: bool = False
 ):
-    model_path = Path(f"{MODELS}/{project}/RandomForest.pkl")
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
+    model_file = get_model_file(project)
+    model = load_model(model_file)
     save_path = Path(f"{EXPERIMENTS}/{project}")
     save_path.mkdir(parents=True, exist_ok=True)
 

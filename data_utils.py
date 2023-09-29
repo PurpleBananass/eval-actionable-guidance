@@ -165,3 +165,6 @@ def load_historical_changes(project):
     save_folder = Path(HISTORICAL_DATASET)
     df = pd.read_csv(save_folder / f"{project}.csv", index_col=0)
     return df
+
+if __name__ == "__main__":
+    save_historical_changes()

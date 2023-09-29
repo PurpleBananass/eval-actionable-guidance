@@ -17,7 +17,7 @@ def run_single_project(train_data, test_data, project_name, model_type, explaine
     true_positives = get_true_positives(model_file, test_data)
 
     match explainer_type:
-        case "LIMEHPO":
+        case "LIME-HPO":
             for test_idx in tqdm(true_positives.index, desc=f"{project_name}", leave=False, disable=not verbose):
                 test_instance = true_positives.loc[test_idx, :]
                 output_file = output_path / f"{test_idx}.csv"
@@ -54,7 +54,7 @@ def run_single_project(train_data, test_data, project_name, model_type, explaine
 if __name__ == "__main__":
     argparser = ArgumentParser()
     argparser.add_argument("--model_type", type=str, default="RandomForest")
-    argparser.add_argument("--explainer_type", type=str, default="LIMEHPO")
+    argparser.add_argument("--explainer_type", type=str, default="LIME-HPO")
     argparser.add_argument("--project", type=str, default="all")
     args = argparser.parse_args()
 

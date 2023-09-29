@@ -1,20 +1,14 @@
 import argparse
-from pathlib import Path
 import time
 from bigml.api import BigML
 import pandas as pd
 import os
 import re
 
-from pathlib import Path
-import pickle
-
 from tqdm import tqdm
 from Explainer.SQAPlanner.bigml_mining import get_or_create_association, get_or_create_dataset
 
 from data_utils import get_model_file, read_dataset, get_output_dir, load_model
-from hyparams import MODELS, OUTPUT
-
 
 def comparison(word):
     regexp = re.finditer(r"\w+=[0-9]+", word)
@@ -24,7 +18,6 @@ def comparison(word):
         new_word = "==".join(matched_word.split("="))
         word = word.replace(matched_word, new_word)
     return word
-
 
 def generate_plans(project, search_strategy):
     username = os.environ["BIGML_USERNAME"]
