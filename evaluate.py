@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import json
 import numpy as np
 import pandas as pd
-from data_utils import load_historical_changes, read_dataset
+from data_utils import load_historical_changes, read_dataset, read_dataset2
 from pathlib import Path
 from hyparams import PROPOSED_CHANGES, EXPERIMENTS
 
@@ -38,6 +38,72 @@ def get_accuracy(explainers):
     accuracies = accuracies.pivot(index='project', columns='explainer', values='accuracy') 
     accuracies.to_csv('./evaluations/accuracies.csv')
     return accuracies
+
+def get_feasibility2(explainers):
+    projects = read_dataset2()
+    project_list = list(sorted(projects.keys()))
+    total_feasibilities = []
+
+    for explainer in explainers:
+        for project in project_list:
+            if len(projects[project]) < 3:
+                continue
+            train, test, valid = projects[project]
+            defect_test = test[test['target'] == 1]
+            clean_valid = valid[valid['target'] == 0]
+            
+            
+
+
+            common_index = defect_test.index.intersection(clean_valid.index)
+            print(set(defect_test.index).intersection(set(clean_valid.index)))
+            
+            # read the proposed changes
+            if "DeFlip" in explainer:
+                flip_path = Path(EXPERIMENTS) / project / f"{explainer}.csv"
+                flipped_instances = pd.read_csv(flip_path, index_col=0)
+                flipped_instances = flipped_instances.dropna()
+                if len(flipped_instances) == 0:
+                    continue
+            else:
+                plan_path = Path(PROPOSED_CHANGES) / project / explainer / "plans_all.json"
+                with open(plan_path) as f:
+                    plans = json.load(f)
+
+            project_feasibilities = []
+            print(f"Project: {project} Explainer: {explainer} Common Index: {len(common_index)}")
+            for index in common_index:
+                current = test.loc[index, test.columns != 'target']
+                real_flipped = valid.loc[index, valid.columns != 'target']
+                if "DeFlip" in explainer:
+                    if index not in flipped_instances.index:
+                        continue
+                    flipped = flipped_instances.loc[index]
+                    changed_features = current[current != flipped].index.tolist()
+                else:
+                    changed_features = list(plans[str(index)].keys())
+                diff = current != real_flipped
+                real_changed_features = diff[diff == True].index.tolist()
+
+                # intersection / changed_features
+                intersection = len(set(changed_features).intersection(set(real_changed_features)))
+                feasibility = intersection / len(changed_features)
+                project_feasibilities.append(feasibility)
+            feasibility = np.mean(project_feasibilities)
+            total_feasibilities.append(
+                {
+                    "Explainer": explainer,
+                    "Value": feasibility,
+                    "Project": project,
+                }
+            )
+    total_feasibilities = pd.DataFrame(total_feasibilities)
+    total_feasibilities = total_feasibilities.pivot(
+        index="Project", columns="Explainer", values="Value"
+    )
+    total_feasibilities.to_csv('./evaluations/feasibilities2.csv')
+    return total_feasibilities
+        
 
 def get_feasibility(explainers):
     projects = read_dataset()
@@ -179,7 +245,7 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     if args.explainer == "all":
-        explainers = [file.stem for file in Path("./flip_rates").glob("*.csv")]
+        explainers = ['LIME-HPO', 'TimeLIME', 'SQAPlanner_confidence', 'SQAPlanner_coverage', 'SQAPlanner_lift', 'DeFlip']
     else:
         explainers = args.explainer.split(" ")
     
@@ -196,3 +262,4 @@ if __name__ == "__main__":
         
     if args.feasibility:
         get_feasibility(explainers)
+        # get_feasibility2(explainers)

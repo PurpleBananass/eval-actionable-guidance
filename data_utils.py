@@ -112,9 +112,23 @@ def read_dataset() -> dict[str, list[pd.DataFrame]]:
             continue
         train = pd.read_csv(project / "train.csv", index_col=0)
         test = pd.read_csv(project / "test.csv", index_col=0)
+
         projects[project.name] = [train, test]
     return projects
 
+def read_dataset2() -> dict[str, list[pd.DataFrame]]:
+    projects = {}
+    for project in Path(RELEASE_DATASET).iterdir():
+        if not project.is_dir():
+            continue
+        train = pd.read_csv(project / "train.csv", index_col=0)
+        test = pd.read_csv(project / "test.csv", index_col=0)
+        if Path(project / "valid.csv").exists():
+            valid = pd.read_csv(project / "valid.csv", index_col=0)
+            projects[project.name] = [train, test, valid]
+        else:
+            projects[project.name] = [train, test]
+    return projects
 
 def save_historical_changes():
     save_folder = Path(HISTORICAL_DATASET)

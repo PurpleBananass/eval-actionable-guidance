@@ -1,29 +1,36 @@
-[tool.poetry]
-name = "DeFlip Replication Package"
+[project]
+name = "deflip"
 version = "0.1.0"
-description = "A replication package for the paper: 'Evaluating the Effectiveness of Actionable Guidance for Defect Prediction from Developers' Perspective'"
-authors = []
+description = "Add your description here"
+authors = [
+    { name = "verssae", email = "sparky@hanyang.ac.kr" }
+]
+dependencies = [
+    "scikit-learn>=1.5.2",
+    "lime>=0.2.0.1",
+    "seaborn>=0.13.2",
+    "mlxtend>=0.23.1",
+    "scipy>=1.14.1",
+    "natsort>=8.4.0",
+    "dice-ml>=0.11",
+    "catboost>=1.2.7",
+    "xgboost>=2.1.1",
+    "bigml>=9.7.1",
+    "ipykernel>=6.29.5",
+]
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-scikit-learn = "^1.3.0"
-lime = "^0.2.0.1"
-seaborn = "^0.12.2"
-mlxtend = "^0.22.0"
-natsort = "^8.4.0"
-scipy = "^1.11.2"
-dice-ml = "^0.10"
-bigml = "^9.6.2"
-
-[tool.poetry.extras]
-all_models = ["catboost", "xgboost"]
-preprocess = ["rpy2"]
-
-[tool.poetry.dev-dependencies]
-jupyterlab = "^4.0.5"
-
+requires-python = ">= 3.8"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/deflip"]

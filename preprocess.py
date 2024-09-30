@@ -1,9 +1,43 @@
 from pathlib import Path
 from data_utils import all_dataset
-import rpy2.robjects as ro
-from rpy2.robjects.packages import importr
-from rpy2.robjects import pandas2ri, StrVector
+
 import pandas as pd
+
+
+def add_valid_csv(project, release):
+    # train: project@k.train.csv, test: project@k.test.csv, val: project@{k+1}.{train + test}.csv
+
+    index_to_file_name = pd.read_csv(f"Dataset/release_dataset/{project}@{release}/mapping.csv", index_col=0, header=None).to_dict()[1]
+
+    file_name_to_index = {v: k for k, v in index_to_file_name.items()}
+
+    next_train = pd.read_csv(f"Dataset/release_dataset/{project}@{release+1}/train.csv", index_col=0)
+    next_test = pd.read_csv(f"Dataset/release_dataset/{project}@{release+1}/test.csv", index_col=0)
+    next_index_to_file_name = pd.read_csv(f"Dataset/release_dataset/{project}@{release+1}/mapping.csv", index_col=0, header=None).to_dict()[1]
+
+    val = pd.concat([next_train, next_test])
+    val = val[~val.index.duplicated(keep="first")]
+    print(len(val.index))
+    # Reindex by file_name and map to int
+    val.index = val.index.map(lambda x: next_index_to_file_name.get(x, None))
+
+    print(len(val.index))
+    valid_index = val.index.dropna()
+    val.index = val.index.map(lambda x: file_name_to_index.get(x, None))
+    valid_index = val.index.dropna()
+    val = val.loc[valid_index]
+    print(len(val.index))
+
+    # Drop duplicates
+    val = val[~val.index.duplicated(keep="first")]
+
+    # index type as int
+    val.index = val.index.astype(int)
+
+
+
+    val.to_csv(f"Dataset/release_dataset/{project}@{release}/valid.csv", index=True, header=True)
+    
 
 
 def map_indexes_to_int(train_df, test_df):
@@ -27,6 +61,9 @@ def get_df(project: str, release: str, path_data: str = "project_dataset"):
 
 
 def preprocess(project, releases: list[str]):
+    import rpy2.robjects as ro
+    from rpy2.robjects.packages import importr
+    from rpy2.robjects import pandas2ri, StrVector
     dataset_trn = get_df(project, releases[0])
     dataset_tst = get_df(project, releases[1])
 
@@ -134,5 +171,19 @@ def prepare_release_dataset():
 
 
 if __name__ == "__main__":
-    organize_original_dataset()
-    prepare_release_dataset()
+    # organize_original_dataset()
+    # prepare_release_dataset()
+    add_valid_csv("activemq", 0)
+    add_valid_csv("activemq", 1)
+    add_valid_csv("activemq", 2)
+    add_valid_csv("camel", 0)
+    add_valid_csv("camel", 1)
+    add_valid_csv("derby", 0)
+    add_valid_csv("groovy", 0)
+    add_valid_csv("hbase", 0)
+    add_valid_csv("hive", 0)
+    add_valid_csv("jruby", 0)
+    add_valid_csv("jruby", 1)
+    add_valid_csv("lucene", 0)
+    add_valid_csv("lucene", 1)
+    add_valid_csv("wicket", 0)

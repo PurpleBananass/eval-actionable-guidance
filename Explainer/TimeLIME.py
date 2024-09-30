@@ -4,6 +4,8 @@ import pandas as pd
 from lime.lime_tabular import LimeTabularExplainer
 from mlxtend.frequent_patterns import apriori
 from mlxtend.preprocessing import TransactionEncoder
+from sklearn.preprocessing import StandardScaler
+
 from tqdm import tqdm
 import re
 
@@ -15,9 +17,15 @@ def TimeLIME(train, test, model, output_path, top=5):
     - no (k+1) release information when calculating historical feature changes
 
     """
-    X_train = train.iloc[:, :-1]
+    X_train_original = train.iloc[:, :-1].copy()
+    X_test_original = test.iloc[:, :-1].copy()
+
+    # Standardize the data
+    scaler = StandardScaler()
+    X_train = pd.DataFrame(scaler.fit_transform(X_train_original), columns=X_train_original.columns)
+    X_test = pd.DataFrame(scaler.transform(X_test_original), columns=X_test_original.columns)
+
     y_train = train.iloc[:, -1]
-    X_test = test.iloc[:, :-1]
     y_test = test.iloc[:, -1]
 
     deltas = []
@@ -89,8 +97,10 @@ def TimeLIME(train, test, model, output_path, top=5):
         temp = X_test.values[i].copy()
         rule_pairs = ins.as_list(label=1)
 
+        orivinal_values = scaler.inverse_transform([X_test.values[i]])[0]
+
         plan, rec = flip(
-            temp,
+            orivinal_values,
             ins.as_list(label=1),
             ind,
             X_train.columns,
@@ -98,6 +108,7 @@ def TimeLIME(train, test, model, output_path, top=5):
             min_val,
             max_val,
         )
+
 
         if rec in seen_id:
             supported_plan_id = seen[seen_id.index(rec)]
@@ -124,7 +135,7 @@ def TimeLIME(train, test, model, output_path, top=5):
                 supported_plan.append(
                     [
                         feature_name,
-                        temp[k],
+                        orivinal_values[k], # temp[k],
                         importance,
                         plan[k][0],
                         plan[k][1],

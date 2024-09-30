@@ -24,12 +24,10 @@ class LORMIKA:
         trainset_normalize = self.__train_set.copy()
         cases_normalize = self.__cases.copy()
 
-        dataset = pd.concat(objs=[trainset_normalize, cases_normalize], axis=0)
-        dataset = scaler.fit_transform(dataset)
-        dataset = pd.DataFrame(dataset)
-
-        trainset_normalize = pd.DataFrame(scaler.transform(trainset_normalize), index=trainset_normalize.index)
+        trainset_normalize = pd.DataFrame(scaler.fit_transform(trainset_normalize), index=trainset_normalize.index)
         cases_normalize = pd.DataFrame(scaler.transform(cases_normalize), index=cases_normalize.index)
+
+
 
         assert self.__train_set.index.equals(trainset_normalize.index)
         assert self.__cases.index.equals(cases_normalize.index)
@@ -41,9 +39,8 @@ class LORMIKA:
 
         for sample_number, test_instance in tqdm(cases_normalize.iterrows(), desc=f"{Path(self.__output_path).parent.name}", leave=False, total=len(cases_normalize)):
             # We only consider the instances that are predicted as buggy 
-            case_data = self.__cases.loc[sample_number, :]
             
-            pred = self.__model.predict(case_data.values.reshape(1, -1))
+            pred = self.__model.predict(test_instance.values.reshape(1, -1))[0]
             if pred == 0:
                 continue
 
@@ -176,12 +173,17 @@ class LORMIKA:
                 new_con_df = pd.concat(
                     [new_con_df, new_ins], axis=0, ignore_index=True
                 )
-
+            
             # get the global model predictions of the generated instances and the instances in the neighbourhood
             predict_dataset = pd.concat(
                 [train_set_neigh, new_con_df], ignore_index=True
             )
-            target = self.__model.predict(predict_dataset.values)
+
+            # normalize predict_dataset
+            predict_dataset_norm = pd.DataFrame(scaler.transform(predict_dataset), index=predict_dataset.index)
+
+
+            target = self.__model.predict(predict_dataset_norm.values)
             target_df = pd.DataFrame(target)
 
             new_df_case = pd.concat([predict_dataset, target_df], axis=1)

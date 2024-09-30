@@ -2,14 +2,23 @@ from lime.lime_tabular import LimeTabularExplainer
 import numpy as np
 import pandas as pd
 from scipy.optimize import differential_evolution
+from sklearn.preprocessing import StandardScaler
 from hyparams import SEED
 
 def LIME_HPO(X_train, test_instance, training_labels, model, path):
     "hyper parameter optimized lime explainer"
+    
+    # Apply StandardScaler
+    scaler = StandardScaler()
+    # Ensure DataFrame format to preserve column names
+    X_train_scaled = scaler.fit_transform(X_train.values)
+    test_instance_scaled = scaler.transform(test_instance.values.reshape(1, -1))
+
+
     explainer = LimeTabularExplainer(
-        training_data=X_train.values,
+        training_data=X_train_scaled,
         training_labels=training_labels,
-        feature_names=X_train.columns,
+        feature_names=X_train.columns,  # Use original column names
         feature_selection="lasso_path",
         discretizer="entropy",
         random_state=SEED,
@@ -18,19 +27,28 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
     def objective(params):
         num_samples = int(params[0])
         explanation = explainer.explain_instance(
-            test_instance.values, model.predict_proba, num_samples=num_samples
+            test_instance_scaled[0], model.predict_proba, num_samples=num_samples
         )
         local_model_predictions = explanation.local_pred
 
-        model_predictions = model.predict_proba(test_instance.values.reshape(1, -1))[0]
+        # 모델 예측값 (넘파이 배열로 변환)
+        model_predictions = model.predict_proba(test_instance_scaled)[0]
 
         residuals = model_predictions - local_model_predictions
 
-        SS_res = np.sum(residuals**2)
+        # 잔차 계산
+        SS_res = np.sum(residuals ** 2)
         SS_tot = np.sum((model_predictions - np.mean(model_predictions)) ** 2)
 
+        # SS_tot == 0인 경우 처리
+        if SS_tot == 0:
+            print(f"SS_tot is 0 for this instance, likely due to no variance in model predictions.")
+            # 페널티를 부여하거나 무시할 수 있음
+            return 100  # 큰 페널티 값 반환 (탐색을 이 영역에서 멀어지게 함)
+
+        # 정상적인 경우 R^2 계산
         R2 = 1 - (SS_res / SS_tot)
-        return -R2
+        return -R2  # 최적화에서는 R^2을 최소화하려고 음수로 반환
 
     bounds = [(100, 10000)]
     result = differential_evolution(
@@ -46,7 +64,7 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
     num_samples = int(result.x[0])
 
     explanation = explainer.explain_instance(
-        test_instance.values, model.predict_proba, num_samples=num_samples, num_features=len(X_train.columns)
+        test_instance_scaled[0], model.predict_proba, num_samples=num_samples, num_features=len(X_train.columns)
     )
     
     top_features_rule = explanation.as_list()[:5]
@@ -66,10 +84,10 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
 
     rules_df = pd.DataFrame({
         'feature': top_feature_names,
-        'value': test_instance[top_feature_names],
+        'value': test_instance_scaled[0][top_features_index], 
         'importance': importances,
-        'min': min_val[top_feature_names],
-        'max': max_val[top_feature_names],
+        'min': min_val[top_features_index],
+        'max': max_val[top_features_index],
         'rule': rules,
         'importance_ratio': importance_ratio
     })
@@ -78,17 +96,23 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
 
 
 def LIME_Planner(X_train, test_instance, training_labels, model, path):
+    # Apply StandardScaler
+    scaler = StandardScaler()
+    # Ensure DataFrame format to preserve column names
+    X_train_scaled = scaler.fit_transform(X_train.values)
+    test_instance_scaled = scaler.transform(test_instance.values.reshape(1, -1))
+
     explainer = LimeTabularExplainer(
-        training_data=X_train.values,
+        training_data=X_train_scaled,
         training_labels=training_labels,
-        feature_names=X_train.columns,
+        feature_names=X_train.columns,  # Use original column names
         feature_selection="lasso_path",
         discretizer="entropy",
         random_state=SEED,
     )
 
     explanation = explainer.explain_instance(
-        test_instance.values, model.predict_proba, num_features=len(X_train.columns)
+        test_instance_scaled[0], model.predict_proba, num_features=len(X_train.columns)
     )
     
     top_features_rule = explanation.as_list()
@@ -103,10 +127,10 @@ def LIME_Planner(X_train, test_instance, training_labels, model, path):
 
     rules_df = pd.DataFrame({
         'feature': top_feature_names,
-        'value': test_instance[top_feature_names],
+        'value': test_instance_scaled[0][top_features_index],
         'importance': importances,
-        'min': min_val[top_feature_names],
-        'max': max_val[top_feature_names],
+        'min': min_val[top_features_index],
+        'max': max_val[top_features_index],
         'rule': rules
     })
     

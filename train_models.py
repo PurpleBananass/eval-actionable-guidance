@@ -4,18 +4,17 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
 from xgboost import XGBClassifier
-from catboost import CatBoostClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 
 from tqdm import tqdm
 
 from data_utils import read_dataset
 from hyparams import SEED, MODELS, MODEL_EVALUATION
 
-def train_and_save_model(model, train, model_path):
-
-    model.fit(
-        train.iloc[:, train.columns != "target"].values, train["target"].values
-    )
+def train_and_save_model(model, X_train, y_train, model_path):
+    model.fit(X_train, y_train)
     with open(model_path, "wb") as f:
         pickle.dump(model, f)
 
@@ -34,11 +33,11 @@ def evaluate_metrics(model, X, y):
         '# of TP': sum(y_pred & y),
     }
 
-def load_and_evaluate_model(model_path, train, test):
+def load_and_evaluate_model(model_path, X_test, y_test):
     with open(model_path, "rb") as f:
         loaded_model = pickle.load(f)
 
-    test_metrics = evaluate_metrics(loaded_model, test.iloc[:, test.columns != 'target'].values, test['target'].values)
+    test_metrics = evaluate_metrics(loaded_model, X_test, y_test)
     
     return test_metrics
 
@@ -46,18 +45,26 @@ def train_single_project(project, train, test, metrics={}):
     models_path = Path(f"{MODELS}/{project}") 
     models_path.mkdir(parents=True, exist_ok=True)
 
+    # Apply StandardScaler to both train and test data
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(train.iloc[:, train.columns != 'target'].values)
+    y_train = train['target'].values
+    X_test = scaler.transform(test.iloc[:, test.columns != 'target'].values)
+    y_test = test['target'].values
+
     for model, model_name in [
         (RandomForestClassifier(n_estimators=100, random_state=SEED), "RandomForest"),
         (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
-        (CatBoostClassifier(verbose=False, random_state=SEED), "CatBoost"),
+        (SVC(probability=True, random_state=SEED), "SVM"),
+        (LogisticRegression(random_state=SEED), "LogisticRegression"),
     ]:
         model_path = models_path / f"{model_name}.pkl"
 
-        if not Path.exists(model_path):
-            train_and_save_model(model, train, model_path)
+        # Train and save the model
+        train_and_save_model(model, X_train, y_train, model_path)
 
         tqdm.write(f"Working on {project} with {model_name}...")
-        test_metrics = load_and_evaluate_model(model_path, train, test)
+        test_metrics = load_and_evaluate_model(model_path, X_test, y_test)
         metrics[model_name][project] = test_metrics
 
     return metrics
@@ -69,7 +76,8 @@ def train_all_project():
     metrics = {
         "RandomForest": {},
         "XGBoost": {},
-        "CatBoost": {},
+        "SVM": {},
+        "LogisticRegression": {},
     }
     for project in tqdm(projects, desc="projects", leave=True, total=len(projects)):
         train, test = projects[project]

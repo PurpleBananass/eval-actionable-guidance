@@ -11,7 +11,8 @@ from hyparams import *
 
 def run_single_project(train_data, test_data, project_name, model_type, explainer_type, verbose=True):
     model_file = get_model_file(project_name, model_type)
-    output_path = get_output_dir(project_name, explainer_type)
+    output_path = get_output_dir(project_name, explainer_type) / model_type
+    output_path.mkdir(parents=True, exist_ok=True)
     model = load_model(model_file)
 
     true_positives = get_true_positives(model_file, test_data)
@@ -61,10 +62,10 @@ if __name__ == "__main__":
     projects = read_dataset()
 
     if args.project == "all":
-        projct_list = list(sorted(projects.key()))
+        project_list = list(sorted(projects.keys()))
     else:
         project_list = args.project.split(" ")
 
     for project in tqdm(project_list, desc="Generating Explanations ...", leave=True):
         train, test = projects[project]
-        run_single_project(train, test, args.project, args.model_type, args.explainer_type)
+        run_single_project(train, test, project, args.model_type, args.explainer_type)
