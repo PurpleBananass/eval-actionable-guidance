@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.962 < CountDeclClass <= 1.037,0.85742,0.76316,1.02691
+-0.3 < CountDeclClassMethod <= 0.135,0.5252,0.78793,1.06025
+-0.24 < CountDeclMethodProtected <= 0.135,0.44695,0.83136,1.11869
+-0.25 < CountDeclMethodPrivate <= 0.17,0.42439,0.83145,1.1188
+-0.3 < CountDeclClassMethod <= 0.135 & 0.889 < AvgEssential <= 1.01,0.31157,0.85516,1.15071
+MAJOR_LINE <= 0.09,0.23716,0.92105,1.23938
+OWN_COMMIT > 0.965,0.22132,0.83948,1.12961
+PercentLackOfCohesion <= 3.5,0.21411,0.85874,1.15553

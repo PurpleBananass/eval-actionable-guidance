@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+Del_lines <= -39,0.06652,0.98658,1.21225
+OWN_COMMIT > 0.998,0.28348,0.97953,1.20359
+CountClassCoupled <= 1.15,0.19866,0.97079,1.19285
+1.15 < CountClassCoupled <= 4.45,0.21696,0.96708,1.18829
+CountInput_Min > 2.25 & -0.049 < MINOR_COMMIT <= 0.043,0.17768,0.95226,1.17009
+-39 < Del_lines <= 7.5,0.44018,0.9503,1.16768
+MAJOR_LINE <= 0.01,0.26339,0.94915,1.16627
+CountClassBase <= 0.805,0.13973,0.94888,1.16593
+CountDeclClassMethod <= -0.53,0.09955,0.94619,1.16262
+MINOR_LINE <= 0.975,0.08929,0.945,1.16116

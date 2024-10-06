@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-1.56 < CountDeclClassMethod <= 0.2 & MINOR_LINE <= 1.085,0.0916,1.0,1.16509
+Del_lines <= -13,0.07872,1.0,1.16509
+CountClassBase <= 0.92,0.13263,0.98201,1.14414
+-0.241 < MINOR_COMMIT <= 0.0125 & 1 < CountClassCoupled <= 3.85,0.20229,0.97877,1.14036
+OWN_COMMIT > 1.002,0.10735,0.97778,1.1392
+CountClassCoupled <= 1,0.20038,0.97143,1.1318
+16.6 < PercentLackOfCohesion <= 50,0.20229,0.96934,1.12937
+0.858 < OWN_COMMIT <= 1.002,0.29342,0.96423,1.12341

@@ -1,0 +1,6 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"000000","0.9855 < AvgEssential <= 1.0215","target = 0",0.84509,1893,0.83616,1873,0.98943,0.00729,1.0088,5.85702e-09,0.9808,2197
+"000001","0.884 < AvgCyclomaticModified <= 1.004","target = 0",0.59688,1337,0.59241,1327,0.99252,0.00699,1.01195,1.03656e-06,0.9808,2197
+"000002","0.918 < MINOR_LINE <= 1.094","target = 0",0.39911,894,0.39777,891,0.99664,0.00632,1.01615,1.03342e-06,0.9808,2197
+"000003","-0.13 < MAJOR_LINE <= 0.2","target = 0",0.36339,814,0.36339,814,1,0.00698,1.01957,2.91663e-09,0.9808,2197
+"000004","-0.205 < CountDeclInstanceVariable <= 0.25","target = 0",0.36161,810,0.36116,809,0.99877,0.0065,1.01831,8.60026e-08,0.9808,2197

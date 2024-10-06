@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.72 < CountDeclClassVariable <= 0.09,0.55222,0.82988,1.07623
+-0.99 < CountDeclMethodPrivate <= 0.07,0.536,0.88968,1.15378
+-0.28 < CountDeclClassMethod <= 0.065,0.52599,0.8359,1.08404
+-0.72 < CountDeclClassVariable <= 0.09 & 0.994 < AvgEssential <= 1.088 & 0.978 < CountDeclClass <= 1.047,0.34573,0.90483,1.17342
+11 < CountLineComment <= 50,0.31044,0.92473,1.19923
+-0.04 < MAJOR_LINE <= 0.54,0.29757,0.93109,1.20748
+-0.12 < CountDeclInstanceVariable <= 0.94,0.29185,0.83824,1.08706

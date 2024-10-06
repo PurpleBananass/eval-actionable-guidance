@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.012 < OWN_COMMIT <= 0.05,0.35509,0.98784,1.2424
+0.85 < CountOutput_Min <= 1.305,0.34741,0.85635,1.07703
+MaxInheritanceTree <= 1.035,0.24136,0.92644,1.16518
+MaxInheritanceTree <= 1.035 & -0.0515 < MINOR_COMMIT <= 0.012,0.22601,0.97452,1.22565
+1.645 < MaxInheritanceTree <= 2.055,0.22073,0.92826,1.16747
+3.95 < CountDeclMethodPublic <= 7.5,0.20537,0.88084,1.10783

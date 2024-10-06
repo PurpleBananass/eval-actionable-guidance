@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.3 < CountDeclInstanceVariable <= 1.16 & -1.26 < CountDeclClassVariable <= 0.24 & -0.82 < CountDeclMethodProtected <= 0.05 & -0.026 < MaxNesting_Min <= 0.015'","b'target = 0'",0.09069,185,0.08775,179,0.96757,0.03613,1.70012,6.85387e-21,0.56912,1161
+"b'000001'","b'-0.3 < CountDeclInstanceVariable <= 1.16 & -0.82 < CountDeclMethodProtected <= 0.05 & 0.994 < AvgEssential <= 1.081 & -0.026 < MaxNesting_Min <= 0.015'","b'target = 0'",0.11275,230,0.10588,216,0.93913,0.04172,1.65015,6.29019e-16,0.56912,1161
+"b'000002'","b'-0.3 < CountDeclInstanceVariable <= 1.16 & -0.41 < CountDeclClassMethod <= 0.19 & -0.82 < CountDeclMethodProtected <= 0.05'","b'target = 0'",0.10343,211,0.09706,198,0.93839,0.03819,1.64885,1.31796e-14,0.56912,1161
+"b'000003'","b'PercentLackOfCohesion <= 0.5 & -0.82 < CountDeclMethodProtected <= 0.05 & -0.026 < MaxNesting_Min <= 0.015'","b'target = 0'",0.11373,232,0.10637,217,0.93534,0.04165,1.6435,6.56481e-20,0.56912,1161
+"b'000004'","b'-0.3 < CountDeclInstanceVariable <= 1.16 & -0.82 < CountDeclMethodProtected <= 0.05 & 3 < Added_lines <= 48.5 & -0.026 < MaxNesting_Min <= 0.015'","b'target = 0'",0.13627,278,0.12598,257,0.92446,0.04842,1.62437,7.68563e-15,0.56912,1161
+"b'000005'","b'MaxNesting_Mean <= 0.18 & -0.82 < CountDeclMethodProtected <= 0.05'","b'target = 0'",0.12941,264,0.11863,242,0.91667,0.04498,1.61068,3.62885e-21,0.56912,1161
+"b'000006'","b'0.72 < MAJOR_LINE <= 1.33 & 0.947 < OWN_LINE <= 0.981'","b'target = 0'",0.07647,156,0.0701,143,0.91667,0.02658,1.61068,2.63925e-24,0.56912,1161
+"b'000007'","b'0.03 < MAJOR_LINE <= 0.72 & -0.82 < CountDeclMethodProtected <= 0.05'","b'target = 0'",0.08873,181,0.0799,163,0.90055,0.02941,1.58237,5.03274e-12,0.56912,1161
+"b'000008'","b'19 < CountLineComment <= 60 & -0.82 < CountDeclMethodProtected <= 0.05'","b'target = 0'",0.17108,349,0.15343,313,0.89685,0.05607,1.57586,3.74869e-24,0.56912,1161
+"b'000009'","b'1.78 < CountInput_Mean <= 3.54 & -0.82 < CountDeclMethodProtected <= 0.05'","b'target = 0'",0.12353,252,0.11078,226,0.89683,0.04048,1.57582,1.90853e-16,0.56912,1161

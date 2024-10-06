@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 1,0.2192,0.99593,1.12614
+PercentLackOfCohesion <= 2.5 & -0.042 < MINOR_COMMIT <= 0.036,0.21384,0.99582,1.12602
+-1.05 < CountDeclClassVariable <= 0.18 & -0.93 < CountDeclMethodPrivate <= 0.09,0.40089,0.99443,1.12445
+-1.05 < CountDeclClassVariable <= 0.18 & -0.048 < AvgLineBlank <= 0.012,0.36429,0.99387,1.12381
+CountLineComment <= 16.2,0.20223,0.99117,1.12076
+-1.05 < CountDeclClassVariable <= 0.18 & -0.042 < MINOR_COMMIT <= 0.036,0.4942,0.99097,1.12053
+-1.05 < CountDeclClassVariable <= 0.18 & 0.993 < AvgEssential <= 1.083,0.40357,0.99004,1.11948
+1 < CountClassCoupled <= 3.25,0.17857,0.99,1.11943
+0.02 < MAJOR_LINE <= 0.76,0.12098,0.98893,1.11822
+-14 < Added_lines <= 20.5,0.42589,0.98847,1.1177

@@ -1,0 +1,5 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"000000","CountOutput_Mean <= 1.41","target = 0",0.20313,455,0.20313,455,1,0.00626,1.03178,1.19467e-07,0.9692,2171
+"000001","CountClassCoupled <= 0.4","target = 0",0.19375,434,0.19375,434,1,0.00597,1.03178,2.71985e-07,0.9692,2171
+"000002","0.4 < CountClassCoupled <= 1.82","target = 0",0.21607,484,0.21563,483,0.99793,0.00621,1.02965,7.84261e-07,0.9692,2171
+"000003","-0.013 < OWN_COMMIT <= 0.07","target = 0",0.33348,747,0.33259,745,0.99732,0.00938,1.02902,2.76892e-10,0.9692,2171

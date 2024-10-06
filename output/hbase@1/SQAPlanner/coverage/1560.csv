@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.37 < RatioCommentToCode <= 1.37,0.49098,0.92843,1.04004
+0.5 < MAJOR_COMMIT <= 1.03,0.30199,0.94654,1.06033
+-0.01 < CountDeclClassVariable <= 0.74,0.28443,0.94491,1.0585
+19 < CountLineComment <= 35,0.26876,0.95406,1.06875
+MAJOR_LINE <= 0.03,0.25926,0.95421,1.06892
+AvgLineComment <= 0.1,0.24549,0.95358,1.06821
+0.8 < CountClassCoupled <= 3.5,0.23694,0.97996,1.09776
+MAJOR_COMMIT <= 0.5,0.20323,0.98832,1.10713
+12.6 < PercentLackOfCohesion <= 43.6,0.20323,0.96262,1.07834

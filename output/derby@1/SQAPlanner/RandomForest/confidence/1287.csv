@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 2.275 & -0.78 < CountDeclMethodPrivate <= 0.36,0.11978,0.98106,1.53897
+0.87 < MaxInheritanceTree <= 1.44 & 15 < CountLineComment <= 69,0.0794,0.96,1.50594
+0.87 < MaxInheritanceTree <= 1.44 & -0.9 < CountDeclMethodProtected <= 0.14,0.13521,0.91275,1.43182
+RatioCommentToCode > 2.275,0.19555,0.91183,1.43038
+CountLineComment <= 15,0.10844,0.87866,1.37834
+-0.78 < CountDeclMethodPrivate <= 0.36 & -0.9 < CountDeclMethodProtected <= 0.14,0.26906,0.86509,1.35706
+15 < CountLineComment <= 69,0.29038,0.83594,1.31132
+CountDeclMethodPrivate <= -0.78,0.07895,0.83333,1.30724

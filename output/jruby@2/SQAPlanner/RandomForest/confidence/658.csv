@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxNesting_Mean <= 0.015,0.24732,1.0,1.04869
+CountOutput_Mean <= 1.46,0.19464,1.0,1.04869
+CountClassBase <= 0.931,0.16116,1.0,1.04869
+1.46 < CountOutput_Mean <= 2.52,0.20759,0.99785,1.04643
+RatioCommentToCode > 1.41,0.19152,0.99767,1.04624
+-0.004 < OWN_COMMIT <= 0.114,0.325,0.99725,1.04581
+CountClassCoupled <= 1.1,0.1933,0.99538,1.04385
+0.72 < RatioCommentToCode <= 1.41,0.19911,0.99327,1.04164
+CountInput_Min > 2.32,0.19464,0.99312,1.04147
+CountLineComment <= 4,0.2058,0.99132,1.03959

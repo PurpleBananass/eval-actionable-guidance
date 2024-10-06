@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+11 < CountLineComment <= 29.6 & 0.95 < CountDeclClass <= 1.73,0.27143,0.95724,1.16217
+1.05 < MINOR_LINE <= 1.71,0.13839,0.95484,1.15926
+-0.24 < CountDeclMethodPrivate <= 0.12 & 0.95 < CountDeclClass <= 1.73,0.35089,0.94911,1.15231
+0.77 < RatioCommentToCode <= 1.285,0.17946,0.94527,1.14765
+RatioCommentToCode > 1.285,0.19777,0.94131,1.14284
+0.135 < MAJOR_LINE <= 0.685,0.11786,0.93182,1.13131
+11 < CountLineComment <= 29.6,0.35982,0.92308,1.1207
+38 < PercentLackOfCohesion <= 62,0.20089,0.91333,1.10887

@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.998 < CountDeclClass <= 1.128,0.68258,0.82378,1.0549
+-0.118 < CountDeclMethodProtected <= 0.008,0.60239,0.85578,1.09589
+-0.3 < CountDeclMethodPrivate <= 0.3,0.38711,0.90752,1.16214
+-1.48 < CountDeclClassVariable <= 0.22 & -0.118 < CountDeclMethodProtected <= 0.008,0.33604,0.90909,1.16415
+MAJOR_LINE <= 0,0.28019,0.93697,1.19985
+20.5 < CountLineComment <= 52.5,0.27208,0.91754,1.17497
+PercentLackOfCohesion <= 2.5,0.22816,0.94142,1.20555

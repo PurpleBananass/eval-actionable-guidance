@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.165 < CountDeclMethodDefault <= 0.26 & 0.5 < Added_lines <= 7.4'","b'target = 0'",0.20882,426,0.20882,426,1,0.07411,1.55015,1.59342e-11,0.6451,1316
+"b'000001'","b'-0.16 < AvgLineBlank <= 0.38 & 0.5 < Added_lines <= 7.4'","b'target = 0'",0.18824,384,0.18824,384,1,0.06681,1.55015,4.16084e-10,0.6451,1316
+"b'000002'","b'-0.96 < CountDeclClassVariable <= 0.48 & 0.5 < Added_lines <= 7.4'","b'target = 0'",0.17304,353,0.17304,353,1,0.06141,1.55015,3.93962e-09,0.6451,1316
+"b'000003'","b'-0.45 < CountDeclInstanceVariable <= 0.5 & -0.18 < CountDeclMethodPrivate <= 0.215 & -0.165 < CountDeclMethodDefault <= 0.26'","b'target = 0'",0.07941,162,0.07941,162,1,0.02818,1.55015,2.23387e-10,0.6451,1316
+"b'000004'","b'0.65 < CountClassCoupled <= 3.15 & -0.18 < CountDeclMethodPrivate <= 0.215'","b'target = 0'",0.07647,156,0.07647,156,1,0.02714,1.55015,1.7403e-13,0.6451,1316
+"b'000005'","b'-0.45 < CountDeclInstanceVariable <= 0.5 & -0.165 < CountDeclMethodDefault <= 0.26 & -1.14 < CountDeclClassMethod <= 0.52'","b'target = 0'",0.07647,156,0.07647,156,1,0.02714,1.55015,3.17322e-13,0.6451,1316
+"b'000006'","b'-0.16 < AvgLineBlank <= 0.38 & -1.14 < CountDeclClassMethod <= 0.52 & -0.222 < CountDeclMethodProtected <= 0.024'","b'target = 0'",0.12696,259,0.12647,258,0.99614,0.04457,1.54417,2.40916e-13,0.6451,1316
+"b'000007'","b'-0.16 < AvgLineBlank <= 0.38 & -0.18 < CountDeclMethodPrivate <= 0.215 & -0.222 < CountDeclMethodProtected <= 0.024'","b'target = 0'",0.11716,239,0.11667,238,0.99582,0.04109,1.54367,8.29305e-14,0.6451,1316
+"b'000008'","b'1.2 < CountInput_Mean <= 2.66 & -0.18 < CountDeclMethodPrivate <= 0.215'","b'target = 0'",0.08676,177,0.08627,176,0.99435,0.0303,1.54139,7.69888e-14,0.6451,1316
+"b'000009'","b'0.65 < CountClassCoupled <= 3.15 & -0.16 < AvgLineBlank <= 0.38'","b'target = 0'",0.08088,165,0.08039,164,0.99394,0.02822,1.54076,9.34574e-21,0.6451,1316

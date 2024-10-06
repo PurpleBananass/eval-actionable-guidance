@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.39 < CountDeclMethodDefault <= 0.13,0.51631,0.93315,1.06394
+-0.25 < AvgLineBlank <= 0.1,0.48936,0.92174,1.05093
+-14 < Del_lines <= 10,0.45957,0.9537,1.08738
+-0.03 < MAJOR_LINE <= 0.36,0.31489,0.95045,1.08367
+0.955 < MINOR_LINE <= 1.175,0.30355,0.94237,1.07445
+1.99 < MaxInheritanceTree <= 2.59,0.27423,0.93793,1.06939
+OWN_COMMIT > 0.998,0.27187,0.98783,1.12628
+-0.48 < CountDeclClassMethod <= 0.54 & 0.9975 < AvgEssential <= 1.0305,0.25816,0.9707,1.10675
+AvgLineComment <= 0.26,0.22884,0.95868,1.09305

@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.195 < AvgLineBlank <= 0.115,0.47863,0.91865,1.03903
+-17.4 < Del_lines <= 1.6,0.46249,0.98665,1.11595
+-0.195 < AvgLineBlank <= 0.115 & -0.0985 < MINOR_COMMIT <= 0.0185,0.45632,0.95317,1.07808
+-0.32 < CountDeclClassMethod <= 0.26,0.42783,0.95006,1.07455
+MAJOR_LINE <= 0.04,0.26211,0.99819,1.12899
+OWN_COMMIT > 0.992,0.25736,0.99262,1.12269
+AvgLineComment <= 0.26,0.22412,0.95975,1.08551
+1.58 < CountInput_Mean <= 2.82,0.2227,0.95522,1.0804

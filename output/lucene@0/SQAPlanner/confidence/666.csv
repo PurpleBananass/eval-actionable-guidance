@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.019 < OWN_COMMIT <= 0.068,0.33191,0.99571,1.26552
+OWN_COMMIT <= -0.019,0.08547,0.98889,1.25685
+CountClassCoupled <= 1.05,0.20893,0.96136,1.22187
+-0.09 < MAJOR_LINE <= 0.3 & -0.26 < CountDeclMethodPrivate <= 0.12,0.16239,0.95029,1.20779
+MaxInheritanceTree <= 1.125,0.2151,0.94702,1.20364
+CountInput_Min > 2.045,0.15764,0.94578,1.20206
+RatioCommentToCode > 1.67,0.19801,0.94245,1.19782
+1.125 < MaxInheritanceTree <= 1.87,0.17379,0.93169,1.18416
+-0.26 < CountDeclMethodPrivate <= 0.12 & 0.904 < CountDeclClass <= 1.038,0.27398,0.93068,1.18286
+0.855 < RatioCommentToCode <= 1.67,0.20513,0.92824,1.17977

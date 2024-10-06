@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.42 < CountDeclMethodDefault <= 0.045,0.58317,0.91426,1.06179
+-0.148 < AvgLineBlank <= 0.048,0.45913,0.90262,1.04827
+-0.4 < CountDeclClassMethod <= 0.36,0.38317,0.9197,1.0681
+-0.155 < MAJOR_LINE <= 0.235,0.32885,0.95175,1.10533
+-0.148 < AvgLineBlank <= 0.048 & -0.265 < CountDeclMethodProtected <= 0.02,0.32308,0.9628,1.11816
+0.844 < OWN_COMMIT <= 1.002,0.29327,0.98361,1.14232
+AvgLineComment <= 0.14,0.24663,0.94152,1.09345
+MaxNesting_Mean <= 0.05,0.23029,0.94781,1.10075

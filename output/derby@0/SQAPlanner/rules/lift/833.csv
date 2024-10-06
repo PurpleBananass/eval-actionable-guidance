@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"000000","-17 < Added_lines <= 9.5 & MAJOR_LINE <= 0.105","target = 0",0.13416,282,0.13416,282,1,0.04449,1.49609,2.33768e-34,0.66841,1405
+"000001","-17 < Added_lines <= 9.5 & AvgLineComment <= 1.25","target = 0",0.09705,204,0.09705,204,1,0.03218,1.49609,5.49799e-24,0.66841,1405
+"000002","-17 < Added_lines <= 9.5 & CountClassCoupled <= 1.05","target = 0",0.10752,226,0.10704,225,0.99558,0.03518,1.48947,2.00038e-16,0.66841,1405
+"000003","-17 < Added_lines <= 9.5 & MaxNesting_Mean <= 0.085","target = 0",0.1275,268,0.12655,266,0.99254,0.04133,1.48492,7.15114e-17,0.66841,1405
+"000004","-17 < Added_lines <= 9.5 & 0.105 < MAJOR_LINE <= 0.805","target = 0",0.09848,207,0.09753,205,0.99034,0.0317,1.48163,1.07341e-23,0.66841,1405
+"000005","CountClassCoupled <= 1.05 & CountDeclMethodPublic <= 1.7","target = 0",0.0823,173,0.08135,171,0.98844,0.02634,1.47879,2.32108e-12,0.66841,1405
+"000006","-0.16 < AvgLineBlank <= 0.205 & CountDeclMethodPublic <= 1.7","target = 0",0.06565,138,0.0647,136,0.98551,0.02082,1.4744,6.82071e-09,0.66841,1405
+"000007","MAJOR_LINE <= 0.105 & CountDeclMethodPublic <= 1.7","target = 0",0.08944,188,0.08801,185,0.98404,0.02823,1.47221,9.63322e-13,0.66841,1405
+"000008","CountLineComment <= 33.5","target = 0",0.20124,423,0.19743,415,0.98109,0.06292,1.46779,1.29084e-70,0.66841,1405
+"000009","-0.235 < CountDeclMethodProtected <= 0.07 & CountDeclMethodPublic <= 1.7","target = 0",0.08563,180,0.08373,176,0.97778,0.02649,1.46284,9.96669e-11,0.66841,1405

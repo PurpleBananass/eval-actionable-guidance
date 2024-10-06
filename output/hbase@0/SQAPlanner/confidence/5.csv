@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+1.1 < CountClassCoupled <= 4.5,0.21278,1.0,1.19039
+CountClassCoupled <= 1.1,0.19837,1.0,1.19039
+1.82 < CountOutput_Mean <= 3.34 & -0.55 < CountClassDerived <= 0.13,0.0951,0.99495,1.18438
+1.82 < CountOutput_Mean <= 3.34 & -0.01 < CountDeclMethodProtected <= 0.32,0.15322,0.9906,1.1792
+0.864 < OWN_COMMIT <= 1,0.28386,0.98985,1.17831
+0.56 < RatioCommentToCode <= 1.08 & -0.55 < CountClassDerived <= 0.13,0.12776,0.98496,1.17249
+OWN_COMMIT > 1,0.10903,0.98238,1.16942

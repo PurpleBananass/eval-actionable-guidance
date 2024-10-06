@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountLineComment <= 32 & -0.315 < CountDeclClassVariable <= 0.065 & 0.996 < AvgEssential <= 1.051,0.08284,0.97041,1.28548
+0 < Added_lines <= 6.7,0.54755,0.96598,1.27961
+CountClassBase > 1.862 & MaxInheritanceTree <= 1.04,0.10343,0.96209,1.27445
+CountInput_Min > 2.09 & -0.021 < MaxNesting_Min <= 0.037,0.07647,0.95513,1.26523
+CountClassDerived > 0.659,0.19951,0.88206,1.16845
+1.12 < CountInput_Min <= 2.09,0.19461,0.86902,1.15117

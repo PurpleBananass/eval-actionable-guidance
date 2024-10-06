@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 1.585,0.19643,0.95227,1.14252
+-1.5 < Added_lines <= 29,0.30357,0.95147,1.14156
+Added_lines <= -1.5,0.12545,0.94662,1.13574
+0.89 < RatioCommentToCode <= 1.585,0.19509,0.93593,1.12291
+OWN_COMMIT <= 0.175,0.20357,0.93421,1.12085
+CountClassCoupled <= 0.7,0.18705,0.9284,1.11388
+2.85 < CountClassCoupled <= 5.9,0.19464,0.92431,1.10898
+1.52 < CountOutput_Mean <= 2.84,0.19955,0.91946,1.10316
+0.7 < CountClassCoupled <= 2.85,0.21696,0.91358,1.0961
+1.8 < CountDeclMethodPublic <= 4.35,0.2183,0.91002,1.09183

@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountLineComment <= 17.4,0.13429,1.0,1.135
+CountOutput_Min > 2.235 & -0.203 < MINOR_COMMIT <= 0.043,0.18082,0.99469,1.12898
+MAJOR_COMMIT <= 0.23,0.20719,0.99306,1.12712
+PercentLackOfCohesion <= 9.2,0.19856,0.99034,1.12404
+0.1 < MAJOR_LINE <= 0.81,0.1482,0.99029,1.12398
+0.7 < CountClassCoupled <= 3.65,0.21199,0.98643,1.1196
+CountClassBase <= 0.92,0.1295,0.98519,1.11819
+0.23 < MAJOR_COMMIT <= 0.96,0.12662,0.98485,1.11781
+3.65 < CountClassCoupled <= 7.35,0.20096,0.98091,1.11333
+CountOutput_Min > 2.235,0.18753,0.97698,1.10888

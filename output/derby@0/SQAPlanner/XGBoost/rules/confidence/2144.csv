@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'CountLineComment <= 21 & -4 < Added_lines <= 6.4'","b'target = 0'",0.09461,193,0.09461,193,1,0.03144,1.4978,5.6678e-09,0.66765,1362
+"b'000001'","b'AvgLineComment <= 0.1 & -4 < Added_lines <= 6.4'","b'target = 0'",0.13578,277,0.13529,276,0.99639,0.04464,1.49239,1.2118e-11,0.66765,1362
+"b'000002'","b'MAJOR_LINE <= 0.07 & 0.65 < MaxInheritanceTree <= 1.04'","b'target = 0'",0.05637,115,0.05441,111,0.96522,0.01677,1.4457,2.50807e-10,0.66765,1362
+"b'000003'","b'MAJOR_LINE <= 0.07 & -0.44 < CountDeclClassMethod <= 0.25'","b'target = 0'",0.10343,211,0.09902,202,0.95735,0.02996,1.43391,2.50665e-19,0.66765,1362
+"b'000004'","b'AvgLineComment <= 0.1 & -2.04 < CountDeclClassVariable <= 0.18'","b'target = 0'",0.11863,242,0.11275,230,0.95041,0.03354,1.42353,7.0988e-18,0.66765,1362
+"b'000005'","b'MAJOR_LINE <= 0.07 & -0.172 < CountDeclMethodProtected <= 0.008'","b'target = 0'",0.13578,277,0.12892,263,0.94946,0.03827,1.4221,1.53698e-21,0.66765,1362
+"b'000006'","b'8.9 < CountDeclMethodPublic <= 17.8 & 0.65 < MaxInheritanceTree <= 1.04'","b'target = 0'",0.07059,144,0.06667,136,0.94444,0.01954,1.41459,2.33749e-10,0.66765,1362
+"b'000007'","b'0.07 < MAJOR_LINE <= 0.73 & -0.172 < CountDeclMethodProtected <= 0.008'","b'target = 0'",0.10539,215,0.09706,198,0.92093,0.02669,1.37937,1.04333e-11,0.66765,1362
+"b'000008'","b'CountOutput_Min <= 0.228 & -2.04 < CountDeclClassVariable <= 0.18'","b'target = 0'",0.10833,221,0.09951,203,0.91855,0.02718,1.3758,5.45207e-11,0.66765,1362
+"b'000009'","b'-4 < Added_lines <= 6.4'","b'target = 0'",0.50392,1028,0.46127,941,0.91537,0.12483,1.37104,2.20767e-137,0.66765,1362

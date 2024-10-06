@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_LINE > 0.9815 & -42.5 < Added_lines <= 4.5,0.09066,0.99,1.41447
+CountClassBase <= 0.79 & PercentLackOfCohesion <= 2.5,0.06981,0.96104,1.37309
+OWN_COMMIT <= 0.01 & 10 < CountLineComment <= 69,0.12511,0.9529,1.36146
+OWN_COMMIT <= 0.01 & -1.76 < CountDeclMethodPrivate <= 0.48,0.15413,0.94706,1.35312
+MaxInheritanceTree <= 0.82 & CountClassBase <= 0.79,0.09973,0.94545,1.35082
+OWN_COMMIT <= 0.01 & -1.24 < CountDeclClassVariable <= 0.34,0.14551,0.93769,1.33974
+10 < CountLineComment <= 69 & -42.5 < Added_lines <= 4.5,0.22665,0.932,1.3316
+-1.76 < CountDeclMethodPrivate <= 0.48 & -42.5 < Added_lines <= 4.5,0.27697,0.92471,1.32119
+CountLineComment <= 10,0.0961,0.89623,1.28049
+RatioCommentToCode > 2.22,0.20172,0.87416,1.24896

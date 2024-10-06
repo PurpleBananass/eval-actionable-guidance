@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.13 < CountDeclMethodProtected <= 0.28 & 0.922 < AvgCyclomaticModified <= 1.09,0.22105,0.9913,1.1467
+CountClassCoupled <= 0.42,0.19222,0.9775,1.13073
+0.922 < AvgCyclomaticModified <= 1.09 & -0.025 < CountDeclClassMethod <= 0.215,0.37914,0.97338,1.12597
+1.305 < RatioCommentToCode <= 2.525,0.19798,0.9733,1.12587
+CountDeclMethodPublic <= 0.9 & 0.9735 < AvgEssential <= 1.023,0.17203,0.97207,1.12444
+OWN_COMMIT > 1.028,0.09274,0.96891,1.12079
+1.38 < ADEV <= 2.04,0.27439,0.96673,1.11826
+-0.016 < CountDeclMethodPrivate <= 0.104 & -0.025 < CountDeclClassMethod <= 0.215 & 0.9735 < AvgEssential <= 1.023,0.51177,0.9615,1.11222

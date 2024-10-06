@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.238 < CountDeclMethodPrivate <= 0.01 & -0.055 < MAJOR_LINE <= 0.043,0.3201,1.0,1.08968
+OWN_LINE > 0.968,0.21005,0.99772,1.08719
+0.82 < CountClassCoupled <= 2.62,0.23254,0.99177,1.08071
+-0.11 < Del_lines <= 0.47,0.7799,0.99141,1.08032
+CountInput_Mean <= 1.22,0.20478,0.99065,1.07949
+CountClassBase <= 0.908,0.1488,0.99035,1.07917
+CountClassCoupled <= 0.82,0.18612,0.98972,1.07847
+CountLineComment <= 19.9,0.1823,0.9895,1.07824
+0.78 < CountDeclClass <= 1.005 & 0.79 < CountOutput_Min <= 1.125,0.32297,0.98519,1.07353
+19.9 < CountLineComment <= 27.5,0.24306,0.98031,1.06823

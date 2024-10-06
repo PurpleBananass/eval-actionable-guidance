@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassBase <= 0.89 & -1.4 < CountDeclInstanceVariable <= 1.4,0.07985,0.93182,1.44527
+CountLineComment <= 26,0.1461,0.91615,1.42097
+26 < CountLineComment <= 72 & -10.2 < Added_lines <= 4.2,0.1824,0.91045,1.41212
+0.84 < MaxInheritanceTree <= 1.39 & -0.37 < CountDeclMethodProtected <= 0.16,0.14655,0.87926,1.36375
+MAJOR_LINE <= 0.16,0.22142,0.8709,1.35079
+MaxInheritanceTree <= 0.84 & -2.57 < MINOR_COMMIT <= 0,0.16198,0.86835,1.34682
+RatioCommentToCode > 1.955,0.19918,0.86788,1.3461
+Added_lines <= -10.2,0.07849,0.86127,1.33585
+CountClassCoupled <= 1.2 & -2.57 < MINOR_COMMIT <= 0,0.20054,0.85294,1.32293

@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.25 < AvgLineBlank <= 0.055,0.51366,0.8694,1.04519
+0.7 < RatioCommentToCode <= 2.6,0.33637,0.94302,1.13369
+-0.9 < Del_lines <= 7.5,0.32295,0.95994,1.15403
+-0.35 < CountDeclClassMethod <= 0.47,0.32151,0.93443,1.12336
+-0.07 < MAJOR_LINE <= 0.385,0.29276,0.96236,1.15693
+-0.9 < Del_lines <= 7.5 & 0.949 < AvgEssential <= 1.003,0.24916,0.98654,1.18601
+OWN_COMMIT > 0.994,0.24868,0.99615,1.19756
+0.385 < MAJOR_LINE <= 1.02,0.23622,0.90669,1.09002

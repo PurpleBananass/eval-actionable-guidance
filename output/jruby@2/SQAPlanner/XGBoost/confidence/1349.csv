@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.012 < OWN_COMMIT <= 0.144,0.32163,1.0,1.04156
+1.05 < CountClassCoupled <= 4.55,0.20865,1.0,1.04156
+CountClassCoupled <= 1.05,0.20769,1.0,1.04156
+1.41 < CountOutput_Mean <= 2.36,0.1976,1.0,1.04156
+-0.225 < CountDeclMethodPrivate <= 0.075,0.53269,0.9991,1.04062
+CountOutput_Mean <= 1.41,0.20385,0.99764,1.03911
+-0.002 < MaxNesting_Mean <= 0.184,0.28125,0.99487,1.03622
+-0.24 < CountDeclClassMethod <= 0.31,0.43077,0.99442,1.03575
+-0.106 < AvgLineBlank <= 0.006 & -0.01 < CountDeclMethodDefault <= 0.645,0.45144,0.99148,1.03269
+-0.79 < CountDeclClassVariable <= 0.07,0.57548,0.99081,1.03199

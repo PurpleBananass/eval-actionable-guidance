@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-20 < Added_lines <= 8 & MAJOR_LINE <= 0.025,0.15513,1.0,1.46095
+0.85 < MaxInheritanceTree <= 1.27 & 1.5 < CountInput_Mean <= 3.1,0.05251,0.98182,1.43439
+Added_lines <= -20,0.06158,0.96124,1.40432
+CountLineComment <= 34.5,0.21146,0.9526,1.39169
+0.565 < MAJOR_LINE <= 1.05 & 0.85 < MaxInheritanceTree <= 1.27,0.06539,0.94891,1.3863
+MaxInheritanceTree <= 0.85,0.17327,0.92011,1.34423
+CountDeclMethodPrivate <= -0.18,0.09117,0.90576,1.32327

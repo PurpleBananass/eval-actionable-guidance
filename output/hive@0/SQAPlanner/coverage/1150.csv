@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.22 < CountDeclClass <= 1.03,0.54575,0.88146,1.09248
+0.978 < AvgEssential <= 1.166,0.53096,0.8564,1.06142
+-0.035 < OWN_COMMIT <= 0.02,0.45933,0.90744,1.12469
+0.22 < CountDeclClass <= 1.03 & -0.27 < CountDeclClassMethod <= 0.035,0.37985,0.94161,1.16703
+7.8 < CountLineComment <= 28.2,0.35028,0.94459,1.17073
+-0.185 < MAJOR_LINE <= 0.27,0.34104,0.92005,1.14032
+-0.6 < CountDeclInstanceVariable <= 1.5,0.31331,0.89233,1.10596

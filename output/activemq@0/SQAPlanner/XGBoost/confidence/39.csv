@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.996 < OWN_COMMIT <= 1.0144,0.55693,0.98041,1.16237
+ADEV <= 1.39,0.20873,0.97955,1.16135
+1.39 < ADEV <= 2.18,0.23624,0.97791,1.15941
+OWN_COMMIT > 1.0144,0.07685,0.97531,1.15633
+CountClassCoupled <= 0.68,0.18928,0.96992,1.14994
+2.18 < ADEV <= 2.97,0.13947,0.96939,1.14931
+0.68 < CountClassCoupled <= 2.56,0.21632,0.96272,1.1414
+0.962 < AvgCyclomaticModified <= 1.072 & -0.005 < CountDeclClassMethod <= 0.27,0.33491,0.95892,1.1369
+0.962 < AvgCyclomaticModified <= 1.072 & 0.966 < CountDeclClass <= 1.11,0.3629,0.95294,1.12981
+PercentLackOfCohesion <= 2.5,0.22818,0.94595,1.12152

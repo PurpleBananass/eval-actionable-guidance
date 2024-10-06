@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT > 1.0144,0.07485,1.0,1.2345
+1.41 < ADEV <= 2.25,0.22785,0.99792,1.23194
+0.9948 < OWN_COMMIT <= 1.0144,0.5064,0.98971,1.2218
+2.25 < ADEV <= 3.07 & -0.051 < MaxNesting_Min <= 0.01,0.19185,0.97778,1.20707
+-0.026 < MAJOR_LINE <= 0.078 & 0.914 < AvgCyclomaticModified <= 1.076,0.20654,0.97477,1.20336
+CountDeclInstanceVariable <= 0.02,0.29038,0.97064,1.19825
+CountClassCoupled <= 0.4 & -0.051 < MaxNesting_Min <= 0.01,0.17717,0.97059,1.19819
+2.25 < ADEV <= 3.07,0.20085,0.95755,1.18209
+0.4 < CountClassCoupled <= 2,0.23212,0.9551,1.17908

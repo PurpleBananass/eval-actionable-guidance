@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-14.2 < Added_lines <= 7.1 & -0.25 < CountDeclMethodDefault <= 0.135,0.18578,0.98153,1.6279
+0.9455 < OWN_LINE <= 0.9835 & 1.62 < CountClassBase <= 2.08,0.06029,0.94309,1.56415
+AvgLineComment <= 0.78 & 0.912 < AvgEssential <= 1.024,0.07745,0.94304,1.56406
+MAJOR_LINE <= 0.1 & -0.17 < CountDeclMethodPrivate <= 0.44,0.09118,0.94086,1.56045
+PercentLackOfCohesion <= 17.6 & MAJOR_LINE <= 0.1,0.08922,0.93407,1.54918
+CountClassCoupled <= 0.7 & 1.62 < CountClassBase <= 2.08,0.06225,0.91339,1.51488

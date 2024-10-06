@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 2.32 & -2.32 < CountDeclClassVariable <= 0.36,0.10109,0.9417,1.45476
+0.95 < CountClassCoupled <= 3.5 & -0.72 < CountDeclClassMethod <= 0.14,0.08114,0.87709,1.35495
+-0.14 < CountDeclInstanceVariable <= 0.8 & -0.72 < CountDeclClassMethod <= 0.14,0.14551,0.85358,1.31863
+CountLineComment <= 33.5,0.19311,0.84977,1.31273
+MAJOR_LINE <= 0.15,0.22801,0.83499,1.28991
+1.4 < AvgLineComment <= 4.25 & 0.97 < CountDeclClass <= 1.051,0.1582,0.83095,1.28366

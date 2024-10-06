@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+1.1 < CountClassCoupled <= 3.3 & -1 < CountDeclClassMethod <= 0.34,0.05967,0.976,1.26686
+CountDeclMethodPublic <= 1.35 & -0.1954 < MINOR_COMMIT <= 0.0064,0.19761,0.9686,1.25726
+CountLineComment <= 26.5,0.16516,0.96821,1.25675
+-19.5 < Added_lines <= 4 & -0.45 < CountDeclMethodProtected <= 0.015,0.40477,0.96344,1.25057
+OWN_COMMIT <= 0.035,0.22768,0.95597,1.24087
+CountClassCoupled <= 1.1,0.19379,0.95567,1.24047
+CountDeclMethodPublic <= 1.35,0.20907,0.94521,1.22689
+Added_lines <= -19.5,0.07733,0.94444,1.22591
+CountDeclInstanceVariable <= -0.68,0.11122,0.94421,1.2256

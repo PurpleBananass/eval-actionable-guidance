@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.23 < AvgLineBlank <= 0.105,0.42286,0.88739,1.16397
+-0.69 < CountDeclMethodPrivate <= 0.34,0.36381,0.90838,1.1915
+-0.008 < OWN_COMMIT <= 0.09,0.3181,0.9985,1.30972
+-0.1 < MAJOR_LINE <= 0.44,0.31143,0.89908,1.17931
+MaxInheritanceTree <= 1.07,0.22619,0.93053,1.22055
+MaxInheritanceTree <= 1.07 & -0.0542 < MINOR_COMMIT <= 0.0048,0.21952,0.95228,1.24908

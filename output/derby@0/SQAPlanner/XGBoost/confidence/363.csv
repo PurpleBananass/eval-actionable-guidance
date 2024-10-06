@@ -1,0 +1,5 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-2.6 < Added_lines <= 6.9,0.51029,0.95965,1.4577
+OWN_LINE > 0.98 & -0.275 < CountDeclMethodProtected <= 0.065,0.06912,0.94326,1.4328
+OWN_LINE > 0.98 & 0.956 < CountDeclClass <= 1.034,0.11569,0.92797,1.40957
+CountLineComment <= 36 & 0.956 < CountDeclClass <= 1.034,0.18137,0.91351,1.38762

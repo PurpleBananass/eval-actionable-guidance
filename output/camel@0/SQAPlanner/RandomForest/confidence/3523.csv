@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT <= 0.015 & 0.784 < AvgCyclomaticModified <= 1.012,0.17304,0.99171,1.15451
+MAJOR_COMMIT <= 0.02 & 0.9545 < AvgEssential <= 1.0165,0.2414,0.98812,1.15033
+0.02 < MAJOR_COMMIT <= 0.55,0.12763,0.98127,1.14236
+CountDeclMethodPublic <= 0.64,0.18308,0.96867,1.12769
+-0.07 < CountDeclMethodProtected <= 0.5 & 0.784 < AvgCyclomaticModified <= 1.012,0.22228,0.96774,1.12661
+MAJOR_COMMIT <= 0.02,0.27151,0.96655,1.12522
+OWN_COMMIT <= 0.015,0.25908,0.95387,1.11046
+18.4 < CountLineComment <= 21.6,0.23662,0.94141,1.09596

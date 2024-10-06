@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MAJOR_COMMIT <= 0.01,0.29464,0.99394,1.11937
+0.01 < MAJOR_COMMIT <= 0.55,0.10804,0.98347,1.10758
+CountDeclMethodPublic <= 0.86,0.18839,0.98341,1.10751
+CountDeclInstanceVariable <= -0.01,0.1,0.98214,1.10608
+OWN_COMMIT <= 0.005,0.28884,0.98145,1.10531
+CountClassBase <= 0.936,0.13973,0.96486,1.08662
+CountClassCoupled <= 0.62,0.20089,0.96444,1.08615
+0.55 < MAJOR_COMMIT <= 1.1,0.22321,0.96,1.08115
+0.86 < CountDeclMethodPublic <= 2.6,0.22991,0.9534,1.07371
+-0.02 < CountDeclMethodProtected <= 0.57,0.29107,0.95245,1.07265

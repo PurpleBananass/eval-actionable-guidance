@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.225 < AvgLineBlank <= 0.05 & -0.049 < MINOR_COMMIT <= 0.017,0.4726,0.92981,1.08165
+-6.8 < Del_lines <= 4.6,0.40385,0.96905,1.1273
+MAJOR_LINE <= 0.06,0.25144,0.99235,1.15441
+OWN_COMMIT > 0.986,0.25,0.95192,1.10738
+MaxNesting_Mean <= 0.06,0.2226,0.94384,1.09798
+0.53 < RatioCommentToCode <= 1.3 & -0.005 < CountClassDerived <= 0.275,0.22163,0.9436,1.0977

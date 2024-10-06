@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-10.4 < Del_lines <= 1.4,0.44188,1.0,1.04194
+CountInput_Mean <= 0.68,0.19403,1.0,1.04194
+0.4918 < OWN_COMMIT <= 0.511 & -0.046 < MaxNesting_Min <= 0.015,0.31796,0.99858,1.04046
+0.56 < CountClassCoupled <= 2.22,0.21619,0.99791,1.03976
+-0.31 < CountDeclMethodProtected <= 0.25 & -0.046 < MaxNesting_Min <= 0.015,0.38535,0.99648,1.03827
+-0.16 < CountDeclInstanceVariable <= 0.35,0.33967,0.99068,1.03223
+0.74 < AvgCyclomaticModified <= 1.045,0.49977,0.99005,1.03157
+0.72 < CountDeclClass <= 1.055 & -0.046 < MaxNesting_Min <= 0.015,0.48666,0.98978,1.03129
+0.4918 < OWN_COMMIT <= 0.511,0.33559,0.98922,1.03071
+-0.31 < CountDeclMethodProtected <= 0.25,0.41701,0.98698,1.02838

@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+PercentLackOfCohesion <= 4 & -7.2 < Added_lines <= 8.8,0.11721,0.98,1.49097
+Added_lines <= -7.2,0.06751,0.97917,1.4897
+CountLineComment <= 28.5,0.17628,0.93351,1.42024
+RatioCommentToCode > 2.745,0.19784,0.90758,1.38079
+2.75 < CountClassCoupled <= 5.3 & -0.62 < CountDeclClassMethod <= 0.37,0.08533,0.8956,1.36257
+CountOutput_Min <= 0.355 & -0.48 < CountDeclMethodProtected <= 0.06,0.12049,0.89105,1.35564
+MaxNesting_Mean <= 0.19,0.20253,0.88657,1.34883
+CountDeclMethodPublic <= 0.85,0.19175,0.88509,1.34657
+CountDeclMethodProtected <= -0.48,0.07782,0.87952,1.3381

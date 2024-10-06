@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+AvgLineComment <= 1.24 & -14.2 < Added_lines <= 10,0.10686,1.0,1.66667
+MAJOR_LINE <= 0.09 & -14.2 < Added_lines <= 10,0.10784,0.99545,1.65909
+CountInput_Mean <= 1.58 & -14.2 < Added_lines <= 10,0.09167,0.9893,1.64884
+PercentLackOfCohesion <= 3.5 & -14.2 < Added_lines <= 10,0.11373,0.98276,1.63793
+-7 < CountLineComment <= 60.5 & -14.2 < Added_lines <= 10,0.18382,0.976,1.62667
+AvgLineComment <= 1.24 & -0.39 < CountDeclClassMethod <= 0.32,0.08284,0.94675,1.57791
+0.851 < OWN_LINE <= 0.908 & MAJOR_LINE <= 0.09,0.05784,0.91525,1.52542

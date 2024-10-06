@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+PercentLackOfCohesion <= 5.6 & -2 < Added_lines <= 9.2,0.09804,0.99,1.67047
+CountClassDerived > 1.235 & -2 < Added_lines <= 9.2,0.10784,0.98636,1.66434
+5.6 < PercentLackOfCohesion <= 35.8 & -2 < Added_lines <= 9.2,0.0951,0.98454,1.66125
+CountClassCoupled <= 1.1 & -2 < Added_lines <= 9.2,0.08775,0.98324,1.65907
+0.9515 < OWN_LINE <= 0.986 & 41.5 < CountLineComment <= 66.5,0.05147,0.97143,1.63914
+CountClassDerived > 1.235 & 0.9055 < OWN_LINE <= 0.9515,0.06863,0.92857,1.56682

@@ -13,20 +13,13 @@ def TimeLIME(train, test, model, output_path, top=5):
     """
     Based on https://github.com/ai-se/TimeLIME and https://github.com/kpeng2019/TimeLIME
     modified to work with our dataset
-    - no normalization
     - no (k+1) release information when calculating historical feature changes
-
     """
-    X_train_original = train.iloc[:, :-1].copy()
-    X_test_original = test.iloc[:, :-1].copy()
+    X_train = train.drop(columns=["target"]).copy()
+    X_test = test.drop(columns=["target"]).copy()
 
-    # Standardize the data
-    scaler = StandardScaler()
-    X_train = pd.DataFrame(scaler.fit_transform(X_train_original), columns=X_train_original.columns)
-    X_test = pd.DataFrame(scaler.transform(X_test_original), columns=X_test_original.columns)
-
-    y_train = train.iloc[:, -1]
-    y_test = test.iloc[:, -1]
+    y_train = train["target"]
+    y_test = test["target"]
 
     deltas = []
     for col in X_train.columns:
@@ -40,14 +33,6 @@ def TimeLIME(train, test, model, output_path, top=5):
         else:
             actionable.append(0)
 
-    explainer = LimeTabularExplainer(
-        training_data=X_train.values,
-        training_labels=y_train.values,
-        feature_names=X_train.columns,
-        discretizer="entropy",
-        feature_selection="lasso_path",
-        mode="classification",
-    )
 
     seen = []
     seen_id = []
@@ -72,36 +57,80 @@ def TimeLIME(train, test, model, output_path, top=5):
     min_val = X_train.min()
     max_val = X_train.max()
 
-    predictions = model.predict(X_test.values)
 
-    for i in tqdm(
-        range(0, len(y_test)),
-        desc="Generating explanations",
+    # Standardize the data
+    scaler = StandardScaler()
+    X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns, index=X_train.index)
+    X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns, index=X_test.index)
+    
+    explainer = LimeTabularExplainer(
+        training_data=X_train_scaled.values,
+        training_labels=y_train.values,
+        feature_names=X_train.columns,
+        discretizer="entropy",
+        feature_selection="lasso_path",
+        mode="classification",
+    )
+
+    ground_truth_idx = y_test[y_test == 1].index
+    ground_truth = X_test_scaled.loc[ground_truth_idx]
+    predictions = model.predict(ground_truth.values)
+    true_positives = ground_truth[predictions == 1]
+    
+    for test_idx in tqdm(
+        true_positives.index,
+        desc="Generating",
         leave=False,
         total=len(y_test),
     ):
-        file_name = output_path / f"{X_test.index[i]}.csv"
+        
+        file_name = output_path / f"{test_idx}.csv"
         if file_name.exists():
             continue
-        real_target = predictions[i]
-        if real_target == 0 or y_test.values[i] == 0:
-            continue
+        
 
         ins = explainer.explain_instance(
-            data_row=X_test.values[i],
+            data_row=X_test_scaled.loc[test_idx].values,
             predict_fn=model.predict_proba,
             num_features=len(X_train.columns),
             num_samples=5000,
         )
         ind = ins.local_exp[1]
-        temp = X_test.values[i].copy()
+        temp = X_test_scaled.loc[test_idx].values.copy()
         rule_pairs = ins.as_list(label=1)
 
-        orivinal_values = scaler.inverse_transform([X_test.values[i]])[0]
+        feature_names = X_train.columns 
+
+        # Restore the original feature values
+        for j in range(0, len(rule_pairs)):
+            interval = rule_pairs[j][0]
+            matches = re.search(
+                r"([-]?[\d.]+)?\s*(<|>)?\s*([a-zA-Z_]+)\s*(<=|>=|<|>)?\s*([-]?[\d.]+)?",
+                interval,
+            )
+            match matches.groups():
+                case v1, "<", feature_name, "<=", v2:
+                    temp[ind[j][0]] = float(v1)
+                    l = scaler.inverse_transform([temp])[0][ind[j][0]]
+                    temp[ind[j][0]] = float(v2)
+                    r = scaler.inverse_transform([temp])[0][ind[j][0]]
+                    rule = f"{l} < {feature_name} <= {r}"
+                case None, None, feature_name, ">", v1:
+                    temp[ind[j][0]] = float(v1)
+                    r = scaler.inverse_transform([temp])[0][ind[j][0]]
+                    rule = f"{feature_name} > {r}"
+                case None, None, feature_name, "<=", v2:
+                    temp[ind[j][0]] = float(v2)
+                    l = scaler.inverse_transform([temp])[0][ind[j][0]]
+                    rule = f"{feature_name} <= {l}"
+          
+            rule_pairs[j] = (rule, rule_pairs[j][1])
+
+        orivinal_values = X_test.loc[test_idx].values
 
         plan, rec = flip(
-            orivinal_values,
-            ins.as_list(label=1),
+            temp,
+            rule_pairs,
             ind,
             X_train.columns,
             actionable,
@@ -131,7 +160,9 @@ def TimeLIME(train, test, model, output_path, top=5):
                 ][0]
                 idx = importance[0]
                 importance = importance[1]
-                interval = ins.as_list(label=1)[idx][0]
+                interval = rule_pairs[idx][0]
+
+
                 supported_plan.append(
                     [
                         feature_name,
@@ -163,7 +194,6 @@ def TimeLIME(train, test, model, output_path, top=5):
         result_df.to_csv(file_name, index=False)
 
 
-# Modify the flip function to handle non-normalized features while considering their min-max values
 def flip(data_row, local_exp, ind, cols, actionable, min_val, max_val):
     cache = []
     trans = []
@@ -197,12 +227,15 @@ def flip(data_row, local_exp, ind, cols, actionable, min_val, max_val):
 
         match pattern.search(trans[j][0]).groups():
             case v1, "<", feature_name, "<=", v2:
-                l, r = float(v1), float(v2)
+                l = float(v1)
+                r = float(v2)
             case None, None, feature_name, ">", v1:
-                l, r = float(v1), max_val[cache[j][0]]
+                l = float(v1)
+                r =  max_val[cache[j][0]]
             case None, None, feature_name, "<=", v2:
-                l, r = min_val[cache[j][0]], float(v2)
-        assert feature_name == cols[cache[j][0]]
+                l = min_val[cache[j][0]]
+                r = float(v2)
+        assert feature_name == cols[cache[j][0]], f"Feature name mismatch: {feature_name} != {cols[cache[j][0]]}"
 
         if j in cnt and act:
             if j in cntp:

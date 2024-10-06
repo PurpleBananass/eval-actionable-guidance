@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 1.05,0.21696,0.99383,1.19687
+MAJOR_LINE <= -0.08,0.10089,0.9646,1.16167
+OWN_COMMIT > 1,0.09509,0.96244,1.15907
+CountDeclMethodDefault <= -0.495,0.08393,0.95745,1.15305
+CountOutput_Mean <= 1.4,0.19509,0.95652,1.15194
+PercentLackOfCohesion <= 21,0.19955,0.95078,1.14503
+0.86 < OWN_COMMIT <= 1,0.29955,0.94188,1.1343
+-0.08 < MAJOR_LINE <= 0.45,0.30223,0.94092,1.13315
+RatioCommentToCode > 2.445,0.19911,0.93946,1.13139
+MaxNesting_Mean <= 0.065,0.22098,0.93535,1.12645

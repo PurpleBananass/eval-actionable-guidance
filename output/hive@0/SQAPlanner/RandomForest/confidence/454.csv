@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 1.35,0.19509,0.95881,1.21961
+1.12 < MINOR_LINE <= 1.85,0.1433,0.93458,1.18879
+0.735 < RatioCommentToCode <= 1.35,0.20357,0.92325,1.17437
+0.435 < RatioCommentToCode <= 0.735,0.20804,0.90773,1.15463
+MaxNesting_Mean <= 0.095,0.20536,0.90652,1.1531
+1.32 < CountInput_Mean <= 2.42,0.1875,0.90476,1.15086
+-0.265 < CountDeclMethodPrivate <= 0.145,0.47098,0.90427,1.15023
+-0.017 < OWN_COMMIT <= 0.03 & 0.92 < CountPath_Min <= 1.056,0.27187,0.90312,1.14877
+6 < PercentLackOfCohesion <= 39.5,0.20402,0.90153,1.14675

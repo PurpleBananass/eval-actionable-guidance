@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.987 < OWN_COMMIT <= 1.0165 & 0.76 < AvgCyclomaticModified <= 1.042,0.22719,1.0,1.23855
+0.987 < OWN_COMMIT <= 1.0165 & -0.195 < CountDeclClassVariable <= 0.07,0.20317,1.0,1.23855
+RatioCommentToCode > 2.205 & -0.245 < AvgLineComment <= 0.21,0.04803,1.0,1.23855
+0.83 < CountDeclMethodDefault <= 3.02 & RatioCommentToCode > 2.205,0.04515,1.0,1.23855
+MINOR_LINE <= 1.17 & -0.34 < CountDeclMethodProtected <= 0.32,0.06052,0.99206,1.22872
+0.987 < OWN_COMMIT <= 1.0165 & 0.976 < CountDeclClass <= 1.15,0.34774,0.98895,1.22486
+0.987 < OWN_COMMIT <= 1.0165,0.41162,0.96616,1.19664
+1.22 < RatioCommentToCode <= 2.205,0.195,0.95567,1.18364

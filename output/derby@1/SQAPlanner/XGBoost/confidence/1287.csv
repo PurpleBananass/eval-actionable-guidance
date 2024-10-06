@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MAJOR_LINE <= 0.08 & OWN_COMMIT <= 0.005,0.10199,0.96,1.37875
+0.705 < MaxInheritanceTree <= 1.115 & -1.86 < CountDeclClassVariable <= 0.44,0.1029,0.93833,1.34762
+CountClassCoupled <= 1,0.21396,0.87712,1.25972
+CountLineComment <= 28.5,0.18042,0.86935,1.24855
+MAJOR_LINE <= 0.08,0.23935,0.86553,1.24307
+PercentLackOfCohesion <= 5.5,0.2126,0.85501,1.22796
+-0.18 < CountDeclMethodPrivate <= 0.57,0.36673,0.84178,1.20896

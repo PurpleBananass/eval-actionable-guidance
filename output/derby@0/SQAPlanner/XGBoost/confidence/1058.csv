@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.75 < CountDeclMethodPublic <= 5.05 & -0.5 < CountDeclClassVariable <= 0.32 & 0.782 < AvgEssential <= 1.001,0.10686,0.9633,1.57463
+-0.1 < AvgLineBlank <= 0.59 & -0.5 < CountDeclClassVariable <= 0.32 & -0.275 < CountDeclClassMethod <= 0.165,0.13284,0.95203,1.5562
+PercentLackOfCohesion <= 3 & -0.275 < CountDeclClassMethod <= 0.165,0.12206,0.93976,1.53614
+MaxNesting_Mean <= 0.17 & MAJOR_LINE <= 0.17,0.075,0.9281,1.51709
+MaxNesting_Mean <= 0.17 & -0.5 < CountDeclClassVariable <= 0.32,0.09461,0.9171,1.4991
+Added_lines <= -24.5,0.06471,0.91667,1.4984

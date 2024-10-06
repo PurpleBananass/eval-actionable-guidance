@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-11.4 < Added_lines <= 8 & 0.075 < MAJOR_LINE <= 0.74,0.10833,1.0,1.559
+-11.4 < Added_lines <= 8 & AvgLineComment <= 0.7,0.12819,0.99631,1.55324
+CountLineComment <= -12,0.09555,0.99505,1.55128
+-11.4 < Added_lines <= 8 & MAJOR_LINE <= 0.075,0.14002,0.98649,1.53793
+CountInput_Min > 1.89 & 2.68 < CountInput_Mean <= 3.92,0.04683,0.9798,1.5275
+PercentLackOfCohesion <= 2.5 & CountInput_Min > 1.89,0.06859,0.96552,1.50524
+-11.4 < Added_lines <= 8 & -12 < CountLineComment <= 63,0.24882,0.95247,1.4849

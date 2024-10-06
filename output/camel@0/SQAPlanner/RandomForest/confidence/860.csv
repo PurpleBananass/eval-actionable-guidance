@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.08 < MAJOR_COMMIT <= 0.76,0.15982,0.98883,1.14825
+0.575 < CountInput_Min <= 1.13 & 0.768 < AvgCyclomaticModified <= 1.016,0.11964,0.98134,1.13956
+MAJOR_COMMIT <= 0.08,0.24063,0.96846,1.1246
+CountDeclMethodPublic <= -0.15,0.10179,0.96053,1.11539
+CountClassCoupled <= 0.78,0.18705,0.95943,1.11411
+OWN_COMMIT <= 0.025,0.22991,0.95534,1.10936
+-0.15 < CountDeclMethodPublic <= 2.45,0.29554,0.92598,1.07527
+21.7 < CountLineComment <= 26.8,0.25357,0.91901,1.06718
+-0.26 < CountDeclClassVariable <= 0.055,0.52634,0.90755,1.05387

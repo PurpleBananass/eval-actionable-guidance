@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.791 < OWN_LINE <= 0.888 & -3.7 < Added_lines <= 7.9,0.10049,0.98537,1.6237
+0.75 < CountClassCoupled <= 3.6 & -3.7 < Added_lines <= 7.9,0.13235,0.97778,1.6112
+MAJOR_LINE <= 0.02 & -3.7 < Added_lines <= 7.9,0.19412,0.97727,1.61037
+0.5 < MaxInheritanceTree <= 1.25 & -3.7 < Added_lines <= 7.9,0.12598,0.97665,1.60935
+RatioCommentToCode > 3.36 & -3.7 < Added_lines <= 7.9,0.13039,0.97368,1.60446
+1.565 < RatioCommentToCode <= 3.36 & 21 < CountLineComment <= 48.5,0.06863,0.97143,1.60074

@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxNesting_Mean <= 0.165 & MAJOR_LINE <= 0.07,0.07985,0.97727,1.38248
+MAJOR_LINE <= 0.07 & -21.5 < Added_lines <= 3,0.13249,0.96575,1.36619
+2.85 < CountClassCoupled <= 5.85 & -0.57 < CountDeclClassMethod <= 0.29,0.07849,0.94798,1.34104
+CountLineComment <= 32,0.22505,0.93952,1.32907
+CountDeclMethodProtected <= -0.57,0.0726,0.89375,1.26433
+RatioCommentToCode > 1.895,0.20826,0.89107,1.26053
+Added_lines <= -21.5,0.06534,0.88194,1.24763

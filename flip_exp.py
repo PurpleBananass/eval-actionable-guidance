@@ -7,29 +7,37 @@ import pickle
 import traceback
 import numpy as np
 import pandas as pd
+from sklearn.discriminant_analysis import StandardScaler
 from tqdm import tqdm
 from data_utils import read_dataset, get_true_positives
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from hyparams import MODELS, PROPOSED_CHANGES, SEED, EXPERIMENTS, RESULTS
+import warnings
+from sklearn.exceptions import ConvergenceWarning
 
+
+# ConvergenceWarning을 무시
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 np.random.seed(SEED)
 
 def flip_instance(
-    original_instance, features, changeable_features, model_path
+    original_instance, features, changeable_features, model, scaler
 ):
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
+    featurename_to_index = {feature: i for i, feature in enumerate(features)}
     for values in product(*changeable_features):
-        modified_instance = original_instance.copy()
+        modified_instance = original_instance.copy().tolist()
         for feature, value in zip(features, values):
-            modified_instance[feature] = value
-        prediction = model.predict_proba(modified_instance.values.reshape(1, -1))[:, 0]
+            modified_instance[featurename_to_index[feature]] = value
+        modified_instance = scaler.transform([modified_instance])
+        prediction = model.predict_proba(modified_instance)[:, 0]
         if prediction >= 0.5:
+            modified_instance = scaler.inverse_transform(modified_instance)[0]
             return modified_instance
     return None  # Return None if no perturbation flips the prediction
 
-def get_flip_rates(explainer_type, search_strategy, only_minimum):
+def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
     
     projects = read_dataset()
     result = {
@@ -39,34 +47,37 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
         "TP": [],
     }
     for project_name in projects:
-        _, test = projects[project_name]
-        model_path = Path(f"{MODELS}/{project_name}/RandomForest.pkl")
+        train, test = projects[project_name]
+        model_path = Path(f"{MODELS}/{project_name}/{model_type}.pkl")
+        scaler = StandardScaler()
+        # fit without feature names
+        scaler.fit(train.drop("target", axis=1).values)
         
         match (only_minimum, search_strategy):
             case (True, None):
-                plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans.json")
-                exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}.csv")
-                result_path = Path(RESULTS) / f"{explainer_type}.csv"
+                plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans.json")
+                exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}.csv")
+                result_path = Path(RESULTS)/{model_type} / f"{explainer_type}.csv"
             case (False, None):
-                plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans_all.json")
-                exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}_all.csv")
-                result_path = Path(RESULTS) / f"{explainer_type}_all.csv"
+                plan_path = Path(f"{PROPOSED_CHANGES}/{model_type}/{project_name}/{explainer_type}/plans_all.json")
+                exp_path = Path(f"{EXPERIMENTS}/{model_type}/{project_name}/{explainer_type}_all.csv")
+                result_path = Path(RESULTS) /{model_type}/ f"{explainer_type}_all.csv"
             case (True, _):
                 plan_path = Path(
-                    f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
+                    f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans.json"
                 )
                 exp_path = Path(
-                    f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}.csv"
+                    f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}.csv"
                 )
-                result_path = Path(RESULTS) / f"{explainer_type}_{search_strategy}.csv"
+                result_path = Path(RESULTS)/{model_type} / f"{explainer_type}_{search_strategy}.csv"
             case (False, _):
                 plan_path = Path(
-                    f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
+                    f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans_all.json"
                 )
                 exp_path = Path(
-                    f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}_all.csv"
+                    f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}_all.csv"
                 )
-                result_path = Path(RESULTS) / f"{explainer_type}_{search_strategy}_all.csv"
+                result_path = Path(RESULTS)/{model_type} / f"{explainer_type}_{search_strategy}_all.csv"
         
         result_path.parent.mkdir(parents=True, exist_ok=True)
         file = pd.read_csv(exp_path, index_col=0)
@@ -76,7 +87,7 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
         with open(plan_path, "r") as f:
             plans = json.load(f)
         
-        true_positives = get_true_positives(model_path, test)
+        true_positives = get_true_positives(model_path, train, test)
         df = pd.DataFrame(flipped_instances).T
         result["Project"].append(project_name)
         result["Flipped"].append(len(df.dropna()))
@@ -95,30 +106,32 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum):
 
 
 def flip_single_project(
-    test, project_name, explainer_type, search_strategy, only_minimum, verbose=False, load=True
+    train, test, project_name, explainer_type, search_strategy, only_minimum, verbose=True, load=True, model_type="RandomForest"
 ):
-    model_path = Path(f"{MODELS}/{project_name}/RandomForest.pkl")
+    model_path = Path(f"{MODELS}/{project_name}/{model_type}.pkl")
+    scaler = StandardScaler()
+    scaler.fit(train.drop("target", axis=1))
 
     match (only_minimum, search_strategy):
         case (True, None):
-            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans.json")
-            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}.csv")
+            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans.json")
+            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}.csv")
         case (False, None):
-            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}/plans_all.json")
-            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{explainer_type}_all.csv")
+            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans_all.json")
+            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_all.csv")
         case (True, _):
             plan_path = Path(
-                f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans.json"
+                f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans.json"
             )
             exp_path = Path(
-                f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}.csv"
+                f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}.csv"
             )
         case (False, _):
             plan_path = Path(
-                f"{PROPOSED_CHANGES}/{project_name}/{explainer_type}_{search_strategy}/plans_all.json"
+                f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans_all.json"
             )
             exp_path = Path(
-                f"{EXPERIMENTS}/{project_name}/{explainer_type}_{search_strategy}_all.csv"
+                f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}_all.csv"
             )
 
     plan_path.parent.mkdir(parents=True, exist_ok=True)
@@ -140,15 +153,17 @@ def flip_single_project(
 
     test_names = list(plans.keys())
     
-    true_positives = get_true_positives(model_path, test)
+    true_positives = get_true_positives(model_path, train, test)
     if verbose and load and len(flipped_instances) > 0:
         df = pd.DataFrame(flipped_instances).T
         if len(df) < len(test_names):
             tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} | Loaded !")
     
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
+        model.set_params(n_jobs=1)
     if only_minimum:
-        with open(model_path, "rb") as f:
-            model = pickle.load(f)
+        
         for test_name in tqdm(
             test_names, desc=f"{project_name}", leave=False, disable=not verbose
         ):
@@ -162,9 +177,10 @@ def flip_single_project(
             flipped_instance[features] = [
                 plans[test_name][feature] for feature in features
             ]
-            prediction = model.predict_proba(flipped_instance.values.reshape(1, -1))[
-                :, 0
-            ]
+
+            flipped_instance_scaled = scaler.transform(flipped_instance.values.reshape(1, -1))
+
+            prediction = model.predict_proba(flipped_instance_scaled)[:, 0]
             if prediction >= 0.5:
                 flipped_instances[test_name] = flipped_instance
             else:
@@ -188,9 +204,10 @@ def flip_single_project(
 
             # Start from the test with the smallest number of perturbations
             test_indices = [x[0] for x in max_perturbations]
+            print(len(test_indices))
 
             for test_name in tqdm(
-                test_indices, desc=f"{project_name}", leave=False, disable=not verbose
+                test_indices, desc=f"{project_name}", leave=True, disable=not verbose
             ):
                 if test_name in computed_test_names:
                     continue
@@ -208,25 +225,30 @@ def flip_single_project(
                         changeable_features = changeable_features + [
                             [original_instance[feature]] + plans[test_name][feature]
                         ]
+
+                print(len(changeable_features))
                 # Submitting the task for parallel execution
                 future = executor.submit(
                     flip_instance,
                     original_instance,
                     features,
                     changeable_features,
-                    model_path,
+                    model,
+                    scaler
                 )
+                print(f"submit {test_name}")
                 futures[future] = test_name
+
             for future in tqdm(
                 as_completed(futures),
-                total=len(futures),
                 desc=f"{project_name}",
-                leave=False,
+                leave=True,
                 disable=not verbose,
             ):
                 try:
                     test_name = futures[future]
                     flipped_instance = future.result()
+                    print(f"result {test_name}")
 
                     if flipped_instance is not None:
                         flipped_instances[test_name] = flipped_instance
@@ -237,7 +259,9 @@ def flip_single_project(
                         )
 
                     # Save each completed test_name immediately, including None cases
-                    pd.DataFrame(flipped_instances).T.to_csv(exp_path)
+                    if flipped_instances:
+                        df = pd.DataFrame(flipped_instances).T
+                        df.to_csv(exp_path)
 
                 except Exception as e:
                     tqdm.write(f"Error occurred: {e}")
@@ -259,13 +283,14 @@ if __name__ == "__main__":
     argparser.add_argument("--verbose", action="store_true")
     argparser.add_argument("--new", action="store_true")
     argparser.add_argument("--get_flip_rate", action="store_true")
+    argparser.add_argument("--model_type", type=str, default="RandomForest")
 
     args = argparser.parse_args()
-
+    print(os.cpu_count())
     if args.get_flip_rate:
         # RQ 1
         get_flip_rates(
-            args.explainer_type, args.search_strategy, args.only_minimum
+            args.explainer_type, args.search_strategy, args.only_minimum, args.model_type
         )
     else:
         tqdm.write("| Project | Flipped | Computed | Plan | Flip Rate | TP |")
@@ -279,13 +304,15 @@ if __name__ == "__main__":
         for project in tqdm(
             project_list, desc="Projects", leave=True, disable=not args.verbose
         ):
-            _, test = projects[project]
+            train, test = projects[project]
             flip_single_project(
+                train,
                 test,
                 project,
                 args.explainer_type,
                 args.search_strategy,
                 args.only_minimum,
                 verbose=args.verbose,
-                load=not args.new
+                load=not args.new,
+                model_type=args.model_type
             )

@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.8 < CountClassCoupled <= 3.1 & RatioCommentToCode > 2.885,0.05686,1.0,1.50815
+-8.6 < Added_lines <= 8.6 & -0.255 < AvgLineBlank <= 0.23,0.18233,0.99485,1.50038
+CountLineComment <= 19,0.12923,0.99273,1.49718
+Added_lines <= -8.6,0.0672,0.97902,1.47651
+-1.53 < CountDeclMethodPrivate <= 0.08 & PercentLackOfCohesion <= 3.5,0.12688,0.93333,1.40761
+CountClassCoupled <= 0.8,0.19784,0.91924,1.38635
+CountDeclMethodPublic <= 1.45,0.21852,0.91613,1.38166
+MaxInheritanceTree <= 0.75,0.17387,0.91081,1.37364

@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.005 < CountDeclMethodProtected <= 0.26,0.69242,0.73347,1.04989
+0.868 < AvgEssential <= 1.018,0.55269,0.74806,1.07077
+0.868 < AvgEssential <= 1.018 & -0.261 < MINOR_COMMIT <= 0.019,0.53553,0.76492,1.0949
+-7 < Added_lines <= 6.2,0.53124,0.92639,1.32604
+-1.86 < CountDeclClassVariable <= 0.26,0.45732,0.75391,1.07915
+19.5 < CountLineComment <= 68,0.30472,0.88419,1.26563
+CountDeclInstanceVariable <= 0.2,0.28326,0.78788,1.12777
+-0.04 < AvgLineBlank <= 0.64,0.27802,0.8422,1.20552

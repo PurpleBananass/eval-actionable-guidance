@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.06 < CountDeclMethodProtected <= 1.04,0.72702,0.70968,1.05585
+-0.82 < CountDeclMethodPrivate <= 0.36,0.43527,0.74461,1.10782
+-0.19 < CountDeclMethodDefault <= 0.255,0.36445,0.76319,1.13547
+2 < CountLineComment <= 61,0.34756,0.81377,1.21071
+-0.25 < AvgLineBlank <= 0.36,0.34475,0.76599,1.13963
+-0.2 < CountClassCoupled <= 2.95,0.28189,0.76705,1.14121
+-0.25 < AvgLineBlank <= 0.36 & -0.06 < CountDeclMethodProtected <= 1.04,0.2758,0.81633,1.21452
+MAJOR_LINE <= 0.025,0.26595,0.86243,1.28312

@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxNesting_Mean <= 0.05 & 0.99 < CountDeclClass <= 1.52,0.15179,0.97353,1.21218
+RatioCommentToCode > 1.515,0.19375,0.94009,1.17054
+-0.025 < OWN_COMMIT <= 0.0155 & 0.99 < CountDeclClass <= 1.52,0.34152,0.93072,1.15887
+-0.025 < OWN_COMMIT <= 0.0155 & -0.32 < CountDeclMethodPrivate <= 0.13,0.34554,0.93023,1.15827
+15.4 < CountLineComment <= 32.6,0.35848,0.92403,1.15055
+0.865 < RatioCommentToCode <= 1.515,0.19286,0.92361,1.15002
+-0.025 < OWN_COMMIT <= 0.0155 & -0.2 < CountDeclClassMethod <= 0.98,0.4067,0.91987,1.14536
+MaxNesting_Mean <= 0.05,0.2308,0.91683,1.14158
+0.99 < CountDeclClass <= 1.52 & -0.2 < CountDeclClassMethod <= 0.98,0.46607,0.909,1.13183
+1.1 < MINOR_LINE <= 1.86,0.1558,0.90831,1.13097

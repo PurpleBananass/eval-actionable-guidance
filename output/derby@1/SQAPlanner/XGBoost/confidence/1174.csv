@@ -1,0 +1,6 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MAJOR_LINE <= 0.04 & OWN_COMMIT <= 0.015,0.12738,0.9573,1.40039
+MAJOR_LINE <= 0.04 & -1.6 < CountDeclMethodPrivate <= 0.26,0.14143,0.95513,1.39722
+1.14 < CountInput_Mean <= 2.76 & -0.52 < CountDeclClassMethod <= 0.26,0.11786,0.92692,1.35596
+29 < CountLineComment <= 64.5 & -0.52 < CountDeclClassMethod <= 0.26,0.13146,0.92414,1.35189
+CountLineComment <= 29,0.19674,0.8894,1.30107

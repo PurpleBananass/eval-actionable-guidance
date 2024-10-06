@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 5.15,0.2067,0.99775,1.19463
+CountLineComment <= 26.5,0.21136,0.98678,1.1815
+5.15 < CountClassCoupled <= 8.75,0.18436,0.9798,1.17314
+MAJOR_LINE <= 0.54,0.20345,0.97712,1.16993
+CountDeclInstanceVariable <= 3.1,0.19553,0.97143,1.16312
+MINOR_LINE <= 1.01 & -0.23 < CountClassDerived <= 0.115,0.13827,0.95286,1.14088
+1.58 < MAJOR_LINE <= 2.88,0.196,0.95249,1.14044
+26.5 < CountLineComment <= 51.5,0.18669,0.95012,1.13761
+AvgLineComment <= -0.105,0.10289,0.9457,1.13231

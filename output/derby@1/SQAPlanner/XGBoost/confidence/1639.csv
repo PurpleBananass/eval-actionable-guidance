@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MAJOR_LINE <= 0.06 & OWN_COMMIT <= 0.005,0.11378,0.98008,1.33956
+RatioCommentToCode > 1.83,0.19628,0.89838,1.2279
+26 < CountLineComment <= 56,0.23073,0.87033,1.18956
+MAJOR_LINE <= 0.06,0.25476,0.87011,1.18925
+0.06 < MAJOR_LINE <= 0.74,0.14642,0.86997,1.18907
+CountLineComment <= 26,0.16274,0.8663,1.18404
+CountDeclMethodPrivate <= -0.25,0.09429,0.86538,1.1828
+MaxInheritanceTree <= 0.91,0.15367,0.86431,1.18133

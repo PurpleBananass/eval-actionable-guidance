@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 0.74,0.18125,0.99507,1.07784
+RatioCommentToCode > 1.795,0.19866,0.99326,1.07587
+CountDeclMethodPublic <= 1,0.22768,0.98824,1.07043
+CountClassBase <= 0.924,0.14866,0.98498,1.06691
+0.74 < CountClassCoupled <= 2.42,0.23036,0.98256,1.06428
+30.5 < PercentLackOfCohesion <= 62,0.20134,0.98226,1.06396
+2.5 < PercentLackOfCohesion <= 30.5,0.16607,0.98118,1.06279
+OWN_LINE > 0.976,0.20759,0.98065,1.06221
+3.7 < CountDeclMethodPublic <= 6.75,0.17768,0.9799,1.0614
+CountOutput_Min > 2.075,0.15313,0.97959,1.06107

@@ -3,7 +3,7 @@ import natsort
 import pandas as pd
 import pickle
 from pandas import DataFrame
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from hyparams import (
     HISTORICAL_DATASET,
     MODELS,
@@ -17,8 +17,8 @@ def get_model_file(project_name: str, model_name: str = "RandomForest") -> Path:
     return Path(f"{MODELS}/{project_name}/{model_name}.pkl")
 
 
-def get_output_dir(project_name: str, explainer_type: str) -> Path:
-    path = Path(OUTPUT) / project_name / explainer_type
+def get_output_dir(project_name: str, explainer_type: str, model_type:str) -> Path:
+    path = Path(OUTPUT) / project_name / explainer_type / model_type
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -59,13 +59,16 @@ def get_release_names(project_release, with_num_tp=True):
 
 
 def get_true_positives(
-    model_file: Path, test_data: DataFrame, label: str = "target"
+    model_file: Path, train_data: DataFrame, test_data: DataFrame, label: str = "target"
 ) -> DataFrame:
     assert label in test_data.columns
 
     model = load_model(model_file)
     ground_truth = test_data.loc[test_data[label] == True, test_data.columns != label]
-    predictions = model.predict(ground_truth.values)
+    scaler = StandardScaler()
+    scaler.fit(train_data.drop("target", axis=1))
+    ground_truth_scaled = scaler.transform(ground_truth)
+    predictions = model.predict(ground_truth_scaled)
     true_positives = ground_truth[predictions == True]
 
     return true_positives

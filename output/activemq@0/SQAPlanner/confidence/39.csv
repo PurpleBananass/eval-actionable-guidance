@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+ADEV <= 1.31,0.21035,1.0,1.12912
+1.31 < ADEV <= 2.13,0.22071,0.9936,1.1219
+CountClassCoupled <= 0.64,0.208,0.99321,1.12145
+OWN_COMMIT > 1.0124,0.06165,0.99237,1.1205
+CountDeclMethodPublic <= -0.2,0.10353,0.99091,1.11885
+0.9978 < OWN_COMMIT <= 1.0124,0.62306,0.98792,1.11547
+CountClassBase <= 0.83,0.16188,0.97965,1.10614
+2.8 < CountDeclMethodPublic <= 5.65,0.20094,0.97424,1.10003
+-0.2 < CountDeclMethodPublic <= 2.8,0.29412,0.9728,1.09841
+4.5 < PercentLackOfCohesion <= 34.5,0.20282,0.96984,1.09506

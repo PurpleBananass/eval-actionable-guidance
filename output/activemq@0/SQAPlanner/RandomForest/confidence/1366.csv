@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT > 1.017,0.07339,0.96129,1.20062
+1.085 < RatioCommentToCode <= 1.97,0.19602,0.95169,1.18863
+0.9965 < OWN_COMMIT <= 1.017,0.53409,0.95035,1.18696
+1.27 < ADEV <= 2.06,0.23343,0.94726,1.1831
+CountDeclMethodProtected <= -0.15,0.12169,0.94553,1.18093
+-0.13 < AvgLineComment <= 0.48 & -0.13 < MAJOR_LINE <= 0.044,0.19271,0.94103,1.17532
+CountClassCoupled <= 0.56,0.18466,0.94103,1.17531
+2.06 < ADEV <= 2.91,0.14394,0.94079,1.17501
+CountDeclInstanceVariable <= -0.28,0.11174,0.93644,1.16958

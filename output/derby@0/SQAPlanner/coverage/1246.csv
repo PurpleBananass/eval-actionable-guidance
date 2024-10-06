@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-12.4 < Added_lines <= 6.6,0.50186,0.95093,1.34897
+-0.19 < CountDeclMethodPrivate <= 0.25,0.44191,0.82124,1.165
+-0.13 < AvgLineBlank <= 0.48,0.32481,0.78112,1.10808
+-0.19 < CountDeclMethodPrivate <= 0.25 & -12.4 < Added_lines <= 6.6,0.26115,0.98577,1.3984
+0.85 < MAJOR_LINE <= 1.215,0.2342,0.80754,1.14557
+1.26 < CountInput_Mean <= 2.92,0.22072,0.81474,1.15578
+-0.13 < AvgLineBlank <= 0.48 & -0.61 < CountDeclClassMethod <= 0.085,0.2198,0.85201,1.20865
+PercentLackOfCohesion <= 3.5,0.2184,0.91064,1.29182

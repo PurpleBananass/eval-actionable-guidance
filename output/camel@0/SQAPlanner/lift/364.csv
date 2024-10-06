@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.11 < CountDeclInstanceVariable <= 0.41 & -0.03 < CountDeclMethodProtected <= 0.58,0.14368,1.0,1.11538
+-0.15 < CountDeclMethodPublic <= 2.1 & -0.03 < CountDeclMethodProtected <= 0.58,0.12117,1.0,1.11538
+CountDeclMethodPublic <= -0.15,0.11303,1.0,1.11538
+CountDeclClassVariable <= -0.08,0.06992,0.99315,1.10774
+CountDeclInstanceVariable <= -0.11,0.10393,0.99078,1.1051
+CountInput_Min > 2.04,0.09483,0.98485,1.09848
+CountDeclMethodProtected <= -0.03,0.12404,0.98456,1.09816
+1.07 < MINOR_LINE <= 1.765,0.17241,0.98056,1.0937
+CountClassCoupled <= 0.32,0.19349,0.97772,1.09054
+AvgCyclomaticModified <= 0.88,0.1341,0.975,1.0875

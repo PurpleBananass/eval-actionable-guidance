@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.25 < AvgLineBlank <= 0.045,0.55383,0.85484,1.10263
+-0.19 < CountDeclMethodPrivate <= 0.225,0.40715,0.87991,1.13497
+-0.25 < AvgLineBlank <= 0.045 & -0.285 < CountDeclClassMethod <= 0.04,0.37894,0.90447,1.16665
+-0.014 < OWN_COMMIT <= 0.086,0.34133,0.99311,1.28099
+-0.025 < MAJOR_LINE <= 0.385,0.30136,0.8752,1.12889
+0.815 < CountDeclClass <= 1.055 & -0.25 < AvgLineBlank <= 0.045,0.28068,0.9464,1.22073

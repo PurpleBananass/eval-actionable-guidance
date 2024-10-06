@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.18 < MAJOR_LINE <= 0.28 & -2.12 < CountDeclClassMethod <= 0.1,0.22813,0.99609,1.18055
+-2.6 < CountDeclInstanceMethod <= 5 & -2.12 < CountDeclClassMethod <= 0.1,0.24018,0.99442,1.17858
+-0.3 < CountDeclInstanceVariable <= 1.04 & -2.12 < CountDeclClassMethod <= 0.1,0.21563,0.99379,1.17782
+CountClassCoupled <= 0.8,0.17455,0.98977,1.17306
+-0.006 < OWN_COMMIT <= 0.15 & -1.04 < CountDeclClassVariable <= 0.06,0.24241,0.98527,1.16772
+-0.006 < OWN_COMMIT <= 0.15 & -0.262 < CountDeclMethodProtected <= 0.016,0.23616,0.98488,1.16726
+CountDeclMethodPrivate <= -1.48,0.05179,0.98276,1.16475
+-0.006 < OWN_COMMIT <= 0.15 & 0.9 < CountDeclClass <= 2.06,0.27054,0.98185,1.16367
+-2.12 < CountDeclClassMethod <= 0.1 & -0.262 < CountDeclMethodProtected <= 0.016,0.39196,0.97836,1.15954
+-1.48 < CountDeclMethodPrivate <= 0.15,0.49911,0.97585,1.15656

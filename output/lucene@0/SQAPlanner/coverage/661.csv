@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.225 < CountDeclClassVariable <= 0.09,0.4477,0.82744,1.08452
+0.902 < CountDeclClass <= 1.058,0.44434,0.83045,1.08847
+-0.185 < CountDeclMethodPrivate <= 0.165,0.4357,0.8304,1.08839
+-0.225 < AvgLineBlank <= 0.16,0.43138,0.90545,1.18677
+-0.015 < OWN_COMMIT <= 0.085,0.32198,0.99404,1.30288
+0.45 < MAJOR_LINE <= 1.04,0.25,0.84645,1.10943
+CountDeclMethodPublic <= 1,0.21593,0.88444,1.15923
+0.45 < MAJOR_LINE <= 1.04 & 0.95 < CountPath_Min <= 1.058,0.21257,0.89165,1.16868
+MaxInheritanceTree <= 1.19,0.20633,0.90698,1.18877

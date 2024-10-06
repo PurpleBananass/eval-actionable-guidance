@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.66 < CountDeclMethodPrivate <= 0.64,0.38173,0.88161,1.2407
+-0.27 < CountDeclClassMethod <= 0.34,0.36442,0.79551,1.11953
+27.5 < CountLineComment <= 77,0.27596,0.89373,1.25775
+27.5 < CountLineComment <= 77 & 0.978 < CountDeclClass <= 1.154,0.25433,0.9206,1.29557
+0.9 < MaxInheritanceTree <= 1.6,0.24375,0.82643,1.16304
+MAJOR_LINE <= 0.2,0.21683,0.85366,1.20136

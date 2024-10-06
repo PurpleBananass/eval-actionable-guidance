@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.987 < AvgEssential <= 1.068,0.76685,0.96837,1.03187
+0.987 < AvgEssential <= 1.068 & -0.05 < MINOR_COMMIT <= 0.025,0.75921,0.97396,1.03784
+-0.18 < CountDeclClassVariable <= 1.36,0.69632,0.98129,1.04564
+-0.21 < CountDeclMethodDefault <= 0,0.69227,0.95782,1.02063
+0.615 < CountDeclClass <= 1.105,0.5602,0.97594,1.03995
+-0.63 < CountDeclMethodPrivate <= 0.2,0.54717,0.99343,1.05858
+-0.0325 < OWN_COMMIT <= 0.0165,0.49416,0.99273,1.05783
+-0.47 < CountDeclMethodProtected <= 0.23,0.48203,0.99161,1.05664
+0.785 < AvgCyclomaticStrict <= 1.205,0.39488,0.99431,1.05952

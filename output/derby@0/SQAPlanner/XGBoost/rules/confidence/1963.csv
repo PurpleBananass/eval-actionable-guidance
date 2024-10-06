@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'0.9595 < OWN_LINE <= 0.989 & 0.874 < CountClassBase <= 1.026 & -0.205 < CountDeclMethodProtected <= 0.16'","b'target = 0'",0.05784,118,0.05784,118,1,0.02424,1.72152,4.34087e-16,0.58088,1185
+"b'000001'","b'0.874 < CountClassBase <= 1.026 & -0.18 < CountDeclMethodDefault <= 0.305 & -0.205 < CountDeclMethodProtected <= 0.16'","b'target = 0'",0.07353,150,0.07206,147,0.98,0.02935,1.68709,9.09986e-11,0.58088,1185
+"b'000002'","b'0.874 < CountClassBase <= 1.026 & -0.205 < CountDeclMethodProtected <= 0.16 & 0.954 < AvgEssential <= 1.0005'","b'target = 0'",0.10931,223,0.10637,217,0.97309,0.04287,1.6752,4.59058e-25,0.58088,1185
+"b'000003'","b'1.35 < CountClassCoupled <= 4.15 & 0.9595 < OWN_LINE <= 0.989'","b'target = 0'",0.05245,107,0.05049,103,0.96262,0.02002,1.65716,3.18026e-11,0.58088,1185
+"b'000004'","b'0.912 < OWN_LINE <= 0.9595 & -0.22 < CountDeclInstanceVariable <= 1.68'","b'target = 0'",0.05539,113,0.05294,108,0.95575,0.02076,1.64535,4.80134e-09,0.58088,1185
+"b'000005'","b'MaxNesting_Mean <= 0.285 & -0.22 < CountDeclInstanceVariable <= 1.68'","b'target = 0'",0.08431,172,0.07941,162,0.94186,0.03044,1.62143,4.13784e-12,0.58088,1185
+"b'000006'","b'-0.22 < CountDeclInstanceVariable <= 1.68 & -11 < Added_lines <= 9.5'","b'target = 0'",0.20147,411,0.18971,387,0.94161,0.07268,1.62099,4.42259e-09,0.58088,1185
+"b'000007'","b'-2.16 < CountDeclMethodPrivate <= 0.66 & -0.21 < CountClassDerived <= 0.1 & 0.983 < CountDeclClass <= 1.0165'","b'target = 0'",0.09853,201,0.09265,189,0.9403,0.03541,1.61874,7.29581e-26,0.58088,1185
+"b'000008'","b'0.9595 < OWN_LINE <= 0.989 & -0.18 < CountDeclMethodDefault <= 0.305'","b'target = 0'",0.0848,173,0.07941,162,0.93642,0.03015,1.61206,4.31663e-10,0.58088,1185
+"b'000009'","b'0.874 < CountClassBase <= 1.026 & -2.16 < CountDeclMethodPrivate <= 0.66 & 0.954 < AvgEssential <= 1.0005'","b'target = 0'",0.08186,167,0.07647,156,0.93413,0.02892,1.60813,1.00661e-11,0.58088,1185

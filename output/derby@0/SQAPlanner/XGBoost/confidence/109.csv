@@ -1,0 +1,6 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+Added_lines <= -3.4 & MAJOR_LINE <= 0.06,0.04804,1.0,1.7801
+MAJOR_LINE <= 0.06 & -3.4 < Added_lines <= 10.6,0.11078,0.9823,1.7486
+PercentLackOfCohesion <= 0 & -3.4 < Added_lines <= 10.6,0.16176,0.95455,1.69919
+PercentLackOfCohesion <= 0 & -0.11 < AvgLineBlank <= 0.87,0.10049,0.90244,1.60644
+PercentLackOfCohesion <= 0 & -0.235 < CountDeclClassMethod <= 0.16,0.12108,0.89069,1.58552

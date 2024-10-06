@@ -1,0 +1,6 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"000000","3.45 < CountDeclMethodPublic <= 7","target = 0",0.22626,486,0.22626,486,1,0.00632,1.02874,1.61766e-07,0.97207,2088
+"000001","0.75 < CountDeclMethodPublic <= 3.45","target = 0",0.21974,472,0.21974,472,1,0.00614,1.02874,2.70038e-07,0.97207,2088
+"000002","OWN_LINE > 0.958","target = 0",0.21089,453,0.21089,453,1,0.00589,1.02874,5.37566e-07,0.97207,2088
+"000003","-0.12 < CountDeclInstanceVariable <= 1.22","target = 0",0.31145,669,0.31052,667,0.99701,0.00777,1.02566,5.43201e-08,0.97207,2088
+"000004","-0.107 < OWN_COMMIT <= 0.009","target = 0",0.57123,1227,0.5675,1219,0.99348,0.01223,1.02203,1.26115e-12,0.97207,2088

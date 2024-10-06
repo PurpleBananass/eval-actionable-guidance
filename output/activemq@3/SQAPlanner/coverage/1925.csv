@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.028 < CountDeclMethodPrivate <= 0.146,0.75046,0.92817,1.02748
+0.975 < CountDeclClass <= 1.24,0.73467,0.93801,1.03838
+-0.0655 < OWN_COMMIT <= 0.0015,0.67797,0.94791,1.04933
+0.882 < AvgCyclomaticModified <= 1.038,0.46701,0.9393,1.03981
+-0.062 < MAJOR_LINE <= 0.06,0.44284,0.96118,1.06402
+0.795 < CountClassBase <= 1.01,0.42472,0.96171,1.06461
+-0.19 < CountDeclClassVariable <= 0.185,0.40567,0.96105,1.06388
+-0.062 < MAJOR_LINE <= 0.06 & -0.0655 < OWN_COMMIT <= 0.0015,0.36199,0.98331,1.08852
+-0.23 < CountDeclInstanceVariable <= 0.69,0.30437,0.97557,1.07995
+PercentLackOfCohesion <= 1,0.27184,0.97436,1.07861

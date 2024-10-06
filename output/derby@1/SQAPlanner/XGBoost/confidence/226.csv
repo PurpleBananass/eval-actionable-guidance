@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT <= 0.005 & 9 < CountLineComment <= 57.5,0.13055,0.98264,1.36763
+MAJOR_LINE <= 0.11 & -25.5 < Added_lines <= 3.5,0.15684,0.97399,1.3556
+PercentLackOfCohesion <= 2.5 & -0.32 < CountDeclMethodProtected <= 0.085,0.15005,0.92447,1.28668
+RatioCommentToCode > 2.33,0.19946,0.91591,1.27476
+MAJOR_LINE <= 0.11,0.24207,0.91199,1.2693
+MaxInheritanceTree <= 0.82 & -3.27 < MINOR_COMMIT <= 0,0.17951,0.91162,1.26879
+CountInput_Min > 5.95,0.05349,0.90678,1.26205
+MaxNesting_Mean <= 0.08 & -3.27 < MINOR_COMMIT <= 0,0.21578,0.89286,1.24268

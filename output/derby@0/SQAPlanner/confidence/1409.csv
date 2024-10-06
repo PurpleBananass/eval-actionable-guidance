@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 0.95 & -9.4 < Added_lines <= 9.8,0.09581,1.0,1.51195
+0.065 < MAJOR_LINE <= 0.69 & -9.4 < Added_lines <= 9.8,0.08512,0.99454,1.50369
+MaxInheritanceTree <= 0.73 & -9.4 < Added_lines <= 9.8,0.10372,0.99103,1.49839
+MAJOR_LINE <= 0.065 & -9.4 < Added_lines <= 9.8,0.13767,0.97973,1.48131
+Added_lines <= -9.4,0.06558,0.97872,1.47979
+CountLineComment <= 27.5,0.16,0.97674,1.47679
+RatioCommentToCode > 2.46 & MAJOR_LINE <= 0.065,0.07907,0.97059,1.46749
+27.5 < CountLineComment <= 59 & -9.4 < Added_lines <= 9.8,0.18791,0.96782,1.4633
+RatioCommentToCode > 2.46 & -2.54 < CountDeclClassVariable <= 0.14,0.10372,0.9417,1.42381
+-9.4 < Added_lines <= 9.8,0.50279,0.89732,1.3567

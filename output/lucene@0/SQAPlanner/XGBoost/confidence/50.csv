@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT <= -0.019,0.09694,1.0,1.27761
+-0.019 < OWN_COMMIT <= 0.039,0.36724,0.9857,1.25933
+-0.055 < MAJOR_LINE <= 0.17 & -0.215 < CountDeclMethodPrivate <= 0.195,0.18911,0.94697,1.20986
+CountClassCoupled <= 0.5,0.19007,0.91709,1.17168
+MaxNesting_Mean <= 0.15,0.20774,0.90575,1.15719
+RatioCommentToCode > 1.945,0.19914,0.89448,1.1428
+0.95 < RatioCommentToCode <= 1.945,0.19628,0.89051,1.13772

@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.89 < MAJOR_LINE <= 1.6 & 0.95 < MaxInheritanceTree <= 1.56,0.06573,0.95172,1.36155
+CountClassCoupled <= 1.25 & -0.86 < CountDeclMethodProtected <= 0.11,0.12149,0.89925,1.28648
+Added_lines <= -41,0.04805,0.89623,1.28215
+RatioCommentToCode > 1.995,0.19492,0.89302,1.27757
+MaxInheritanceTree <= 0.95,0.16818,0.8814,1.26094
+-41 < Added_lines <= -0.5,0.07389,0.8589,1.22874
+CountLineComment <= 28.5,0.17724,0.84399,1.20742
+MaxNesting_Mean <= 0.15,0.20535,0.83885,1.20007

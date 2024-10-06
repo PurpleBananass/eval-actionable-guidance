@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.25 < AvgLineBlank <= 0.015,0.64438,0.9323,1.05654
+-0.25 < AvgLineBlank <= 0.015 & -0.262 < MINOR_COMMIT <= 0.0205,0.63016,0.94507,1.07101
+-0.81 < CountDeclMethodDefault <= 0.11,0.523,0.92838,1.05209
+-22.4 < Del_lines <= 3.8,0.42959,0.99779,1.13076
+-0.265 < CountDeclMethodProtected <= 0.02 & -0.25 < AvgLineBlank <= 0.015,0.42485,0.97098,1.10038
+-0.24 < CountDeclClassMethod <= 0.22,0.39734,0.93198,1.05618
+-0.81 < CountDeclMethodDefault <= 0.11 & -0.25 < AvgLineBlank <= 0.015,0.34424,0.9697,1.09892
+MAJOR_LINE <= 0,0.30014,0.97472,1.10462

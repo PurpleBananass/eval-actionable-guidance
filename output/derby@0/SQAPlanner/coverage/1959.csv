@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.37 < CountDeclMethodPrivate <= 0.13,0.49621,0.74905,1.19125
+-1.8 < Added_lines <= 9.4,0.44318,0.88996,1.41535
+-1.8 < Added_lines <= 9.4 & -0.37 < CountDeclMethodPrivate <= 0.13,0.26278,0.95495,1.51872
+MAJOR_LINE <= 0.065,0.24195,0.86693,1.37873
+PercentLackOfCohesion <= 2.5,0.22301,0.81104,1.28985
+CountLineComment <= 30.5,0.21544,0.94725,1.50647
+CountOutput_Min <= 0.33,0.21165,0.73602,1.17053
+0.905 < MaxInheritanceTree <= 1.285,0.20928,0.72851,1.15859

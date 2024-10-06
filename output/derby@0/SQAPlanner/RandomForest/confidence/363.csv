@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-10.4 < Added_lines <= 5.2,0.06078,1.0,1.55015
+0.94 < CountOutput_Min <= 1.114 & -0.185 < AvgLineBlank <= 0.165 & 0.977 < AvgEssential <= 1.041,0.07157,0.97945,1.5183
+31 < CountLineComment <= 65.5 & -0.02 < MaxNesting_Mean <= 0.2,0.06176,0.97619,1.51324
+Added_lines <= -10.4,0.05343,0.9633,1.49327
+MAJOR_LINE <= 0.245 & 5.2 < Added_lines <= 15.8,0.11667,0.96218,1.49153
+8.3 < CountDeclMethodPublic <= 18.3 & 0.885 < MAJOR_LINE <= 1.19,0.06471,0.94697,1.46795

@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.3 < CountDeclClassMethod <= 0.145,0.50383,0.93726,1.11637
+-0.295 < CountDeclMethodPrivate <= 0.1,0.48659,0.93602,1.1149
+-0.036 < OWN_COMMIT <= 0.019 & 0.957 < CountPath_Min <= 1.0115,0.37261,0.92288,1.09924
+0.885 < CountOutput_Min <= 1.145 & 0.986 < AvgEssential <= 1.12,0.32902,0.94614,1.12695
+-0.02 < CountDeclInstanceVariable <= 1.2,0.28257,0.92034,1.09622
+0.61 < RatioCommentToCode <= 1.33,0.25479,0.94549,1.12617
+MINOR_LINE <= 1.045,0.24138,0.94643,1.12729

@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT > 1,0.10134,0.98104,1.17861
+MAJOR_LINE <= -0.1,0.11335,0.97881,1.17593
+CountClassCoupled <= 1.55,0.20173,0.97857,1.17564
+1.55 < CountClassCoupled <= 5.1,0.21758,0.97572,1.17221
+0.864 < OWN_COMMIT <= 1,0.29539,0.97561,1.17208
+-142 < Del_lines <= -12,0.05572,0.97414,1.17031
+CountClassDerived <= -0.525,0.0634,0.9697,1.16498
+MaxNesting_Mean <= 0.115 & -0.059 < MINOR_COMMIT <= 0.024,0.19741,0.96107,1.15462
+CountDeclMethodProtected <= -0.6,0.08021,0.95808,1.15103

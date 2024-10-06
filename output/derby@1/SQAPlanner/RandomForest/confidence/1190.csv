@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.71 < MAJOR_LINE <= 1.28 & -0.23 < CountDeclClassMethod <= 0.17,0.08893,0.95408,1.25765
+CountLineComment <= 26,0.18149,0.95,1.25227
+26 < CountLineComment <= 52,0.22414,0.93927,1.23813
+MAJOR_LINE <= 0.05,0.25681,0.9258,1.22037
+CountClassCoupled <= 0.8,0.20054,0.92534,1.21977
+AvgLineComment <= 1.05,0.19873,0.92237,1.21586
+MaxNesting_Mean <= 0.13,0.20281,0.89485,1.17958
+RatioCommentToCode > 2.075,0.19918,0.88383,1.16504

@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+1.5 < Added_lines <= 7.8 & 0.085 < MAJOR_LINE <= 0.78,0.10262,0.99543,1.48549
+1.5 < Added_lines <= 7.8 & RatioCommentToCode > 2.465,0.10262,0.99543,1.48549
+Added_lines <= 1.5,0.0806,0.98256,1.46628
+CountLineComment <= 27,0.19072,0.96314,1.43731
+CountDeclMethodPrivate <= -0.29,0.09419,0.93035,1.38837
+CountDeclMethodProtected <= -0.255,0.08341,0.91573,1.36655
+1.5 < Added_lines <= 7.8,0.47516,0.91124,1.35985
+MAJOR_LINE <= 0.085,0.23336,0.90161,1.34547
+CountDeclMethodDefault <= -0.62,0.09606,0.87805,1.31032

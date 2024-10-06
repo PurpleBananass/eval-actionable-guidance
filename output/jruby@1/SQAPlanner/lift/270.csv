@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountDeclInstanceMethod <= 1.6,0.21175,1.0,1.11693
+CountDeclClassMethod <= -0.62,0.09948,1.0,1.11693
+CountDeclMethodPrivate <= -0.665,0.08195,1.0,1.11693
+CountClassCoupled <= 1.1,0.21649,0.99781,1.11449
+CountOutput_Mean <= 1.22,0.20606,0.9977,1.11436
+1.22 < CountOutput_Mean <= 2.22,0.20322,0.99767,1.11433
+CountClassBase <= 0.52,0.20275,0.99766,1.11432
+-0.053 < MINOR_COMMIT <= 0.0035 & MaxInheritanceTree <= 0.88,0.18664,0.99492,1.11126
+MaxNesting_Mean <= 0.01,0.25628,0.99445,1.11074
+CountInput_Mean <= 0.96,0.18712,0.99241,1.10845

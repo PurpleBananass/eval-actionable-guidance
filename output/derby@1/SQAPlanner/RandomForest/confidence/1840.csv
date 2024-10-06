@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.8 < MaxInheritanceTree <= 1.39 & 23 < CountLineComment <= 55.5,0.07759,1.0,1.40293
+3 < CountClassCoupled <= 6.3 & -0.45 < CountDeclMethodPrivate <= 0.28,0.08938,0.96447,1.35308
+-6.6 < Added_lines <= 3.8,0.49002,0.9037,1.26783
+CountLineComment <= 23,0.14927,0.89666,1.25794
+CountClassCoupled <= 0.65,0.18194,0.8803,1.235
+CountDeclInstanceVariable <= -0.28,0.11116,0.87755,1.23114
+RatioCommentToCode > 1.815,0.20372,0.87751,1.23108
+MAJOR_LINE <= 0.01,0.27541,0.87479,1.22727
+OWN_LINE > 0.982,0.19238,0.86085,1.20771

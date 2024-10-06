@@ -1,0 +1,6 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.23 < CountDeclMethodDefault <= 0.15,0.44941,0.82981,1.06056
+-0.27 < CountDeclMethodPrivate <= 0.29,0.36627,0.90402,1.15541
+-0.27 < CountDeclMethodPrivate <= 0.29 & -0.4 < CountDeclMethodProtected <= 0.075,0.25463,0.94963,1.2137
+MAJOR_LINE <= 0.04,0.25273,0.8891,1.13634
+MaxInheritanceTree <= 1,0.25226,0.93409,1.19384

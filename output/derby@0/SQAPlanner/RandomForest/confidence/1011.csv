@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 0.6 & PercentLackOfCohesion <= 7,0.07745,0.99367,1.91415
+MAJOR_LINE <= 0.19 & -19.2 < Added_lines <= 9.4 & 0.963 < CountDeclClass <= 1.036,0.09167,0.9893,1.90574
+CountDeclMethodPrivate <= -0.3 & -19.2 < Added_lines <= 9.4,0.04559,0.98925,1.90563
+PercentLackOfCohesion <= 7 & MAJOR_LINE <= 0.19,0.07843,0.9875,1.90227
+CountClassCoupled <= 0.6 & -19.2 < Added_lines <= 9.4,0.09167,0.98396,1.89544
+CountClassCoupled <= 0.6 & -2.04 < CountDeclClassVariable <= 0.46,0.06029,0.98374,1.89502
+OWN_LINE > 0.974 & CountDeclMethodPublic <= 1.15,0.04559,0.96774,1.86421
+AvgLineComment <= 1.2 & -19.2 < Added_lines <= 9.4,0.10196,0.96154,1.85226
+0.6 < CountClassCoupled <= 3.95 & -0.22 < AvgLineBlank <= 0.53 & -2.04 < CountDeclClassVariable <= 0.46,0.10833,0.95928,1.8479
+MaxNesting_Mean <= 0.09 & -19.2 < Added_lines <= 9.4,0.11275,0.95217,1.83422

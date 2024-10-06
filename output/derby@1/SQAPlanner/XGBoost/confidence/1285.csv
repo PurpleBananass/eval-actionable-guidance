@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassBase <= 0.688 & -1.04 < CountDeclClassVariable <= 0.26,0.08749,0.96373,1.34556
+0.435 < CountClassDerived <= 1.17 & -1.6 < CountDeclInstanceVariable <= 1.1,0.08386,0.94054,1.31319
+0.435 < CountClassDerived <= 1.17 & -1.04 < CountDeclClassVariable <= 0.26,0.0893,0.93909,1.31115
+OWN_COMMIT <= 0.01 & -0.77 < CountDeclMethodProtected <= 0.11,0.18314,0.93069,1.29944
+MaxInheritanceTree <= 0.73,0.18359,0.90617,1.2652
+RatioCommentToCode > 2.235,0.19447,0.89277,1.24649
+0.085 < MaxNesting_Mean <= 0.465 & 0.954 < CountDeclClass <= 1.037,0.15458,0.87683,1.22424

@@ -1,0 +1,6 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.06 < CountDeclMethodPrivate <= 1.04,0.72933,0.96243,1.06538
+0.99 < CountDeclClass <= 1.59,0.66298,0.96229,1.06523
+0.99 < CountDeclClass <= 1.59 & -0.06 < CountDeclMethodPrivate <= 1.04,0.5601,0.98541,1.09082
+0.99 < CountDeclClass <= 1.59 & -0.005 < CountDeclMethodProtected <= 0.25,0.55817,0.97761,1.08218
+-0.61 < CountDeclClassMethod <= 0.11,0.54904,0.97986,1.08468

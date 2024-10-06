@@ -1,0 +1,6 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-20 < Del_lines <= 8,0.45729,0.96537,1.14896
+-20 < Del_lines <= 8 & -0.29 < CountDeclMethodProtected <= 0.055,0.32342,0.9911,1.17958
+MINOR_LINE <= 1.005,0.31094,0.89815,1.06896
+-0.175 < CountDeclClassMethod <= 0.25 & 0.87 < AvgEssential <= 1.002,0.27207,0.94709,1.1272
+MAJOR_LINE <= 0.02,0.2452,0.97456,1.1599

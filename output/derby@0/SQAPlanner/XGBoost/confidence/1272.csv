@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+3.3 < CountDeclMethodPublic <= 5.45 & 3.85 < Added_lines <= 7.95,0.13529,0.99638,1.68262
+3.85 < Added_lines <= 7.95 & 0.986 < AvgEssential <= 1.062,0.26275,0.98507,1.66354
+0.889 < OWN_LINE <= 0.9485 & MAJOR_LINE <= 0.155,0.0549,0.98214,1.65859
+3.85 < Added_lines <= 7.95 & 0.952 < CountDeclClass <= 1.005,0.37843,0.95855,1.61874
+CountDeclMethodDefault > 3.625 & 32 < CountLineComment <= 59,0.04069,0.95181,1.60736
+CountClassBase > 1.842 & 2.48 < CountClassCoupled <= 4.98,0.03725,0.94737,1.59986
+32 < CountLineComment <= 59 & 0.9485 < OWN_LINE <= 0.985,0.06324,0.94574,1.5971
+CountDeclMethodDefault > 3.625 & -0.29 < CountDeclInstanceVariable <= 0.67,0.03824,0.9359,1.58049
+3.85 < Added_lines <= 7.95,0.42353,0.93403,1.57733
+Added_lines <= 3.85,0.10049,0.92195,1.55694

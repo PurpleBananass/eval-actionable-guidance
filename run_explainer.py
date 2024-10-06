@@ -3,21 +3,41 @@ from pathlib import Path
 import pickle
 from argparse import ArgumentParser
 from tqdm import tqdm
-from Explainer.LIME_HPO import LIME_HPO
+from Explainer.LIME_HPO import LIME_HPO, LIME_Planner
 from Explainer.SQAPlanner.LORMIKA import LORMIKA
 from Explainer.TimeLIME import TimeLIME
 from data_utils import get_true_positives, load_model, read_dataset, get_model_file, get_output_dir
 from hyparams import *
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+
+# ConvergenceWarning을 무시
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 def run_single_project(train_data, test_data, project_name, model_type, explainer_type, verbose=True):
     model_file = get_model_file(project_name, model_type)
-    output_path = get_output_dir(project_name, explainer_type) / model_type
-    output_path.mkdir(parents=True, exist_ok=True)
+    output_path = get_output_dir(project_name, explainer_type, model_type)
     model = load_model(model_file)
 
-    true_positives = get_true_positives(model_file, test_data)
+    true_positives = get_true_positives(model_file, train_data, test_data)
 
     match explainer_type:
+        case "LIME":
+            for test_idx in tqdm(true_positives.index, desc=f"{project_name}", leave=False, disable=not verbose):
+                test_instance = true_positives.loc[test_idx, :]
+                output_file = output_path / f"{test_idx}.csv"
+
+                if output_file.exists():
+                    continue
+
+                LIME_Planner(
+                    X_train=train_data.drop(columns=["target"]),
+                    test_instance=test_instance,
+                    training_labels=train_data[["target"]],
+                    model=model,
+                    path=output_file,
+                )
+
         case "LIME-HPO":
             for test_idx in tqdm(true_positives.index, desc=f"{project_name}", leave=False, disable=not verbose):
                 test_instance = true_positives.loc[test_idx, :]
@@ -44,7 +64,7 @@ def run_single_project(train_data, test_data, project_name, model_type, explaine
             lormika = LORMIKA(
                 train_set=train_data.loc[:, train_data.columns != "target"],
                 train_class=train_data[["target"]],
-                cases=test_data.loc[:, test_data.columns != "target"],
+                cases=true_positives.loc[:, true_positives.columns != "target"],
                 model=model,
                 output_path=gen_instances_path,
             )
@@ -66,6 +86,6 @@ if __name__ == "__main__":
     else:
         project_list = args.project.split(" ")
 
-    for project in tqdm(project_list, desc="Generating Explanations ...", leave=True):
+    for project in tqdm(project_list, desc="Project", leave=True):
         train, test = projects[project]
         run_single_project(train, test, project, args.model_type, args.explainer_type)

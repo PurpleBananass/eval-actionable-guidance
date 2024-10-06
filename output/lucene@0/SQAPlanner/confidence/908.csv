@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT <= -0.017,0.08906,0.99482,1.27787
+-0.017 < OWN_COMMIT <= 0.053,0.32626,0.99293,1.27544
+-0.105 < MAJOR_LINE <= 0.345 & -0.24 < AvgLineBlank <= 0.13,0.1952,0.96927,1.24505
+CountClassCoupled <= 0.8,0.19243,0.95923,1.23216
+RatioCommentToCode > 1.5,0.19659,0.93897,1.20613
+0.8 < CountClassCoupled <= 2.8,0.21089,0.93873,1.20583
+MAJOR_LINE <= -0.105,0.09737,0.93839,1.20539
+AvgEssential > 2.04,0.11537,0.936,1.20232

@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+PercentLackOfCohesion <= 2.5 & CountDeclMethodPublic <= 0.8,0.08794,0.99454,1.43326
+CountLineComment <= 29.5,0.19173,0.97243,1.40141
+-1.76 < CountDeclClassVariable <= 0.28 & RatioCommentToCode > 2.84,0.09707,0.9703,1.39833
+0.7 < CountClassCoupled <= 3.4 & AvgLineComment > 9.75,0.04565,0.96842,1.39563
+-0.56 < CountDeclMethodProtected <= 0.01 & -3.2 < Added_lines <= 7.2,0.39404,0.9622,1.38665
+-1.76 < CountDeclClassVariable <= 0.28 & AvgLineComment <= 0.9,0.07496,0.96154,1.38571
+-0.56 < CountDeclMethodProtected <= 0.01 & CountInput_Min > 2,0.111,0.95671,1.37875
+-1.42 < CountDeclClassMethod <= 0.14 & MAJOR_LINE <= 0.06,0.12206,0.94488,1.3617
+Added_lines <= -3.2,0.06872,0.94406,1.36051
+-3.2 < Added_lines <= 7.2,0.51946,0.92507,1.33315

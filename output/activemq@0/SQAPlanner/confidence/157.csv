@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+ADEV <= 1.26,0.20962,1.0,1.09647
+3.65 < CountDeclMethodPublic <= 7.2,0.19567,1.0,1.09647
+CountDeclMethodPublic <= 0.15,0.16731,0.99713,1.09332
+CountClassCoupled <= 0.16,0.19375,0.99504,1.09103
+CountClassBase <= 0.815,0.16635,0.99422,1.09013
+CountDeclMethodDefault > 0.514 & -0.047 < CountDeclMethodPrivate <= 0.053,0.16154,0.99405,1.08994
+0.16 < CountClassCoupled <= 1.68,0.22788,0.99367,1.08953
+1.26 < ADEV <= 1.94,0.12981,0.98889,1.08429
+0.84 < RatioCommentToCode <= 1.345,0.20577,0.98364,1.07854
+1.345 < RatioCommentToCode <= 2.475,0.18846,0.98214,1.07689

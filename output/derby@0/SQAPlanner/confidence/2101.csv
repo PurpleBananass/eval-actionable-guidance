@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 2.555 & MAJOR_LINE <= 0.1,0.09663,1.0,1.68421
+RatioCommentToCode > 2.555 & -0.6 < Added_lines <= 10.2,0.1024,0.99531,1.6763
+CountClassDerived > 1.14 & -1.18 < CountDeclMethodPrivate <= 0.48,0.08462,0.99432,1.67464
+CountInput_Mean <= 1.56 & -0.6 < Added_lines <= 10.2,0.0726,0.99338,1.67306
+CountClassBase <= 0.714 & -0.6 < Added_lines <= 10.2,0.08894,0.98919,1.666
+CountClassCoupled <= 1.15 & -0.6 < Added_lines <= 10.2,0.08365,0.98851,1.66485
+RatioCommentToCode > 2.555 & -1.18 < CountDeclMethodPrivate <= 0.48,0.12356,0.98833,1.66455
+AvgLineComment <= 0.95 & -0.6 < Added_lines <= 10.2,0.08029,0.98204,1.65396
+0.825 < MaxInheritanceTree <= 1.205 & -0.6 < Added_lines <= 10.2,0.09135,0.97895,1.64875
+MaxNesting_Mean <= 0.065 & -0.6 < Added_lines <= 10.2,0.10913,0.97797,1.64711

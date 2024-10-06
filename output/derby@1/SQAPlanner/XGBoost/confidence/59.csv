@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+AvgLineComment <= 0.9 & -41 < Added_lines <= 2,0.11559,0.98431,1.33296
+OWN_COMMIT <= 0.015 & -41 < Added_lines <= 2,0.21396,0.96186,1.30256
+Added_lines <= -41,0.04125,0.93407,1.26492
+OWN_COMMIT <= 0.015,0.25793,0.9174,1.24235
+AvgLineComment <= 0.9,0.20399,0.91111,1.23383
+RatioCommentToCode > 2.125,0.1981,0.91076,1.23335
+MaxInheritanceTree <= 0.9,0.17724,0.91049,1.23298
+CountLineComment <= 30.5,0.2049,0.90487,1.22538

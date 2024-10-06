@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.25 < CountDeclClassVariable <= 0.065,0.51719,0.93721,1.04223
+-0.1 < CountDeclInstanceVariable <= 0.395,0.30134,0.9477,1.0539
+MAJOR_COMMIT <= 0.005,0.27841,0.98456,1.09489
+OWN_COMMIT <= 0.01,0.27746,0.97246,1.08143
+CountDeclMethodProtected <= 0.04,0.2574,0.95547,1.06254
+0.47 < MAJOR_COMMIT <= 1.015,0.25215,0.95265,1.0594
+MINOR_LINE <= 1.055,0.24021,0.95427,1.06121
+0.58 < CountClassCoupled <= 2.04,0.21824,0.95624,1.06339
+0.79 < CountInput_Min <= 1.375,0.20392,0.96019,1.06778

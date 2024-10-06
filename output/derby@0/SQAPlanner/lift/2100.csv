@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-7 < Added_lines <= 8.4 & MAJOR_LINE <= 0.21,0.12398,1.0,1.46391
+MAJOR_LINE <= 0.21 & CountClassDerived > 1.136,0.05361,1.0,1.46391
+MAJOR_LINE <= 0.21 & CountDeclMethodPublic <= 1.25,0.07276,0.99342,1.45428
+Added_lines <= -7,0.0675,0.97872,1.43276
+-7 < Added_lines <= 8.4,0.47008,0.93177,1.36403
+CountClassCoupled <= 1,0.20201,0.88389,1.29393
+CountDeclMethodPrivate <= -0.74,0.06079,0.88189,1.29101
+MaxNesting_Mean <= 0.09,0.21494,0.87305,1.27807

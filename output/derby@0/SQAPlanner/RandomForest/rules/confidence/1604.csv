@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'0.8 < CountClassCoupled <= 4.15 & -1.05 < CountDeclClassMethod <= 0 & -3.4 < Added_lines <= 6.8'","b'target = 0'",0.13186,269,0.13186,269,1,0.04395,1.5,2.42361e-12,0.66667,1360
+"b'000001'","b'MAJOR_LINE <= 0.01 & -1.05 < CountDeclClassMethod <= 0 & -3.4 < Added_lines <= 6.8'","b'target = 0'",0.12745,260,0.12745,260,1,0.04248,1.5,7.26578e-12,0.66667,1360
+"b'000002'","b'-0.5 < CountDeclInstanceVariable <= 1.34 & -1.05 < CountDeclClassMethod <= 0 & -3.4 < Added_lines <= 6.8'","b'target = 0'",0.11912,243,0.11912,243,1,0.03971,1.5,5.50194e-11,0.66667,1360
+"b'000003'","b'MaxInheritanceTree <= 0.75 & -0.6 < CountDeclMethodPrivate <= 0.22'","b'target = 0'",0.09755,199,0.09706,198,0.99497,0.03203,1.49246,4.62504e-09,0.66667,1360
+"b'000004'","b'MAJOR_LINE <= 0.01 & -3.4 < Added_lines <= 6.8 & 0.94 < CountDeclClass <= 1.082'","b'target = 0'",0.14951,305,0.14853,303,0.99344,0.04886,1.49016,2.11054e-11,0.66667,1360
+"b'000005'","b'-0.6 < CountDeclMethodPrivate <= 0.22 & -3.4 < Added_lines <= 6.8'","b'target = 0'",0.33382,681,0.3299,673,0.98825,0.10735,1.48238,4.27908e-45,0.66667,1360
+"b'000006'","b'-0.14 < AvgLineBlank <= 0.41 & -1.05 < CountDeclClassMethod <= 0 & -3.4 < Added_lines <= 6.8'","b'target = 0'",0.2,408,0.19706,402,0.98529,0.06373,1.47794,1.06615e-12,0.66667,1360
+"b'000007'","b'-0.14 < AvgLineBlank <= 0.41 & -3.4 < Added_lines <= 6.8 & 0.94 < CountDeclClass <= 1.082'","b'target = 0'",0.20784,424,0.20441,417,0.98349,0.06585,1.47524,3.30241e-12,0.66667,1360
+"b'000008'","b'AvgLineComment <= 0.65 & -0.49 < CountDeclClassVariable <= 0.24'","b'target = 0'",0.11618,237,0.11422,233,0.98312,0.03676,1.47468,3.37137e-20,0.66667,1360
+"b'000009'","b'MaxInheritanceTree <= 0.75 & -0.49 < CountDeclClassVariable <= 0.24'","b'target = 0'",0.09902,202,0.09706,198,0.9802,0.03105,1.4703,3.52229e-16,0.66667,1360

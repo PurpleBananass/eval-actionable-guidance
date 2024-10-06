@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.938 < CountPath_Min <= 1.04,0.62494,0.83321,1.05266
+0.96 < AvgEssential <= 1.235,0.61019,0.83853,1.05939
+0.938 < CountPath_Min <= 1.04 & -0.0538 < MINOR_COMMIT <= 0.0024,0.60876,0.84597,1.06879
+0.96 < AvgEssential <= 1.235 & -0.0538 < MINOR_COMMIT <= 0.0024,0.59543,0.85532,1.08059
+-0.235 < CountDeclClassMethod <= 0.045,0.59257,0.85382,1.07869
+0.96 < CountDeclClass <= 1.27,0.56497,0.83825,1.05902
+-0.585 < CountDeclMethodPrivate <= 0.15,0.49548,0.88761,1.12139
+-0.03 < OWN_COMMIT <= 0.021,0.43598,0.86572,1.09373
