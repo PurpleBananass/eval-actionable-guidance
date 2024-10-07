@@ -204,7 +204,6 @@ def flip_single_project(
 
             # Start from the test with the smallest number of perturbations
             test_indices = [x[0] for x in max_perturbations]
-            print(len(test_indices))
 
             for test_name in tqdm(
                 test_indices, desc=f"{project_name}", leave=True, disable=not verbose
@@ -226,7 +225,7 @@ def flip_single_project(
                             [original_instance[feature]] + plans[test_name][feature]
                         ]
 
-                print(len(changeable_features))
+                
                 # Submitting the task for parallel execution
                 future = executor.submit(
                     flip_instance,
@@ -236,7 +235,7 @@ def flip_single_project(
                     model,
                     scaler
                 )
-                print(f"submit {test_name}")
+                
                 futures[future] = test_name
 
             for future in tqdm(
@@ -244,11 +243,11 @@ def flip_single_project(
                 desc=f"{project_name}",
                 leave=True,
                 disable=not verbose,
+                total=len(futures),
             ):
                 try:
                     test_name = futures[future]
                     flipped_instance = future.result()
-                    print(f"result {test_name}")
 
                     if flipped_instance is not None:
                         flipped_instances[test_name] = flipped_instance
