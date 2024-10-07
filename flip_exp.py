@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.discriminant_analysis import StandardScaler
 from tqdm import tqdm
-from data_utils import read_dataset, get_true_positives
+from data_utils import read_dataset, get_true_positives, get_model
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from hyparams import MODELS, PROPOSED_CHANGES, SEED, EXPERIMENTS, RESULTS
@@ -48,7 +48,7 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
     }
     for project_name in projects:
         train, test = projects[project_name]
-        model_path = Path(f"{MODELS}/{project_name}/{model_type}.pkl")
+        
         scaler = StandardScaler()
         # fit without feature names
         scaler.fit(train.drop("target", axis=1).values)
@@ -86,8 +86,8 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
         }
         with open(plan_path, "r") as f:
             plans = json.load(f)
-        
-        true_positives = get_true_positives(model_path, train, test)
+        model = get_model(project_name, model_type)
+        true_positives = get_true_positives(model, train, test)
         df = pd.DataFrame(flipped_instances).T
         result["Project"].append(project_name)
         result["Flipped"].append(len(df.dropna()))
@@ -108,7 +108,7 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
 def flip_single_project(
     train, test, project_name, explainer_type, search_strategy, only_minimum, verbose=True, load=True, model_type="RandomForest"
 ):
-    model_path = Path(f"{MODELS}/{project_name}/{model_type}.pkl")
+    
     scaler = StandardScaler()
     scaler.fit(train.drop("target", axis=1))
 
@@ -153,15 +153,15 @@ def flip_single_project(
 
     test_names = list(plans.keys())
     
-    true_positives = get_true_positives(model_path, train, test)
+    model = get_model(project_name, model_type)
+    
+    true_positives = get_true_positives(model, train, test)
+    print(f"True Positives: {len(true_positives)}")
     if verbose and load and len(flipped_instances) > 0:
         df = pd.DataFrame(flipped_instances).T
         if len(df) < len(test_names):
             tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} | Loaded !")
     
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
-        model.set_params(n_jobs=1)
     if only_minimum:
         
         for test_name in tqdm(

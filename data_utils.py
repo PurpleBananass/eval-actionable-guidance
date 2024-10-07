@@ -11,6 +11,20 @@ from hyparams import (
     PROJECT_DATASET,
     RELEASE_DATASET,
 )
+import joblib
+import xgboost
+
+def get_model(project_name: str, model_name: str = "RandomForest"):
+    if model_name == "RandomForest":
+        model_path = Path(f"{MODELS}/{project_name}/RandomForest.joblib")
+        model = joblib.load(model_path)
+    elif model_name == "XGBoost":
+        model_path = Path(f"{MODELS}/{project_name}/XGBoost.xgb")
+        model = xgboost.XGBClassifier()
+        model.load_model(model_path)
+    else:
+        raise ValueError(f"Model {model_name} not supported")
+    return model
 
 
 def get_model_file(project_name: str, model_name: str = "RandomForest") -> Path:
@@ -59,11 +73,10 @@ def get_release_names(project_release, with_num_tp=True):
 
 
 def get_true_positives(
-    model_file: Path, train_data: DataFrame, test_data: DataFrame, label: str = "target"
+    model, train_data: DataFrame, test_data: DataFrame, label: str = "target"
 ) -> DataFrame:
     assert label in test_data.columns
 
-    model = load_model(model_file)
     ground_truth = test_data.loc[test_data[label] == True, test_data.columns != label]
     scaler = StandardScaler()
     scaler.fit(train_data.drop("target", axis=1))
