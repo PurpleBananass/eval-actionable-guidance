@@ -156,7 +156,6 @@ def flip_single_project(
     model = get_model(project_name, model_type)
     
     true_positives = get_true_positives(model, train, test)
-    print(f"True Positives: {len(true_positives)}")
     if verbose and load and len(flipped_instances) > 0:
         df = pd.DataFrame(flipped_instances).T
         if len(df) < len(test_names):
@@ -285,7 +284,7 @@ if __name__ == "__main__":
     argparser.add_argument("--model_type", type=str, default="RandomForest")
 
     args = argparser.parse_args()
-    print(os.cpu_count())
+    
     if args.get_flip_rate:
         # RQ 1
         get_flip_rates(
