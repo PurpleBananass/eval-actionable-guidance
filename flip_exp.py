@@ -158,9 +158,9 @@ def flip_single_project(
     true_positives = get_true_positives(model, train, test)
     if verbose and load and len(flipped_instances) > 0:
         df = pd.DataFrame(flipped_instances).T
-        if len(df) < len(test_names):
-            tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} | Loaded !")
-    
+        
+        tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} |")
+
     if only_minimum:
         
         for test_name in tqdm(

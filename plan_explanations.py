@@ -6,12 +6,12 @@ from pathlib import Path
 from tqdm import tqdm
 from argparse import ArgumentParser
 from math import ceil, floor
-from data_utils import get_true_positives, load_model, read_dataset, get_output_dir, get_model_file
+from data_utils import get_model, get_true_positives, load_model, read_dataset, get_output_dir
 from hyparams import PROPOSED_CHANGES
 
 # Aussme there are generated explanations
 def run_single_project(train, test, project_name, model_type, explainer_type, search_strategy, only_minimum=False, verbose=False):
-    model_path = get_model_file(project_name, model_type)
+
     output_path = get_output_dir(project_name, explainer_type, model_type)
     proposed_change_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}")
     if search_strategy is not None:
@@ -28,8 +28,8 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
     train_max = train.max()
 
     all_plans = {}
-
-    true_positives = get_true_positives(model_path, train, test)
+    model = get_model(project_name, model_type)
+    true_positives = get_true_positives(model, train, test)
 
     for test_idx in tqdm(true_positives.index, desc=f"{project_name}", leave=True, disable=not verbose):
         test_instance = test.loc[test_idx]
@@ -119,8 +119,8 @@ def run_single_project(train, test, project_name, model_type, explainer_type, se
                             break
                         if ranges[0] < train_min[feature]:
                             ranges[0] = max(0, train_min[feature])
-                     
                         perturbations = perturb_feature(ranges[0], ranges[1], test_instance[feature], train.dtypes[feature])
+
                         if not perturbations:
                             continue
                         if only_minimum:
