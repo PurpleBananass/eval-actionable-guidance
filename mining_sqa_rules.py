@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 from Explainer.SQAPlanner.bigml_mining import get_or_create_association, get_or_create_dataset
 
-from data_utils import get_model_file, get_true_positives, read_dataset, get_output_dir, load_model
+from data_utils import get_model_file, get_true_positives, read_dataset, get_output_dir, load_model, get_model
 
 load_dotenv()
 
@@ -31,9 +31,7 @@ def generate_plans(project, search_strategy, model_type):
     projects = read_dataset()
 
     train, test = projects[project]
-    model_path = get_model_file(project, model_type)
-    model = load_model(model_path)
-    print(model_path)
+    model = get_model(project, model_type)
 
     generated_path = get_output_dir(project, "SQAPlanner", model_type) / "generated_instances"
     rules_path = get_output_dir(project, "SQAPlanner", model_type) / f"rules/{search_strategy}"
@@ -42,7 +40,7 @@ def generate_plans(project, search_strategy, model_type):
     output_path = get_output_dir(project, "SQAPlanner", model_type) / f"{search_strategy}"
     output_path.mkdir(parents=True, exist_ok=True)
     
-    true_positives = get_true_positives(model_path, train, test)
+    true_positives = get_true_positives(model, train, test)
 
     len_csv = len(list(generated_path.glob("*.csv")))
     if len_csv == 0:
@@ -55,7 +53,21 @@ def generate_plans(project, search_strategy, model_type):
             continue
         output_file = output_path / f"{csv.stem}.csv"
         if output_file.exists():
-            continue
+            # check empty file
+            try:
+                output_test = pd.read_csv(output_file)
+                if output_test.empty:
+                    print("Empty file, removing it")
+                    os.remove(output_file)
+                    if (rules_path / f"{csv.stem}.csv").exists():
+                        os.remove(rules_path / f"{csv.stem}.csv")
+                else:
+                    continue
+            except:
+                print("Error reading file, removing it")
+                os.remove(output_file)
+                if (rules_path / f"{csv.stem}.csv").exists():
+                    os.remove(rules_path / f"{csv.stem}.csv")
 
         case_data = test.loc[int(csv.stem), :]
         x_test = case_data.drop("target")
@@ -117,14 +129,14 @@ def generate_plans(project, search_strategy, model_type):
 
 
 def main(projects, search_strategy, model_type):
-    for proj in tqdm(projects, desc="Generating Plans ...", leave=True):
+    for proj in tqdm(projects, desc="Gen Plans ...", leave=True):
         generate_plans(proj, search_strategy, model_type)
 
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
     argparser.add_argument("--project", type=str)
-    argparser.add_argument("--search_strategy", type=str, default="coverage", choices=["coverage", "confidence", "lift"])
+    argparser.add_argument("--search_strategy", type=str, default="confidence", choices=["coverage", "confidence", "lift"])
     argparser.add_argument("--model_type", type=str, default="RandomForest")
     args = argparser.parse_args()
     count = 0

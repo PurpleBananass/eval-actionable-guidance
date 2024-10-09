@@ -185,11 +185,10 @@ def flip_single_project(
             else:
                 flipped_instances[test_name] = pd.Series(
                     [np.nan] * len(original_instance),
-                    index=original_instance.index,
                 )
 
     else:
-        with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+        with ProcessPoolExecutor(max_workers=min(8, os.cpu_count())) as executor:
             futures = {}
             max_perturbations = []
             for test_name in tqdm(test_names, desc=f"{project_name} queing...", leave=False, disable=not verbose):
@@ -258,7 +257,9 @@ def flip_single_project(
 
                     # Save each completed test_name immediately, including None cases
                     if flipped_instances:
+                        # print(flipped_instances)
                         df = pd.DataFrame(flipped_instances).T
+                        df.columns = original_instance.index
                         df.to_csv(exp_path)
 
                 except Exception as e:
@@ -267,6 +268,7 @@ def flip_single_project(
                     exit()
 
     df = pd.DataFrame(flipped_instances).T
+    df.columns = original_instance.index
     if verbose:
         tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} |")
     df.to_csv(exp_path)

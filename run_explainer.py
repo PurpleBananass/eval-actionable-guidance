@@ -6,7 +6,7 @@ from tqdm import tqdm
 from Explainer.LIME_HPO import LIME_HPO, LIME_Planner
 from Explainer.SQAPlanner.LORMIKA import LORMIKA
 from Explainer.TimeLIME import TimeLIME
-from data_utils import get_true_positives, load_model, read_dataset, get_model_file, get_output_dir
+from data_utils import get_true_positives, load_model, read_dataset, get_model_file, get_output_dir, get_model
 from hyparams import *
 import warnings
 from sklearn.exceptions import ConvergenceWarning
@@ -15,11 +15,11 @@ from sklearn.exceptions import ConvergenceWarning
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 def run_single_project(train_data, test_data, project_name, model_type, explainer_type, verbose=True):
-    model_file = get_model_file(project_name, model_type)
+    
     output_path = get_output_dir(project_name, explainer_type, model_type)
-    model = load_model(model_file)
+    model = get_model(project_name, model_type)
 
-    true_positives = get_true_positives(model_file, train_data, test_data)
+    true_positives = get_true_positives(model, train_data, test_data)
 
     match explainer_type:
         case "LIME":

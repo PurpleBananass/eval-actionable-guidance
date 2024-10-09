@@ -16,7 +16,7 @@ def list_status(model_type="XGBoost", explainers=["TimeLIME", "LIME-HPO", "LIME"
         table_row = [project]
         for explainer in explainers:
             flipped_path = Path(f"flipped_instances/{project}/{model_type}/{explainer}_all.csv")
-            plan_path = Path(f"proposed_changes/{project}/{model_type}/{explainer}/plans_all.json")
+            
             if not flipped_path.exists():
                 print(f"{flipped_path} not exists")
                 row[explainer] = set()
@@ -24,7 +24,7 @@ def list_status(model_type="XGBoost", explainers=["TimeLIME", "LIME-HPO", "LIME"
                 flipped = pd.read_csv(flipped_path, index_col=0)
                 computed_names = set(flipped.index)
                 row[explainer] = computed_names
-
+        plan_path = Path(f"proposed_changes/{project}/{model_type}/{explainers[0]}/plans_all.json")
         with open(plan_path, "r") as f:
             plans = json.load(f)
             total_names = set(plans.keys())
