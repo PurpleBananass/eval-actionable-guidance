@@ -22,20 +22,6 @@ warnings.filterwarnings("ignore", category=ConvergenceWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 np.random.seed(SEED)
 
-def flip_instance(
-    original_instance, features, changeable_features, model, scaler
-):
-    featurename_to_index = {feature: i for i, feature in enumerate(features)}
-    for values in product(*changeable_features):
-        modified_instance = original_instance.copy().tolist()
-        for feature, value in zip(features, values):
-            modified_instance[featurename_to_index[feature]] = value
-        modified_instance = scaler.transform([modified_instance])
-        prediction = model.predict_proba(modified_instance)[:, 0]
-        if prediction >= 0.5:
-            modified_instance = scaler.inverse_transform(modified_instance)[0]
-            return modified_instance
-    return None  # Return None if no perturbation flips the prediction
 
 def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
     
@@ -104,174 +90,127 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
     result_df.to_csv(result_path)
 
 
+def flip_instance(
+    original_instance: pd.DataFrame, changeable_features_dict, model, scaler
+):
+    changeable_features = list(changeable_features_dict.values())
+    feature_names = list(changeable_features_dict.keys())
+    if isinstance(original_instance, pd.Series):
+        original_instance = original_instance.to_frame().T
+    for values in product(*changeable_features):
+        modified_instance = original_instance.copy()
+        
+        
+        modified_instance.loc[:, feature_names] = values
+        
+        # 예측 수행
+        modified_instance_scaled = scaler.transform(modified_instance)
+        prediction = model.predict_proba(modified_instance_scaled)[:, 0]
+        
+        # 예측 결과가 조건을 만족할 경우 반환
+        if prediction >= 0.5:
+            return modified_instance
+
+    nan_row = pd.DataFrame([[np.nan] * len(original_instance.columns)], columns=original_instance.columns, index=original_instance.index)
+    return nan_row
+
+
 
 def flip_single_project(
-    train, test, project_name, explainer_type, search_strategy, only_minimum, verbose=True, load=True, model_type="RandomForest"
+    train, test, project_name, explainer_type, search_strategy, verbose=True, load=True, model_type="RandomForest"
 ):
     
     scaler = StandardScaler()
     scaler.fit(train.drop("target", axis=1))
 
-    match (only_minimum, search_strategy):
-        case (True, None):
-            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans.json")
-            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}.csv")
-        case (False, None):
-            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans_all.json")
-            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_all.csv")
-        case (True, _):
-            plan_path = Path(
-                f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans.json"
-            )
-            exp_path = Path(
-                f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}.csv"
-            )
-        case (False, _):
-            plan_path = Path(
-                f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans_all.json"
-            )
-            exp_path = Path(
-                f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}_all.csv"
-            )
+    if search_strategy == None:
+        plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans_all.json")
+        exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_all.csv")
+       
+    else:
+        plan_path = Path(
+            f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans_all.json"
+        )
+        exp_path = Path(
+            f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}_all.csv"
+        )
 
     plan_path.parent.mkdir(parents=True, exist_ok=True)
     exp_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if exp_path.exists() and load:
-        file = pd.read_csv(exp_path, index_col=0)
-        computed_test_names = set(file.index.astype(str))
-        flipped_instances = {
-            test_name: file.loc[test_name, :] for test_name in file.index
-        }
-        
-    else:
-        computed_test_names = set()
-        flipped_instances = {}
-
     with open(plan_path, "r") as f:
         plans = json.load(f)
 
-    test_names = list(plans.keys())
+    if exp_path.exists() and load:
+        all_results_df = pd.read_csv(exp_path, index_col=0)
+        test_names = list(plans.keys())
+        computed_test_names = list(map(str, all_results_df.index))
+        test_names = [ name for name in test_names if name not in computed_test_names]
+        print(f"{project}:{len(all_results_df.dropna())}/{len(all_results_df)}/{len(plans.keys())}")
+    else:
+        all_results_df = pd.DataFrame()
+        test_names = list(plans.keys())
+
     
     model = get_model(project_name, model_type)
     
-    true_positives = get_true_positives(model, train, test)
-    if verbose and load and len(flipped_instances) > 0:
-        df = pd.DataFrame(flipped_instances).T
-        
-        tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} |")
+    
+    with ProcessPoolExecutor(max_workers=min(8, os.cpu_count())) as executor:
+        futures = {}
+        max_perturbations = []
+        for test_name in tqdm(test_names, desc=f"{project_name} queing...", leave=False, disable=not verbose):
+            # Calcuate the number of perturbations (len(A) * len(B) * ...)
+            features = list(plans[test_name].keys())
+            computation = 1
+            for feature in features:
+                computation *= (len(plans[test_name][feature]) + 1) # +1 for original value
+            max_perturbations.append([test_name, computation])
+        max_perturbations = sorted(max_perturbations, key=lambda x: x[1])
 
-    if only_minimum:
-        
+        # Start from the test with the smallest number of perturbations
+        test_indices = [x[0] for x in max_perturbations]
+
         for test_name in tqdm(
-            test_names, desc=f"{project_name}", leave=False, disable=not verbose
+            test_indices, desc=f"{project_name}", leave=False, disable=not verbose
         ):
-            if test_name in computed_test_names:
-                continue
 
             original_instance = test.loc[int(test_name), test.columns != "target"]
-            flipped_instance = original_instance.copy()
             features = list(plans[test_name].keys())
 
-            flipped_instance[features] = [
-                plans[test_name][feature] for feature in features
-            ]
+            changeable_features_dict = {
+                feature: [original_instance[feature]] + plans[test_name][feature]
+                for feature in features
+            }
 
-            flipped_instance_scaled = scaler.transform(flipped_instance.values.reshape(1, -1))
+            # Submitting the task for parallel execution
+            future = executor.submit(
+                flip_instance,
+                original_instance,
+                changeable_features_dict,
+                model,
+                scaler
+            )
+            
+            futures[future] = test_name
 
-            prediction = model.predict_proba(flipped_instance_scaled)[:, 0]
-            if prediction >= 0.5:
-                flipped_instances[test_name] = flipped_instance
-            else:
-                flipped_instances[test_name] = pd.Series(
-                    [np.nan] * len(original_instance),
-                )
-
-    else:
-        with ProcessPoolExecutor(max_workers=min(8, os.cpu_count())) as executor:
-            futures = {}
-            max_perturbations = []
-            for test_name in tqdm(test_names, desc=f"{project_name} queing...", leave=False, disable=not verbose):
-                # Calcuate the number of perturbations (len(A) * len(B) * ...)
-                features = list(plans[test_name].keys())
-                computation = 1
-                for feature in features:
-                    computation * (len(plans[test_name][feature]) + 1) # +1 for original value
-                max_perturbations.append([test_name, computation])
-            max_perturbations = sorted(max_perturbations, key=lambda x: x[1])
-
-            # Start from the test with the smallest number of perturbations
-            test_indices = [x[0] for x in max_perturbations]
-
-            for test_name in tqdm(
-                test_indices, desc=f"{project_name}", leave=True, disable=not verbose
-            ):
-                if test_name in computed_test_names:
-                    continue
-
-                original_instance = test.loc[int(test_name), test.columns != "target"]
-                features = list(plans[test_name].keys())
-
-                changeable_features = []
-                for feature in features:
-                    if original_instance[feature] <= min(plans[test_name][feature]):
-                        changeable_features = [
-                            [original_instance[feature]] + plans[test_name][feature]
-                        ] + changeable_features
-                    else:
-                        changeable_features = changeable_features + [
-                            [original_instance[feature]] + plans[test_name][feature]
-                        ]
-
+        for future in tqdm(
+            as_completed(futures),
+            desc=f"{project_name}",
+            leave=False,
+            disable=not verbose,
+            total=len(futures),
+        ):
+            test_name = futures[future]
+            try:
                 
-                # Submitting the task for parallel execution
-                future = executor.submit(
-                    flip_instance,
-                    original_instance,
-                    features,
-                    changeable_features,
-                    model,
-                    scaler
-                )
-                
-                futures[future] = test_name
-
-            for future in tqdm(
-                as_completed(futures),
-                desc=f"{project_name}",
-                leave=True,
-                disable=not verbose,
-                total=len(futures),
-            ):
-                try:
-                    test_name = futures[future]
-                    flipped_instance = future.result()
-
-                    if flipped_instance is not None:
-                        flipped_instances[test_name] = flipped_instance
-                    else:  # if flipped_instance is None
-                        flipped_instances[test_name] = pd.Series(
-                            [np.nan] * len(original_instance),
-                            index=original_instance.index,
-                        )
-
-                    # Save each completed test_name immediately, including None cases
-                    if flipped_instances:
-                        # print(flipped_instances)
-                        df = pd.DataFrame(flipped_instances).T
-                        df.columns = original_instance.index
-                        df.to_csv(exp_path)
-
-                except Exception as e:
-                    tqdm.write(f"Error occurred: {e}")
-                    traceback.print_exc()
-                    exit()
-
-    df = pd.DataFrame(flipped_instances).T
-    df.columns = original_instance.index
-    if verbose:
-        tqdm.write(f"| {project_name} | {len(df.dropna())} | {len(df)} |{len(test_names)} | {len(df.dropna()) / len(df):.3f} | {len(true_positives)} |")
-    df.to_csv(exp_path)
+                flipped_instance = future.result()
+                all_results_df = pd.concat([all_results_df, flipped_instance], axis=0)
+                all_results_df.to_csv(exp_path)
+            except Exception as e:
+                tqdm.write(f"Error occurred: {e} id: {test_name}")
+                traceback.print_exc()
+                exit()
+    print(f"{project}:{len(all_results_df.dropna())}/{len(all_results_df)}/{len(plans.keys())}")
 
 
 if __name__ == "__main__":
@@ -279,7 +218,6 @@ if __name__ == "__main__":
     argparser.add_argument("--project", type=str, default="all")
     argparser.add_argument("--explainer_type", type=str, required=True)
     argparser.add_argument("--search_strategy", type=str, default=None)
-    argparser.add_argument("--only_minimum", action="store_true")
     argparser.add_argument("--verbose", action="store_true")
     argparser.add_argument("--new", action="store_true")
     argparser.add_argument("--get_flip_rate", action="store_true")
@@ -293,8 +231,7 @@ if __name__ == "__main__":
             args.explainer_type, args.search_strategy, args.only_minimum, args.model_type
         )
     else:
-        tqdm.write("| Project | Flipped | Computed | Plan | Flip Rate | TP |")
-        tqdm.write("| ------- | ------- | -------- | ---- | --------- | -- |")
+        tqdm.write("Project/Flipped/Computed/Plan")
         projects = read_dataset()
         if args.project == "all":
             project_list = list(sorted(projects.keys()))
@@ -311,7 +248,6 @@ if __name__ == "__main__":
                 project,
                 args.explainer_type,
                 args.search_strategy,
-                args.only_minimum,
                 verbose=args.verbose,
                 load=not args.new,
                 model_type=args.model_type
