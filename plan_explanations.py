@@ -144,6 +144,8 @@ def perturb(low, high, current, values, dtype):
     
     if dtype == "int64": 
         perturbations = [ val for val in values if low <= val <= high]
+
+
     elif dtype == "float64":
         perturbations = []
         candidates = [ val for val in values if low <= val <= high]
@@ -156,6 +158,12 @@ def perturb(low, high, current, values, dtype):
             if round(last, 2) != round(candidate, 2):
                 perturbations.append(candidate)
                 last = candidate
+
+    if len(perturbations) > 10:
+        # devide perturbations into 10 and select median value
+        groups = np.array_split(perturbations, 10)
+        perturbations = [np.median(group) for group in groups]
+            
         
     if current in perturbations:
         perturbations.remove(current)
@@ -163,6 +171,8 @@ def perturb(low, high, current, values, dtype):
     sorted_publications = sorted(perturbations, key=lambda x: abs(x - current))
 
     return sorted_publications
+
+
 
 def perturb_feature(low, high, current, dtype):
     
