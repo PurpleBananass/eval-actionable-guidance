@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountDeclMethodPrivate > 4.77 & CountDeclMethodProtected <= 1.05,0.07451,1.0,1.66531
+CountDeclInstanceVariable <= 13.4 & AvgCyclomaticModified <= 1.43,0.05784,1.0,1.66531
+CountDeclClass > 6.12 & OWN_LINE > 0.759,0.06863,0.99286,1.65341
+CountDeclClassVariable > 4.56 & CountInput_Min > 0.874,0.05588,0.99123,1.6507
+CountDeclClassMethod > 0.72 & CountDeclMethodDefault > 2.815,0.06373,0.97692,1.62688
+AvgLineBlank <= -0.1925,0.04216,0.97674,1.62658
+CountDeclClass > 6.12 & 0.964 < CountOutput_Min <= 1.078,0.05049,0.97087,1.6168
+CountDeclClass > 6.12 & 2.68 < CountDeclClassVariable <= 4.56,0.04951,0.9703,1.61584
+RatioCommentToCode <= 0.119 & CountDeclInstanceVariable <= 13.4,0.06765,0.96377,1.60497
+CountInput_Mean <= 2.59 & CountDeclInstanceVariable <= 13.4,0.08284,0.95858,1.59633

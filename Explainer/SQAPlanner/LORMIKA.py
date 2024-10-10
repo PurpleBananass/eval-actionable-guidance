@@ -40,7 +40,6 @@ class LORMIKA:
         for sample_number, test_instance in tqdm(cases_normalize.iterrows(), desc=f"{Path(self.__output_path).parent.name}", leave=False, total=len(cases_normalize)):
             # We only consider the instances that are predicted as buggy 
             pred = self.__model.predict(test_instance.values.reshape(1, -1))[0]
-            print(test_instance.name, pred)
             if pred == 0:
                 continue
 

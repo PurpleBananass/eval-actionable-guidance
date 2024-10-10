@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+1.42 < ADEV <= 2.2,0.23164,0.99805,1.12193
+ADEV <= 1.42,0.19964,0.99774,1.12158
+2.2 < ADEV <= 2.96,0.14872,0.99394,1.1173
+0.54 < CountClassCoupled <= 1.84 & 0.9926 < AvgEssential <= 1.0092,0.15998,0.98873,1.11145
+CountClassCoupled <= 0.54,0.21406,0.98316,1.10518
+-0.118 < MAJOR_LINE <= 0.02 & -0.019 < CountDeclMethodPrivate <= 0.058,0.43353,0.97713,1.09841
+-0.118 < MAJOR_LINE <= 0.02 & -0.065 < CountDeclClassMethod <= 0.29,0.46057,0.96967,1.09002
+1.125 < RatioCommentToCode <= 1.975,0.20054,0.96854,1.08875
+2.95 < CountDeclMethodPublic <= 6.25,0.17891,0.9597,1.07881

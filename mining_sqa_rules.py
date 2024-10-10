@@ -26,7 +26,7 @@ def generate_plans(project, search_strategy, model_type):
     api_key = os.getenv("BIGML_API_KEY")
     api = BigML(username, api_key)
 
-    print(username, api_key)
+    # print(username, api_key)
 
     projects = read_dataset()
 
@@ -53,21 +53,22 @@ def generate_plans(project, search_strategy, model_type):
             continue
         output_file = output_path / f"{csv.stem}.csv"
         if output_file.exists():
-            # check empty file
-            try:
-                output_test = pd.read_csv(output_file)
-                if output_test.empty:
-                    print("Empty file, removing it")
-                    os.remove(output_file)
-                    if (rules_path / f"{csv.stem}.csv").exists():
-                        os.remove(rules_path / f"{csv.stem}.csv")
-                else:
-                    continue
-            except:
-                print("Error reading file, removing it")
-                os.remove(output_file)
-                if (rules_path / f"{csv.stem}.csv").exists():
-                    os.remove(rules_path / f"{csv.stem}.csv")
+            continue
+            # # check empty file
+            # try:
+            #     output_test = pd.read_csv(output_file)
+            #     if output_test.empty:
+            #         print("Empty file, removing it")
+            #         os.remove(output_file)
+            #         if (rules_path / f"{csv.stem}.csv").exists():
+            #             os.remove(rules_path / f"{csv.stem}.csv")
+            #     else:
+            #         continue
+            # except:
+            #     print("Error reading file, removing it")
+            #     os.remove(output_file)
+            #     if (rules_path / f"{csv.stem}.csv").exists():
+            #         os.remove(rules_path / f"{csv.stem}.csv")
 
         case_data = test.loc[int(csv.stem), :]
         x_test = case_data.drop("target")
@@ -130,6 +131,7 @@ def generate_plans(project, search_strategy, model_type):
 
 def main(projects, search_strategy, model_type):
     for proj in tqdm(projects, desc="Gen Plans ...", leave=True):
+        print(f"Generating plans for {proj}")
         generate_plans(proj, search_strategy, model_type)
 
 
@@ -148,6 +150,7 @@ if __name__ == "__main__":
             else:
                 projects = read_dataset()
                 projects = list(projects.keys())
+                projects = sorted(projects)
                 main(projects, args.search_strategy, args.model_type)
 
             break

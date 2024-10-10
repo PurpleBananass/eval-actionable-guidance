@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+ADEV <= 1.39,0.2055,0.99561,1.15186
+1.39 < ADEV <= 2.21,0.22848,0.99408,1.15009
+0.914 < CountClassBase <= 1.068 & 0.952 < AvgCyclomaticModified <= 1.128,0.18161,0.99007,1.14545
+MINOR_LINE <= 1.252 & -0.004 < CountDeclMethodPrivate <= 0.105,0.15773,0.98857,1.14371
+0.915 < CountOutput_Min <= 1.285 & 0.952 < AvgCyclomaticModified <= 1.128,0.17666,0.98724,1.14218
+0.58 < CountClassCoupled <= 2.34,0.21451,0.98109,1.13506
+0.952 < AvgCyclomaticModified <= 1.128 & -0.032 < MAJOR_LINE <= 0.034,0.23524,0.97893,1.13255
+2.21 < ADEV <= 3.09,0.19468,0.97685,1.13015
+OWN_COMMIT > 1.0155,0.07481,0.9759,1.12906
