@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.86 < MaxInheritanceTree <= 1.42 & -0.29 < CountDeclMethodPrivate <= 0.31,0.08922,1.0,1.4967
+0.84 < CountClassCoupled <= 2.62 & -0.79 < CountDeclClassMethod <= 0.33 & 0.872 < AvgEssential <= 1.014,0.07598,1.0,1.4967
+0.23 < MaxNesting_Mean <= 0.62 & -6 < Added_lines <= 15.5,0.06912,1.0,1.4967
+0.86 < MaxInheritanceTree <= 1.42 & -0.24 < CountDeclClassVariable <= 0.42,0.06324,1.0,1.4967
+0.86 < MaxInheritanceTree <= 1.42 & 0.84 < CountClassCoupled <= 2.62,0.05931,1.0,1.4967
+MaxNesting_Mean <= 0.23 & -0.24 < CountDeclClassVariable <= 0.42,0.0652,0.99248,1.48545
+0.84 < CountClassCoupled <= 2.62 & -0.29 < CountDeclMethodPrivate <= 0.31,0.12794,0.99234,1.48523
+-0.04 < AvgLineBlank <= 0.58 & -6 < Added_lines <= 15.5,0.125,0.99216,1.48496
+0.865 < CountOutput_Min <= 1.31 & -0.096 < CountDeclMethodProtected <= 0.026 & 0.972 < CountDeclClass <= 1.068,0.16127,0.99088,1.48305
+0.84 < CountClassCoupled <= 2.62 & -0.04 < AvgLineBlank <= 0.58,0.10588,0.99074,1.48284

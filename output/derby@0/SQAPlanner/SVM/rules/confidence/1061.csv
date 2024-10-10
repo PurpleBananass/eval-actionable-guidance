@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.76 < CountDeclInstanceVariable <= 0.76 & -0.58 < CountDeclClassVariable <= 0.56 & -0.73 < CountDeclClassMethod <= 0.17'","b'target = 0'",0.09657,197,0.09608,196,0.99492,0.03274,1.51692,1.26422e-10,0.65588,1338
+"b'000001'","b'-0.005 < MAJOR_LINE <= 0.455 & -0.22 < CountDeclMethodPrivate <= 0.33'","b'target = 0'",0.16471,336,0.16373,334,0.99405,0.0557,1.51559,2.91885e-18,0.65588,1338
+"b'000002'","b'-0.08 < AvgLineBlank <= 0.61 & -0.58 < CountDeclClassVariable <= 0.56'","b'target = 0'",0.14902,304,0.14804,302,0.99342,0.0503,1.51463,3.78034e-26,0.65588,1338
+"b'000003'","b'-0.005 < MAJOR_LINE <= 0.455 & -0.73 < CountDeclClassMethod <= 0.17'","b'target = 0'",0.14167,289,0.14069,287,0.99308,0.04777,1.51411,6.58057e-53,0.65588,1338
+"b'000004'","b'1.5 < PercentLackOfCohesion <= 26.5 & 0.85 < CountDeclMethodPublic <= 3.45'","b'target = 0'",0.05686,116,0.05637,115,0.99138,0.01908,1.51152,2.63604e-09,0.65588,1338
+"b'000005'","b'-0.79 < CountDeclMethodProtected <= 0.26 & -0.73 < CountDeclClassMethod <= 0.17 & -0.57 < CountDeclMethodDefault <= 0.17'","b'target = 0'",0.11127,227,0.11029,225,0.99119,0.03731,1.51123,4.87826e-14,0.65588,1338
+"b'000006'","b'-0.08 < AvgLineBlank <= 0.61 & -0.76 < CountDeclInstanceVariable <= 0.76'","b'target = 0'",0.10147,207,0.10049,205,0.99034,0.03394,1.50993,1.35291e-20,0.65588,1338
+"b'000007'","b'-0.58 < CountDeclClassVariable <= 0.56 & -0.73 < CountDeclClassMethod <= 0.17 & -0.57 < CountDeclMethodDefault <= 0.17'","b'target = 0'",0.15049,307,0.14902,304,0.99023,0.05032,1.50976,4.42409e-23,0.65588,1338
+"b'000008'","b'-0.22 < CountDeclMethodPrivate <= 0.33 & -0.79 < CountDeclMethodProtected <= 0.26'","b'target = 0'",0.19118,390,0.18922,386,0.98974,0.06383,1.50903,6.70839e-42,0.65588,1338
+"b'000009'","b'0.8 < MaxInheritanceTree <= 1.23 & -0.76 < CountDeclInstanceVariable <= 0.76'","b'target = 0'",0.07353,150,0.07255,148,0.98667,0.02432,1.50433,1.40435e-13,0.65588,1338

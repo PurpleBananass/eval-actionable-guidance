@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.125 < CountInput_Min <= 0.33 & -8.5 < Added_lines <= 13,0.12059,0.99593,1.5935
+AvgLineBlank <= 0.05 & 25 < CountLineComment <= 84,0.09902,0.99505,1.59208
+0.14 < MAJOR_LINE <= 0.86 & -8.5 < Added_lines <= 13,0.09314,0.99474,1.59158
+MaxNesting_Mean <= 0.225 & 25 < CountLineComment <= 84,0.07304,0.99329,1.58926
+AvgLineBlank <= 0.05 & -8.5 < Added_lines <= 13,0.12745,0.98846,1.58154
+0.05 < AvgLineBlank <= 1.01 & 0.9565 < OWN_LINE <= 0.992,0.04167,0.98824,1.58118
+0.825 < RatioCommentToCode <= 2.26 & 25 < CountLineComment <= 84,0.07304,0.98658,1.57852

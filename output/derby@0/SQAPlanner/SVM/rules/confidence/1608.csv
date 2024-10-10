@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'0.675 < MaxInheritanceTree <= 1.135 & -0.29 < CountDeclMethodProtected <= 0.18 & -0.23 < CountDeclMethodDefault <= 0.065'","b'target = 0'",0.08824,180,0.08824,180,1,0.02643,1.42757,5.52523e-12,0.70049,1429
+"b'000001'","b'0.675 < MaxInheritanceTree <= 1.135 & -0.25 < CountDeclMethodPrivate <= 0.155 & -0.29 < CountDeclMethodProtected <= 0.18'","b'target = 0'",0.07353,150,0.07353,150,1,0.02202,1.42757,2.62297e-10,0.70049,1429
+"b'000002'","b'0.675 < MaxInheritanceTree <= 1.135 & -0.215 < AvgLineBlank <= 0.175 & -0.29 < CountDeclMethodProtected <= 0.18'","b'target = 0'",0.06667,136,0.06667,136,1,0.01997,1.42757,1.88843e-11,0.70049,1429
+"b'000003'","b'0.09 < MaxNesting_Mean <= 0.44 & 0.45 < CountDeclMethodPublic <= 5.05'","b'target = 0'",0.06373,130,0.06373,130,1,0.01909,1.42757,4.61236e-09,0.70049,1429
+"b'000004'","b'CountOutput_Min <= 0.1 & 0.45 < CountDeclMethodPublic <= 5.05'","b'target = 0'",0.06225,127,0.06225,127,1,0.01865,1.42757,7.71657e-09,0.70049,1429
+"b'000005'","b'0.831 < OWN_LINE <= 0.918 & 0.45 < CountDeclMethodPublic <= 5.05'","b'target = 0'",0.07549,154,0.075,153,0.99351,0.02212,1.4183,2.06213e-09,0.70049,1429
+"b'000006'","b'0.831 < OWN_LINE <= 0.918 & PercentLackOfCohesion <= 0.8'","b'target = 0'",0.06765,138,0.06716,137,0.99275,0.01977,1.41723,2.64618e-10,0.70049,1429
+"b'000007'","b'0.45 < CountDeclMethodPublic <= 5.05 & -0.215 < AvgLineBlank <= 0.175'","b'target = 0'",0.11275,230,0.11176,228,0.9913,0.03279,1.41516,3.52196e-38,0.70049,1429
+"b'000008'","b'0.918 < OWN_LINE <= 0.971 & 5.05 < CountDeclMethodPublic <= 9.1'","b'target = 0'",0.09608,196,0.0951,194,0.9898,0.0278,1.413,6.09804e-18,0.70049,1429
+"b'000009'","b'0.918 < OWN_LINE <= 0.971 & -0.29 < CountDeclMethodProtected <= 0.18'","b'target = 0'",0.09559,195,0.09461,193,0.98974,0.02765,1.41293,6.76204e-17,0.70049,1429

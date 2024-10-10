@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'1.2 < CountDeclMethodPublic <= 3.7 & MAJOR_LINE <= 0.06'","b'target = 0'",0.06569,134,0.0652,133,0.99254,0.02482,1.61465,9.30487e-11,0.61471,1254
+"b'000001'","b'1.07 < RatioCommentToCode <= 1.81 & 1.2 < CountDeclMethodPublic <= 3.7'","b'target = 0'",0.05686,116,0.05637,115,0.99138,0.02142,1.61277,2.41972e-11,0.61471,1254
+"b'000002'","b'-0.12 < AvgLineBlank <= 0.4 & -0.35 < CountDeclClassMethod <= 0.18 & -8 < Added_lines <= 7.5'","b'target = 0'",0.14118,288,0.13971,285,0.98958,0.05292,1.60985,6.20022e-13,0.61471,1254
+"b'000003'","b'0.635 < MAJOR_LINE <= 1.055 & -0.35 < CountDeclClassMethod <= 0.18 & -0.38 < CountDeclMethodProtected <= 0.11'","b'target = 0'",0.07941,162,0.07843,160,0.98765,0.02962,1.60671,1.25859e-10,0.61471,1254
+"b'000004'","b'-0.27 < CountDeclMethodPrivate <= 0.38 & -0.35 < CountDeclClassMethod <= 0.18 & -8 < Added_lines <= 7.5'","b'target = 0'",0.17598,359,0.17304,353,0.98329,0.06486,1.59961,1.00609e-15,0.61471,1254
+"b'000005'","b'-8 < Added_lines <= 7.5 & -0.38 < CountDeclMethodProtected <= 0.11 & 0.9522 < CountDeclClass <= 1.0068'","b'target = 0'",0.24902,508,0.24363,497,0.97835,0.09055,1.59157,4.71338e-58,0.61471,1254
+"b'000006'","b'CountDeclMethodPublic <= 1.2 & MAJOR_LINE <= 0.06'","b'target = 0'",0.07941,162,0.07745,158,0.97531,0.02864,1.58663,5.0537e-10,0.61471,1254
+"b'000007'","b'PercentLackOfCohesion <= 4 & -0.35 < CountDeclClassMethod <= 0.18'","b'target = 0'",0.11863,242,0.1152,235,0.97107,0.04228,1.57974,7.35737e-24,0.61471,1254
+"b'000008'","b'0.8965 < OWN_LINE <= 0.941 & 33.5 < CountLineComment <= 59.5'","b'target = 0'",0.06618,135,0.06422,131,0.97037,0.02354,1.57859,2.4413e-10,0.61471,1254
+"b'000009'","b'RatioCommentToCode > 1.81 & -0.38 < CountDeclMethodProtected <= 0.11'","b'target = 0'",0.12745,260,0.12353,252,0.96923,0.04518,1.57674,3.26354e-24,0.61471,1254

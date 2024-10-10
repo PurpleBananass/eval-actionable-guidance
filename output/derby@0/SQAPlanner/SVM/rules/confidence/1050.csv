@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'1.2 < CountDeclMethodPublic <= 4.1 & -0.12 < CountDeclMethodPrivate <= 0.64'","b'target = 0'",0.08529,174,0.08284,169,0.97126,0.02912,1.54193,7.98442e-09,0.6299,1285
+"b'000001'","b'0.83 < CountOutput_Min <= 1.12 & -0.5 < CountDeclMethodDefault <= 0.39 & 0.975 < CountDeclClass <= 1.074'","b'target = 0'",0.08725,178,0.08431,172,0.96629,0.02935,1.53404,2.22919e-13,0.6299,1285
+"b'000002'","b'0.83 < CountOutput_Min <= 1.12 & 0.99 < CountClassBase <= 1.225 & -0.12 < CountDeclMethodProtected <= 1.1'","b'target = 0'",0.08725,178,0.08431,172,0.96629,0.02935,1.53404,2.74597e-14,0.6299,1285
+"b'000003'","b'PercentLackOfCohesion <= 16 & -1.8 < Added_lines <= 12.2'","b'target = 0'",0.09706,198,0.09363,191,0.96465,0.03249,1.53142,1.67966e-13,0.6299,1285
+"b'000004'","b'-0.12 < CountDeclMethodPrivate <= 0.64 & -1.8 < Added_lines <= 12.2'","b'target = 0'",0.16618,339,0.16029,327,0.9646,0.05562,1.53135,1.6675e-26,0.6299,1285
+"b'000005'","b'RatioCommentToCode > 2.37 & -0.5 < CountDeclMethodDefault <= 0.39'","b'target = 0'",0.07402,151,0.07108,145,0.96026,0.02445,1.52447,1.16763e-12,0.6299,1285
+"b'000006'","b'1.2 < CountDeclMethodPublic <= 4.1 & 0.975 < CountDeclClass <= 1.074 & -0.0225 < MaxNesting_Min <= 0.0155'","b'target = 0'",0.12206,249,0.11716,239,0.95984,0.04027,1.52379,1.01852e-29,0.6299,1285
+"b'000007'","b'16 < PercentLackOfCohesion <= 48.5 & -0.15 < AvgLineBlank <= 0.37'","b'target = 0'",0.05931,121,0.05686,116,0.95868,0.0195,1.52195,8.42015e-10,0.6299,1285
+"b'000008'","b'CountClassBase <= 0.7 & -0.32 < CountDeclInstanceVariable <= 1.56'","b'target = 0'",0.06961,142,0.06667,136,0.95775,0.02282,1.52047,1.14656e-08,0.6299,1285
+"b'000009'","b'RatioCommentToCode > 2.37 & -0.14 < CountDeclClassVariable <= 0.54'","b'target = 0'",0.06618,135,0.06324,129,0.95556,0.02155,1.51699,3.92747e-09,0.6299,1285

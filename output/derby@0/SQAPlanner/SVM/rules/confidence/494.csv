@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.01 < AvgLineBlank <= 0.83 & -17 < Added_lines <= 13.5 & -0.26 < CountDeclMethodDefault <= 1.5'","b'target = 0'",0.10539,215,0.10539,215,1,0.0387,1.58017,2.45858e-21,0.63284,1291
+"b'000001'","b'MAJOR_LINE <= 0.09 & -17 < Added_lines <= 13.5 & -0.26 < CountDeclMethodDefault <= 1.5'","b'target = 0'",0.10294,210,0.10294,210,1,0.0378,1.58017,9.04188e-21,0.63284,1291
+"b'000002'","b'MAJOR_LINE <= 0.09 & -0.38 < CountDeclMethodPrivate <= 0.3 & -0.26 < CountDeclMethodDefault <= 1.5'","b'target = 0'",0.08922,182,0.08922,182,1,0.03276,1.58017,1.23187e-19,0.63284,1291
+"b'000003'","b'-0.01 < AvgLineBlank <= 0.83 & -0.25 < CountDeclClassMethod <= 0.175 & -0.225 < CountClassDerived <= 0.1'","b'target = 0'",0.05392,110,0.05392,110,1,0.0198,1.58017,3.58545e-19,0.63284,1291
+"b'000004'","b'-0.01 < AvgLineBlank <= 0.83 & -0.38 < CountDeclMethodPrivate <= 0.3 & -0.26 < CountDeclMethodDefault <= 1.5'","b'target = 0'",0.10784,220,0.10735,219,0.99545,0.03911,1.57299,1.09491e-22,0.63284,1291
+"b'000005'","b'0.09 < MAJOR_LINE <= 0.78 & -17 < Added_lines <= 13.5'","b'target = 0'",0.09363,191,0.09314,190,0.99476,0.03389,1.5719,5.69068e-21,0.63284,1291
+"b'000006'","b'0.83 < AvgLineBlank <= 2.05 & -0.38 < CountDeclMethodPrivate <= 0.3 & -0.26 < CountDeclMethodDefault <= 1.5'","b'target = 0'",0.08235,168,0.08186,167,0.99405,0.02975,1.57076,3.53494e-16,0.63284,1291
+"b'000007'","b'1.2 < AvgLineComment <= 3.7 & -0.38 < CountDeclMethodPrivate <= 0.3 & -0.26 < CountDeclMethodDefault <= 1.5'","b'target = 0'",0.0701,143,0.06961,142,0.99301,0.02525,1.56912,2.45788e-13,0.63284,1291
+"b'000008'","b'0.73 < MaxInheritanceTree <= 1.27 & 1.75 < CountClassCoupled <= 5.1'","b'target = 0'",0.0451,92,0.04461,91,0.98913,0.01607,1.56299,1.05946e-08,0.63284,1291
+"b'000009'","b'1.04 < CountDeclInstanceVariable <= 2.92 & 0.73 < MaxInheritanceTree <= 1.27'","b'target = 0'",0.04216,86,0.04167,85,0.98837,0.01499,1.5618,4.80388e-09,0.63284,1291

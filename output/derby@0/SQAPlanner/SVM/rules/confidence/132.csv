@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'MAJOR_LINE <= 0.09 & -20 < CountLineComment <= 73 & -0.1 < CountInput_Min <= 2.65'","b'target = 0'",0.1049,214,0.1049,214,1,0.04278,1.68874,1.10598e-15,0.59216,1208
+"b'000001'","b'-20 < CountLineComment <= 73 & -2.2 < Added_lines <= 17.6'","b'target = 0'",0.15931,325,0.15882,324,0.99692,0.06448,1.68355,1.70258e-25,0.59216,1208
+"b'000002'","b'-2.2 < Added_lines <= 17.6 & -0.44 < CountDeclMethodProtected <= 0.29 & 0.994 < AvgEssential <= 1.081'","b'target = 0'",0.15882,324,0.15833,323,0.99691,0.06428,1.68353,8.29104e-46,0.59216,1208
+"b'000003'","b'-2.2 < Added_lines <= 17.6 & -0.18 < CountDeclClassMethod <= 0.21 & -0.44 < CountDeclMethodProtected <= 0.29'","b'target = 0'",0.14853,303,0.14804,302,0.9967,0.06009,1.68317,6.07612e-39,0.59216,1208
+"b'000004'","b'0.09 < MAJOR_LINE <= 0.81 & -2.2 < Added_lines <= 17.6'","b'target = 0'",0.07255,148,0.07206,147,0.99324,0.0291,1.67733,1.73071e-09,0.59216,1208
+"b'000005'","b'-0.115 < CountDeclMethodDefault <= 0.365 & -2.2 < Added_lines <= 17.6 & 0.959 < CountDeclClass <= 1.0185'","b'target = 0'",0.14118,288,0.1402,286,0.99306,0.0566,1.67701,2.32618e-13,0.59216,1208
+"b'000006'","b'0.04 < CountDeclInstanceVariable <= 1.48 & -2.2 < Added_lines <= 17.6'","b'target = 0'",0.10245,209,0.10147,207,0.99043,0.0408,1.67258,6.03633e-13,0.59216,1208
+"b'000007'","b'-0.115 < CountDeclMethodDefault <= 0.365 & -0.67 < CountDeclClassVariable <= 0.25 & -0.1 < CountInput_Min <= 2.65 & 0.959 < CountDeclClass <= 1.0185'","b'target = 0'",0.13137,268,0.1299,265,0.98881,0.05211,1.66984,2.37911e-34,0.59216,1208
+"b'000008'","b'-2.2 < Added_lines <= 17.6 & -0.44 < CountDeclMethodProtected <= 0.29 & 0.959 < CountDeclClass <= 1.0185'","b'target = 0'",0.23922,488,0.23627,482,0.9877,0.09462,1.66798,4.29628e-51,0.59216,1208
+"b'000009'","b'3 < PercentLackOfCohesion <= 27.5 & -2.2 < Added_lines <= 17.6'","b'target = 0'",0.07549,154,0.07451,152,0.98701,0.02981,1.66681,9.57816e-09,0.59216,1208

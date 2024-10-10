@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'0.35 < CountClassCoupled <= 2.65 & -0.34 < CountDeclMethodPrivate <= 0.38 & 0.982 < AvgEssential <= 1.043'","b'target = 0'",0.09118,186,0.09069,185,0.99462,0.03477,1.62193,1.1198e-13,0.61324,1251
+"b'000001'","b'-0.17 < AvgLineBlank <= 0.36 & -13 < Added_lines <= 20.5 & -0.053 < CountClassDerived <= 0.01'","b'target = 0'",0.08922,182,0.08873,181,0.99451,0.03402,1.62174,2.33174e-12,0.61324,1251
+"b'000002'","b'-13 < Added_lines <= 20.5 & -0.7 < CountDeclClassVariable <= 0.24 & -0.215 < CountDeclMethodProtected <= 0.15'","b'target = 0'",0.08725,178,0.08676,177,0.99438,0.03326,1.62153,1.75414e-14,0.61324,1251
+"b'000003'","b'-0.04 < MAJOR_LINE <= 0.49 & -0.34 < CountDeclMethodPrivate <= 0.38'","b'target = 0'",0.20147,411,0.2,408,0.9927,0.07645,1.61879,4.72697e-51,0.61324,1251
+"b'000004'","b'0.49 < MAJOR_LINE <= 1.14 & -0.34 < CountDeclMethodPrivate <= 0.38'","b'target = 0'",0.06471,132,0.06422,131,0.99242,0.02454,1.61834,1.42566e-12,0.61324,1251
+"b'000005'","b'0.35 < CountClassCoupled <= 2.65 & 0.982 < AvgEssential <= 1.043 & 0.976 < CountDeclClass <= 1.062'","b'target = 0'",0.11618,237,0.1152,235,0.99156,0.04395,1.61693,1.39865e-28,0.61324,1251
+"b'000006'","b'-13 < Added_lines <= 20.5 & -0.7 < CountDeclClassVariable <= 0.24 & -39 < CountDeclInstanceVariable <= 11.6'","b'target = 0'",0.16176,330,0.16029,327,0.99091,0.06109,1.61587,5.09071e-27,0.61324,1251
+"b'000007'","b'0.25 < AvgLineComment <= 2.45 & -13 < Added_lines <= 20.5'","b'target = 0'",0.09118,186,0.0902,184,0.98925,0.03428,1.61316,6.04197e-18,0.61324,1251
+"b'000008'","b'-0.7 < CountDeclClassVariable <= 0.24 & -0.215 < CountDeclMethodProtected <= 0.15 & -0.053 < CountClassDerived <= 0.01'","b'target = 0'",0.13137,268,0.1299,265,0.98881,0.04934,1.61244,7.09589e-29,0.61324,1251
+"b'000009'","b'PercentLackOfCohesion <= 2.5 & -13 < Added_lines <= 20.5'","b'target = 0'",0.08431,172,0.08333,170,0.98837,0.03163,1.61173,2.85868e-16,0.61324,1251

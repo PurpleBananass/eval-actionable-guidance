@@ -82,7 +82,6 @@ def plan_similarity(project, model_type, explainer):
 
 
             score = normalized_mahalanobis_distance(combi, flipped, min_changes)
-
             results[test_idx] = { 'score': score }
 
     return results
@@ -110,241 +109,108 @@ def normalized_mahalanobis_distance(df, x, y):
     # x와 y 간의 마할라노비스 거리 계산
     distance = mahalanobis(x_standardized, y_standardized, inv_cov_matrix)
     
-    min_values = standardized_df.min()
-    max_values = standardized_df.max()
-    max_distance = np.linalg.norm(max_values - min_values)
+    min_vector = np.array([min(df[feature]) for feature in df.columns])
+    max_vector = np.array([max(df[feature]) for feature in df.columns])
 
-    normalized_distance = distance / max_distance if max_distance != 0 else 0
-    return normalized_distance
+    min_vector_standardized = [(min_vector[i] - df[feature].mean()) / df[feature].std() for i, feature in enumerate(df.columns)]
+    max_vector_standardized = [(max_vector[i] - df[feature].mean()) / df[feature].std() for i, feature in enumerate(df.columns)]
+
+    max_vector_distance = mahalanobis(min_vector_standardized, max_vector_standardized, inv_cov_matrix)
+    # min_values = standardized_df.min()
+    # max_values = standardized_df.max()
+    # max_distance = np.linalg.norm(max_values - min_values)
+
+    # normalized_distance = distance / max_distance if max_distance != 0 else 0
+    # return normalized_distance
     
-    # 벡터화된 최대 마할라노비스 거리 계산
-    # 모든 쌍에 대해 거리 계산
-    pairwise_distances = cdist(standardized_df, standardized_df, metric='mahalanobis', VI=inv_cov_matrix)
+    # # 벡터화된 최대 마할라노비스 거리 계산
+    # # 모든 쌍에 대해 거리 계산
+    # pairwise_distances = cdist(standardized_df, standardized_df, metric='mahalanobis', VI=inv_cov_matrix)
     
-    # 자기 자신과의 거리를 제외한 최대 거리 구하기
-    np.fill_diagonal(pairwise_distances, 0)
-    max_distance = np.max(pairwise_distances)
+    # # 자기 자신과의 거리를 제외한 최대 거리 구하기
+    # np.fill_diagonal(pairwise_distances, 0)
+    # max_distance = np.max(pairwise_distances)
+
+    # assert round(max_distance, 8) == round(max_vector_distance, 8), f"{max_distance} != {max_vector_distance}"
     
     # 정규화된 거리 계산
-    normalized_distance = distance / max_distance if max_distance != 0 else 0
+    normalized_distance = distance / max_vector_distance if max_vector_distance != 0 else 0
     
     return normalized_distance
-
-def get_accuracy(explainers):
-    accuracies = []
-    projects = read_dataset()
-    project_list = list(sorted(projects.keys()))
-    for explainer in explainers:
-        for project in project_list:
-            accuracy = mean_accuracy_project(project, explainer)
-            if accuracy is None:
-                continue
-            accuracies.append({
-                'project': project,
-                'accuracy': accuracy,
-                'explainer': explainer
-            })
-    accuracies = pd.DataFrame(accuracies)  
-    accuracies = accuracies.pivot(index='project', columns='explainer', values='accuracy') 
-    accuracies.to_csv('./evaluations/accuracies.csv')
-    return accuracies
-
-def get_feasibility2(explainers):
-    projects = read_dataset2()
-    project_list = list(sorted(projects.keys()))
-    total_feasibilities = []
-
-    for explainer in explainers:
-        for project in project_list:
-            if len(projects[project]) < 3:
-                continue
-            train, test, valid = projects[project]
-            defect_test = test[test['target'] == 1]
-            clean_valid = valid[valid['target'] == 0]
-            
-            
-
-
-            common_index = defect_test.index.intersection(clean_valid.index)
-            print(set(defect_test.index).intersection(set(clean_valid.index)))
-            
-            # read the proposed changes
-            if "DeFlip" in explainer:
-                flip_path = Path(EXPERIMENTS) / project / f"{explainer}.csv"
-                flipped_instances = pd.read_csv(flip_path, index_col=0)
-                flipped_instances = flipped_instances.dropna()
-                if len(flipped_instances) == 0:
-                    continue
-            else:
-                plan_path = Path(PROPOSED_CHANGES) / project / explainer / "plans_all.json"
-                with open(plan_path) as f:
-                    plans = json.load(f)
-
-            project_feasibilities = []
-            print(f"Project: {project} Explainer: {explainer} Common Index: {len(common_index)}")
-            for index in common_index:
-                current = test.loc[index, test.columns != 'target']
-                real_flipped = valid.loc[index, valid.columns != 'target']
-                if "DeFlip" in explainer:
-                    if index not in flipped_instances.index:
-                        continue
-                    flipped = flipped_instances.loc[index]
-                    changed_features = current[current != flipped].index.tolist()
-                else:
-                    changed_features = list(plans[str(index)].keys())
-                diff = current != real_flipped
-                real_changed_features = diff[diff == True].index.tolist()
-
-                # intersection / changed_features
-                intersection = len(set(changed_features).intersection(set(real_changed_features)))
-                feasibility = intersection / len(changed_features)
-                project_feasibilities.append(feasibility)
-            feasibility = np.mean(project_feasibilities)
-            total_feasibilities.append(
-                {
-                    "Explainer": explainer,
-                    "Value": feasibility,
-                    "Project": project,
-                }
-            )
-    total_feasibilities = pd.DataFrame(total_feasibilities)
-    total_feasibilities = total_feasibilities.pivot(
-        index="Project", columns="Explainer", values="Value"
-    )
-    total_feasibilities.to_csv('./evaluations/feasibilities2.csv')
-    return total_feasibilities
-        
-
-def get_feasibility(explainers):
-    projects = read_dataset()
-    project_list = list(sorted(projects.keys()))
-    total_feasibilities = []
-
-    for explainer in explainers:
-        for project in project_list:
-            train, test = projects[project]
-            test_instances = test.drop(columns=["target"])
-            historical_mean_changes = load_historical_changes(project)["mean_change"]
-            exp_path =  Path(EXPERIMENTS) / project / f"{explainer}.csv"
-                
-            flipped_instances = pd.read_csv(exp_path, index_col=0)
-            flipped_instances = flipped_instances.dropna()
-            if len(flipped_instances) == 0:
-                continue
-
-            project_feasibilities = []
-            for index, flipped in flipped_instances.iterrows():
-                current = test_instances.loc[index]
-                diff = current != flipped
-                diff = diff[diff == True]
-                changed_features = diff.index.tolist()
-
-                feasibilites = []
-                for feature in changed_features:
-                    if not historical_mean_changes[feature]:
-                        historical_mean_changes[feature] = 0
-                    flipping_proposed_change = abs(flipped[feature] - current[feature])
-
-                    feasibility = 1 - (
-                        flipping_proposed_change
-                        / (flipping_proposed_change + historical_mean_changes[feature])
-                    )
-                    feasibilites.append(feasibility)
-                feasibility = np.mean(feasibilites)
-                project_feasibilities.append(feasibility)
-            feasibility = np.mean(project_feasibilities)
-            total_feasibilities.append(
-                {
-                    "Explainer": explainer,
-                    "Value": feasibility,
-                    "Project": project,
-                }
-            )
-    total_feasibilities = pd.DataFrame(total_feasibilities)
-    total_feasibilities = total_feasibilities.pivot(
-        index="Project", columns="Explainer", values="Value"
-    )
-    total_feasibilities.to_csv('./evaluations/feasibilities.csv')
-    return total_feasibilities
-
-def mean_accuracy_project(project, explainer):
-    plan_path = Path(PROPOSED_CHANGES) / project / explainer / "plans_all.json"
-    with open(plan_path) as f:
-        plans = json.load(f)
-    projects = read_dataset()
-    train, test = projects[project]
-    test_instances = test.drop(columns=["target"])
-
-    # read the flipped instances
-    exp_path = Path(EXPERIMENTS) / project / f"{explainer}_all.csv"
-    flipped_instances = pd.read_csv(exp_path, index_col=0)
-    flipped_instances = flipped_instances.dropna()
-    if len(flipped_instances) == 0:
-        return None
-    results = []
-    for index, flipped in flipped_instances.iterrows():
-        current = test_instances.loc[index]
-        changed_features = list(plans[str(index)].keys())
-        diff = current != flipped
-        diff = diff[diff == True]
-
-        score = mean_accuracy_instance(
-            current[changed_features], flipped[changed_features], plans[str(index)]
-        )
-
-        if score is None:
-            continue
-
-        results.append(score)
-    # median of results
-    results_np = np.array(results)
-    return np.mean(results_np)
-
-def compute_score(a1, a2, b1, b2, is_int):
-    intersection_start = max(a1, b1)
-    intersection_end = min(a2, b2)
-
-    if intersection_start > intersection_end:
-        return 1.0  # No intersection
-
-    if is_int:
-        intersection_cnt = intersection_end - intersection_start + 1
-        union_cnt = (a2 - a1 + 1) + (b2 - b1 + 1) - intersection_cnt
-        score = 1 - (intersection_cnt / union_cnt)
+def mahalanobis_all(df, x):
+    # 상수 피처 제거
+    df = df.loc[:, (df.nunique() > 1)]
+    if df.shape[1] < 1:
+        return 0
+    
+    # 데이터 표준화
+    standardized_df = (df - df.mean()) / df.std()
+    
+    # x와 y 벡터도 표준화
+    x_standardized = [(x[feature] - df[feature].mean()) / df[feature].std() for feature in df.columns]
+    
+    # 공분산 행렬의 역행렬 계산
+    cov_matrix = np.cov(standardized_df.T)
+    if cov_matrix.ndim == 0:
+        inv_cov_matrix = np.array([[1 / cov_matrix]]) if cov_matrix != 0 else np.array([[np.inf]])
     else:
-        intersection_length = intersection_end - intersection_start
-        union_length = (a2 - a1) + (b2 - b1) - intersection_length
-        if union_length == 0:
-            return 0.0  # Identical intervals
-        score = 1 - (intersection_length / union_length)
+        inv_cov_matrix = np.linalg.pinv(cov_matrix)
 
-    return score
+    min_vector = np.array([min(df[feature]) for feature in df.columns])
+    max_vector = np.array([max(df[feature]) for feature in df.columns])
 
+    min_vector_standardized = [(min_vector[i] - df[feature].mean()) / df[feature].std() for i, feature in enumerate(df.columns)]
+    max_vector_standardized = [(max_vector[i] - df[feature].mean()) / df[feature].std() for i, feature in enumerate(df.columns)]
 
-def mean_accuracy_instance(current: pd.Series, flipped: pd.Series, plans):
-    scores = []
-    for feature in plans:
-        flipped_changed = flipped[feature] - current[feature]
-        if flipped_changed == 0.0:
-            continue
+    max_vector_distance = mahalanobis(min_vector_standardized, max_vector_standardized, inv_cov_matrix)
+    
+    # x와 모든 y in df 간의 마할라노비스 거리 계산
+    distances = []
+    for _, y in df.iterrows():
+        y_standardized = [(y[feature] - df[feature].mean()) / df[feature].std() for feature in df.columns]
+        distance = mahalanobis(x_standardized, y_standardized, inv_cov_matrix)
+        distances.append(distance / max_vector_distance if max_vector_distance != 0 else 0)
 
-        min_val = min(plans[feature])
-        max_val = max(plans[feature])
+    return distances
+    
 
-        a1, a2 = (
-            (min_val, flipped[feature])
-            if current[feature] < flipped[feature]
-            else (flipped[feature], max_val)
-        )
+def flip_feasibility(project, explainer, model_type):
+    
+    plan_path = Path(PROPOSED_CHANGES) / f"{project}/{model_type}/{explainer}" / "plans_all.json"
+    flip_path = Path(EXPERIMENTS) / f"{project}/{model_type}/{explainer}_all.csv"
+    with open(plan_path, "r") as f:
+        plans = json.load(f)
 
-        score = compute_score(
-            min_val, max_val, a1, a2, current[feature].dtype == "int64"
-        )
-        assert 0 <= score <= 1, f"Invalid score {score} for feature {feature}"
-        scores.append(score)
+    flipped = pd.read_csv(flip_path, index_col=0)
+    flipped = flipped.dropna()
+    train, test = read_dataset()[project]
+    exist_indices = train.index.intersection(test.index)
+    deltas = (
+        test.loc[exist_indices, test.columns != "target"]
+        - train.loc[exist_indices, train.columns != "target"]
+    )
+    results = []
+    
+    for test_idx in flipped.index:
+        
+        if str(test_idx) in plans:
+            original_row = test.loc[test_idx, test.columns != "target"]
 
-    return np.mean(scores)
+            flipped_row = flipped.loc[test_idx, :]
 
+            changed_features = {}
+            for feature in plans[str(test_idx)]:
+                if flipped_row[feature] != original_row[feature]:
+                    changed_features[feature] = flipped_row[feature] - original_row[feature]
+
+            changed_flipped = pd.Series(changed_features)
+
+            nonzeros = deltas.loc[deltas[feature] != 0, changed_features.keys()]
+
+            distances = mahalanobis_all(nonzeros, changed_flipped)
+            results.append({ 'min': np.min(distances), 'max': np.max(distances), 'mean': np.mean(distances) })
+
+    return results
 
 if __name__ == "__main__":
     argparser = ArgumentParser()
@@ -383,22 +249,41 @@ if __name__ == "__main__":
         table = []
         for model_type in ["RandomForest", "XGBoost"]:
             similarities = { explainer: pd.DataFrame() for explainer in explainers }
-            for project in projects:
-                # train, test = projects[project]
-                # model = get_model(project, model_type)
-                # true_positives = get_true_positives(model, train, test)
-                # common_indices = set(true_positives.index)
-                
-                for explainer in explainers:
+            for explainer in explainers:
+                for project in projects:
                     result = plan_similarity(project, model_type, explainer)
                     df = pd.DataFrame(result).T
-                    similarities[explainer] = pd.concat([similarities[explainer], df], axis=0)
+                    similarities[explainer] = pd.concat([similarities[explainer], df], axis=0, ignore_index=True)
             
             row = [model_type]
             for explainer in explainers:
-                row.append(similarities[explainer].mean()['score'])
+                # Svae similarity to csv
+                similarities[explainer].to_csv(f"./evaluations/accuracy/{model_type}_{explainer}.csv", index=False)
+                row.append(similarities[explainer].median()['score'])
             table.append(row)
         print(tabulate(table, headers=["Model"]+explainers))
         # table to csv
         table = pd.DataFrame(table, columns=["Model"]+explainers)
         table.to_csv('./evaluations/accuracies.csv', index=False)
+
+    if args.rq3:
+        table = []
+        for model_type in ["RandomForest", "XGBoost"]:
+            for explainer in explainers:
+                results = []
+                for project in projects:
+                    result = flip_feasibility(project, explainer, model_type)
+                    results.extend(result)
+                df = pd.DataFrame(results)
+                # save to csv
+                df.to_csv(f"./evaluations/feasibility/{model_type}_{explainer}.csv", index=False)
+                table.append([model_type, explainer, df['min'].mean(), df['max'].mean(), df['mean'].mean()])
+                print(table)
+            # Add mean per model
+            table.append([model_type, "Mean", np.mean([row[2] for row in table if row[0] == model_type]), np.mean([row[3] for row in table if row[0] == model_type]), np.mean([row[4] for row in table if row[0] == model_type])])
+        print(tabulate(table, headers=["Model", "Explainer", "Min", "Max", "Mean"]))
+        # table to csv
+        table = pd.DataFrame(table, columns=["Model", "Explainer", "Min", "Max", "Mean"])
+        table.to_csv('./evaluations/feasibility.csv', index=False)
+
+    # plan_similarity("activemq@0", "RandomForest", "LIME")

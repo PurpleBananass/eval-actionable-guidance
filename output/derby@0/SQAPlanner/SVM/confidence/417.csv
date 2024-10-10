@@ -1,0 +1,6 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.93 < MaxInheritanceTree <= 1.75 & -2.8 < Added_lines <= 8.6,0.10784,1.0,1.53499
+RatioCommentToCode > 1.63 & -0.04 < CountDeclInstanceVariable <= 1.62 & 0.96 < AvgEssential <= 1.195,0.06961,1.0,1.53499
+1.3 < CountClassCoupled <= 4.45 & -2.8 < Added_lines <= 8.6,0.12255,0.996,1.52885
+CountClassCoupled <= 1.3 & -2.8 < Added_lines <= 8.6,0.11814,0.99585,1.52862
+-0.33 < CountDeclMethodPrivate <= 0.49 & -0.205 < CountDeclClassVariable <= 0.22 & -2.8 < Added_lines <= 8.6,0.25539,0.99232,1.5232

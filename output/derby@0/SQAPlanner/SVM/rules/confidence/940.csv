@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'MaxInheritanceTree <= 0.97 & -0.66 < CountDeclInstanceVariable <= 0.48'","b'target = 0'",0.06863,140,0.06863,140,1,0.01978,1.40496,4.52137e-10,0.71176,1452
+"b'000001'","b'CountClassDerived > 0.748 & -0.43 < CountDeclClassMethod <= 0.47 & 5.3 < Added_lines <= 13.4'","b'target = 0'",0.0652,133,0.06471,132,0.99248,0.0183,1.3944,4.06707e-12,0.71176,1452
+"b'000002'","b'CountDeclMethodPublic <= 0.7 & -0.66 < CountDeclInstanceVariable <= 0.48'","b'target = 0'",0.09755,199,0.09657,197,0.98995,0.02714,1.39084,8.53725e-12,0.71176,1452
+"b'000003'","b'0.97 < MaxInheritanceTree <= 1.64 & -0.42 < CountDeclMethodProtected <= 0.12 & 5.3 < Added_lines <= 13.4'","b'target = 0'",0.1049,214,0.10343,211,0.98598,0.02877,1.38526,8.53476e-13,0.71176,1452
+"b'000004'","b'-0.66 < CountDeclInstanceVariable <= 0.48 & -0.42 < CountDeclMethodProtected <= 0.12 & 5.3 < Added_lines <= 13.4'","b'target = 0'",0.15294,312,0.15049,307,0.98397,0.04163,1.38244,1.06884e-19,0.71176,1452
+"b'000005'","b'MaxNesting_Mean <= 0.12 & -0.43 < CountDeclClassMethod <= 0.47'","b'target = 0'",0.10833,221,0.10588,216,0.97738,0.02877,1.37317,2.46318e-21,0.71176,1452
+"b'000006'","b'21 < CountLineComment <= 56.5 & 0.812 < CountDeclClass <= 1.04'","b'target = 0'",0.23039,470,0.22402,457,0.97234,0.06003,1.3661,1.27628e-54,0.71176,1452
+"b'000007'","b'-0.43 < CountDeclClassMethod <= 0.47 & -0.66 < CountDeclInstanceVariable <= 0.48'","b'target = 0'",0.11225,229,0.10882,222,0.96943,0.02892,1.36201,3.98109e-09,0.71176,1452
+"b'000008'","b'PercentLackOfCohesion <= 1.5 & -0.43 < CountDeclClassMethod <= 0.47'","b'target = 0'",0.09559,195,0.09265,189,0.96923,0.02461,1.36173,1.35764e-16,0.71176,1452
+"b'000009'","b'AvgLineComment <= 0.6 & -0.43 < CountDeclClassMethod <= 0.47'","b'target = 0'",0.07206,147,0.06961,142,0.96599,0.01832,1.35717,1.12874e-11,0.71176,1452

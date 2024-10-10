@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.055 < MaxNesting_Mean <= 0.445 & -0.275 < CountDeclMethodProtected <= 0.03,0.11275,0.9913,1.28724
+0.65 < CountClassCoupled <= 2.75 & 0.9825 < CountDeclClass <= 1.0305,0.20245,0.98305,1.27653
+31 < CountLineComment <= 60,0.19216,0.98214,1.27535
+MAJOR_LINE <= 0 & -0.34 < CountDeclClassVariable <= 0.23,0.14363,0.97952,1.27194
+CountClassBase <= 0.45 & -0.275 < CountDeclMethodProtected <= 0.03,0.14902,0.97697,1.26864
+2.75 < CountClassCoupled <= 5.15 & 0.91 < AvgEssential <= 1.001,0.14804,0.97351,1.26414

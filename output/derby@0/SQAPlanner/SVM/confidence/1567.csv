@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountInput_Mean <= 2.12 & 0.95 < CountDeclMethodPublic <= 3.85,0.06127,1.0,1.55015
+11.6 < PercentLackOfCohesion <= 39.6 & 0.95 < CountDeclMethodPublic <= 3.85,0.06029,1.0,1.55015
+1.4 < AvgLineComment <= 3.8 & -0.21 < CountDeclClassMethod <= 0.52,0.04608,1.0,1.55015
+0.66 < CountDeclClassVariable <= 2.21 & 0.525 < CountOutput_Min <= 1.02 & -0.265 < CountClassDerived <= 0.085,0.03775,1.0,1.55015
+0.95 < CountDeclMethodPublic <= 3.85 & -0.42 < CountDeclMethodPrivate <= 0.82,0.11471,0.99145,1.5369
+RatioCommentToCode > 1.78 & -0.21 < CountDeclClassMethod <= 0.52,0.09461,0.97927,1.51802
+1.27 < CountInput_Min <= 2.27 & 0.91 < MaxInheritanceTree <= 1.27,0.05784,0.97458,1.51074
+-0.21 < CountDeclClassMethod <= 0.52 & -7.4 < Added_lines <= 7.6,0.17157,0.97429,1.51029

@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.2 < PercentLackOfCohesion <= 18 & -2.4 < CountDeclClassVariable <= 0.9'","b'target = 0'",0.17304,353,0.17304,353,1,0.04513,1.35279,3.85428e-40,0.73922,1508
+"b'000001'","b'0.25 < CountClassCoupled <= 2.55 & -2.4 < CountDeclClassVariable <= 0.9 & 0.977 < AvgEssential <= 1.05'","b'target = 0'",0.07549,154,0.07549,154,1,0.01969,1.35279,6.70965e-11,0.73922,1508
+"b'000002'","b'0.25 < CountClassCoupled <= 2.55 & -2.4 < CountDeclClassVariable <= 0.9 & 0.99 < CountDeclClass <= 1.024'","b'target = 0'",0.06814,139,0.06814,139,1,0.01777,1.35279,3.78668e-11,0.73922,1508
+"b'000003'","b'0.44 < MAJOR_LINE <= 1.005 & -0.41 < CountDeclClassMethod <= 0.09 & 0.99 < CountDeclClass <= 1.024'","b'target = 0'",0.12892,263,0.12843,262,0.9962,0.03313,1.34764,8.8561e-18,0.73922,1508
+"b'000004'","b'0.928 < OWN_LINE <= 0.9605 & 0.44 < MAJOR_LINE <= 1.005'","b'target = 0'",0.09559,195,0.0951,194,0.99487,0.02444,1.34585,5.54911e-16,0.73922,1508
+"b'000005'","b'-0.5 < CountDeclInstanceVariable <= 0.36 & -2.4 < CountDeclClassVariable <= 0.9'","b'target = 0'",0.14265,291,0.14118,288,0.98969,0.03573,1.33884,2.91479e-26,0.73922,1508
+"b'000006'","b'0.55 < CountDeclMethodPublic <= 2.7 & -0.41 < CountDeclClassMethod <= 0.09 & 0.99 < CountDeclClass <= 1.024'","b'target = 0'",0.09412,192,0.09314,190,0.98958,0.02356,1.33869,6.33847e-11,0.73922,1508
+"b'000007'","b'0.25 < CountClassCoupled <= 2.55 & -0.23 < CountDeclMethodProtected <= 0.045 & 0.99 < CountDeclClass <= 1.024'","b'target = 0'",0.09216,188,0.09118,186,0.98936,0.02305,1.33839,2.03858e-13,0.73922,1508
+"b'000008'","b'29 < CountLineComment <= 56 & -0.5 < CountDeclInstanceVariable <= 0.36'","b'target = 0'",0.11029,225,0.10882,222,0.98667,0.02729,1.33475,3.44e-18,0.73922,1508
+"b'000009'","b'-0.09 < AvgLineBlank <= 0.45 & -0.5 < CountDeclInstanceVariable <= 0.36'","b'target = 0'",0.18235,372,0.1799,367,0.98656,0.0451,1.3346,6.47573e-35,0.73922,1508
