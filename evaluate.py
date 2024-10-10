@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import json
 import numpy as np
 import pandas as pd
-from data_utils import load_historical_changes, read_dataset, read_dataset2, get_model
+from data_utils import get_true_positives, load_historical_changes, read_dataset, read_dataset2, get_model
 from pathlib import Path
 from hyparams import PROPOSED_CHANGES, EXPERIMENTS
 from scipy.spatial.distance import mahalanobis
@@ -44,7 +44,7 @@ def generate_all_combinations(data):
     return df
 
 def plan_similarity(project, model_type, explainer):
-    results = []
+    results = {}
     plan_path = Path(PROPOSED_CHANGES) / f"{project}/{model_type}/{explainer}" / "plans_all.json"
     flip_path = Path(EXPERIMENTS) / f"{project}/{model_type}/{explainer}_all.csv"
     with open(plan_path, "r") as f:
@@ -77,20 +77,13 @@ def plan_similarity(project, model_type, explainer):
             min_changes = [ plan[feature][0] for feature in plan ]
             min_changes = pd.Series(min_changes, index=flipped.index)
             combi = generate_all_combinations(plan)
-            # combi = generate_efficient_combinations(plan)
 
-            # print(combi)
-            
 
             score = normalized_mahalanobis_distance(combi, flipped, min_changes)
-            # if score > 1:
-            #     print(test_idx, plan)
-            #     print(test.loc[test_idx, plan.keys()])
-            #     print(flipped)
-            print(score)
-            results.append(score)
 
-    return np.mean(np.array(results))
+            results[test_idx] = { 'score': score }
+
+    return results
 
 def normalized_mahalanobis_distance(df, x, y):
     # 상수 피처 제거
@@ -368,17 +361,17 @@ def mean_accuracy_instance(current: pd.Series, flipped: pd.Series, plans):
 
 if __name__ == "__main__":
     argparser = ArgumentParser()
-    # argparser.add_argument("--flip_rate", action="store_true")
-    # argparser.add_argument("--accuracy", action="store_true")
-    # argparser.add_argument("--feasibility", action="store_true")
-    # argparser.add_argument("--explainer", type=str, default="all")
+    argparser.add_argument("--rq1", action="store_true")
+    argparser.add_argument("--rq2", action="store_true")
+    argparser.add_argument("--rq3", action="store_true")
+    argparser.add_argument("--explainer", type=str, default="all")
 
-    # args = argparser.parse_args()
+    args = argparser.parse_args()
 
-    # if args.explainer == "all":
-    #     explainers = ['LIME-HPO', 'TimeLIME', 'SQAPlanner_confidence', 'SQAPlanner_coverage', 'SQAPlanner_lift', 'DeFlip']
-    # else:
-    #     explainers = args.explainer.split(" ")
+    if args.explainer == "all":
+        explainers = ['LIME', 'LIME-HPO', 'TimeLIME', 'SQAPlanner_confidence']
+    else:
+        explainers = args.explainer.split(" ")
     
     # if args.flip_rate:
     #     get_flip_rate(explainers)
@@ -395,23 +388,36 @@ if __name__ == "__main__":
     #     get_feasibility(explainers)
     #     # get_feasibility2(explainers)
 
+    if args.rq2:
+    
+        
+        projects = read_dataset()
+        for model_type in ["XGBoost"]:
+            total_df = pd.DataFrame()
+            for project in projects:
+                train, test = projects[project]
+                model = get_model(project, model_type)
+                true_positives = get_true_positives(model, train, test)
+                common_indices = set(true_positives.index)
+                similarities = {}
+                for explainer in explainers:
+                    result = plan_similarity(project, model_type, explainer)
+                    
+                    df = pd.DataFrame(result).T
+                    similarities[explainer] = df
+                    common_indices = common_indices.intersection(set(df.index))
 
-    # # 데이터 예제
-    # data = {
-    #     'feature1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    #     'feature2': [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000],
-    #     'feature3': [5, 5, 5, 5, 5, 5, 5,5, 5, 5]
-    # }
+                df = pd.DataFrame()
+                for explainer in explainers:
+                    similarities[explainer] = similarities[explainer].loc[list(common_indices), :]
+                    df = pd.concat([df, similarities[explainer]], axis=1)
+                df.columns = explainers
+                total_df = pd.concat([total_df, df], axis=0)
+            print(total_df)
 
-    # # 두 벡터 예시
-    # x = {'feature1': 5, 'feature2': 7500, 'feature3': 5}
-    # y = {'feature1': 8, 'feature2': 8000, 'feature3': 5}
 
-    # # 정규화된 마할라노비스 거리 계산
-    # normalized_distance = normalized_mahalanobis_distance(data, x, y)
-    # print("Normalized Mahalanobis Distance:", normalized_distance)
 
-    print(plan_similarity('activemq@0', 'XGBoost', 'LIME'))
+    # print(np.mean(plan_similarity('camel@0', 'XGBoost', 'LIME-HPO')))
     # print(plan_similarity('activemq@1', 'XGBoost', 'LIME'))
     # print(plan_similarity('activemq@2', 'XGBoost', 'LIME'))
     # print(plan_similarity('activemq@3', 'XGBoost', 'LIME'))

@@ -15,7 +15,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from hyparams import MODELS, PROPOSED_CHANGES, SEED, EXPERIMENTS, RESULTS
 import warnings
 from sklearn.exceptions import ConvergenceWarning
-
+from tabulate import tabulate
 
 # ConvergenceWarning을 무시
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
@@ -23,15 +23,10 @@ warnings.filterwarnings("ignore", category=UserWarning)
 np.random.seed(SEED)
 
 
-def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
+def get_flip_rates(explainer_type, search_strategy, model_type):
     
     projects = read_dataset()
-    result = {
-        "Project": [],
-        "Flipped": [],
-        "Plan": [],
-        "TP": [],
-    }
+    project_result = []
     for project_name in projects:
         train, test = projects[project_name]
         
@@ -39,55 +34,36 @@ def get_flip_rates(explainer_type, search_strategy, only_minimum, model_type):
         # fit without feature names
         scaler.fit(train.drop("target", axis=1).values)
         
-        match (only_minimum, search_strategy):
-            case (True, None):
-                plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans.json")
-                exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}.csv")
-                result_path = Path(RESULTS)/{model_type} / f"{explainer_type}.csv"
-            case (False, None):
-                plan_path = Path(f"{PROPOSED_CHANGES}/{model_type}/{project_name}/{explainer_type}/plans_all.json")
-                exp_path = Path(f"{EXPERIMENTS}/{model_type}/{project_name}/{explainer_type}_all.csv")
-                result_path = Path(RESULTS) /{model_type}/ f"{explainer_type}_all.csv"
-            case (True, _):
-                plan_path = Path(
-                    f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans.json"
-                )
-                exp_path = Path(
-                    f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}.csv"
-                )
-                result_path = Path(RESULTS)/{model_type} / f"{explainer_type}_{search_strategy}.csv"
-            case (False, _):
-                plan_path = Path(
-                    f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans_all.json"
-                )
-                exp_path = Path(
-                    f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}_all.csv"
-                )
-                result_path = Path(RESULTS)/{model_type} / f"{explainer_type}_{search_strategy}_all.csv"
+        if search_strategy == None:
+            plan_path = Path(f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans_all.json")
+            exp_path = Path(f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_all.csv")
         
-        result_path.parent.mkdir(parents=True, exist_ok=True)
-        file = pd.read_csv(exp_path, index_col=0)
-        flipped_instances = {
-            test_name: file.loc[test_name, :] for test_name in file.index
-        }
+        else:
+            plan_path = Path(
+                f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}_{search_strategy}/plans_all.json"
+            )
+            exp_path = Path(
+                f"{EXPERIMENTS}/{project_name}/{model_type}/{explainer_type}_{search_strategy}_all.csv"
+            )
+
+        plan_path.parent.mkdir(parents=True, exist_ok=True)
+        exp_path.parent.mkdir(parents=True, exist_ok=True)
+
         with open(plan_path, "r") as f:
             plans = json.load(f)
+
         model = get_model(project_name, model_type)
         true_positives = get_true_positives(model, train, test)
-        df = pd.DataFrame(flipped_instances).T
-        result["Project"].append(project_name)
-        result["Flipped"].append(len(df.dropna()))
-        result["Plan"].append(len(plans.keys()))
 
-        result["TP"].append(len(true_positives))
-        left_indices = list(set(df.index.astype(str)) - set(plans.keys()))
-        if len(left_indices) > 0:
-            print(f"{project_name}: {left_indices}")
-
-    result_df = pd.DataFrame(result, index=result["Project"]).drop("Project", axis=1)
-    result_df = result_df.dropna()
-    result_df['Flip_Rate'] = result_df['Flipped'] / result_df['TP']
-    result_df.to_csv(result_path)
+        if exp_path.exists():
+            all_results_df = pd.read_csv(exp_path, index_col=0)
+            test_names = list(plans.keys())
+            computed_test_names = list(map(str, all_results_df.index))
+            test_names = [ name for name in test_names if name not in computed_test_names]
+            project_result.append([project_name, len(all_results_df.dropna()), len(all_results_df), len(plans.keys()), len(true_positives), len(all_results_df.dropna())/len(true_positives) ])
+    project_result.append(["Total", sum([val[1] for val in project_result]), sum([val[2] for val in project_result]),sum([val[3] for val in project_result]), sum([val[4] for val in project_result]), sum([val[1] for val in project_result]) / sum([val[4] for val in project_result])])
+    print(tabulate(project_result, headers=["Project", "Flip", "Computed", "#Plan", "#TP", "Flip%"]))
+        
 
 
 def flip_instance(
@@ -228,7 +204,7 @@ if __name__ == "__main__":
     if args.get_flip_rate:
         # RQ 1
         get_flip_rates(
-            args.explainer_type, args.search_strategy, args.only_minimum, args.model_type
+            args.explainer_type, args.search_strategy, args.model_type
         )
     else:
         tqdm.write("Project/Flipped/Computed/Plan")
