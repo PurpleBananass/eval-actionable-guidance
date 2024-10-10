@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.13 < CountDeclMethodProtected <= 0.41 & -0.0506 < MaxNesting_Min <= 0.0054,0.31422,1,1.09033
+-0.13 < CountDeclMethodProtected <= 0.41 & -0.22 < CountDeclClassVariable <= 0.014,0.27059,1,1.09033
+MAJOR_COMMIT <= 0.03,0.25196,1,1.09033
+CountClassCoupled <= 0.42,0.20735,1,1.09033
+-0.13 < CountDeclMethodProtected <= 0.41 & 0.984 < AvgCyclomaticModified <= 1.144,0.2,1,1.09033
+0.42 < CountClassCoupled <= 2.2,0.19608,1,1.09033
+0.71 < MAJOR_COMMIT <= 1.205,0.19216,1,1.09033
+2.2 < CountClassCoupled <= 3.82,0.1848,1,1.09033
+0.03 < MAJOR_COMMIT <= 0.71,0.1549,1,1.09033
+CountDeclInstanceVariable <= -0.12,0.12451,1,1.09033

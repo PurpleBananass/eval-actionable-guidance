@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 import json
 import numpy as np
 import pandas as pd
+from tabulate import tabulate
 from data_utils import get_true_positives, load_historical_changes, read_dataset, read_dataset2, get_model
 from pathlib import Path
 from hyparams import PROPOSED_CHANGES, EXPERIMENTS
@@ -9,6 +10,7 @@ from scipy.spatial.distance import mahalanobis
 from itertools import product
 from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import cdist
+from flip_exp import get_flip_rates
 
 def generate_efficient_combinations(data):
     # 각 피처의 반복 횟수를 계산
@@ -127,21 +129,6 @@ def normalized_mahalanobis_distance(df, x, y):
     normalized_distance = distance / max_distance if max_distance != 0 else 0
     
     return normalized_distance
-
-
-def get_flip_rate(explainers):
-    flip_rates = []
-    for explainer in explainers:
-        result = pd.read_csv(f"./flip_rates/{explainer}.csv")
-        result.index = result["Unnamed: 0"]
-        result = result.drop(columns=["Unnamed: 0"])
-        result.index.name = "project"
-        result['Flip_Rate'].name = explainer
-        flip_rates.append(result['Flip_Rate'])
-    flip_rates = pd.concat(flip_rates, axis=1)
-    flip_rates = flip_rates.sort_values(by='project')
-    flip_rates.to_csv('./evaluations/flip_rates.csv')
-    return flip_rates
 
 def get_accuracy(explainers):
     accuracies = []
@@ -372,52 +359,46 @@ if __name__ == "__main__":
         explainers = ['LIME', 'LIME-HPO', 'TimeLIME', 'SQAPlanner_confidence']
     else:
         explainers = args.explainer.split(" ")
-    
-    # if args.flip_rate:
-    #     get_flip_rate(explainers)
-    
-    # if args.accuracy:
-    #     fpc_explainers = ['LIME-HPO', 'TimeLIME', 'SQAPlanner_confidence', 'SQAPlanner_coverage', 'SQAPlanner_lift']
-    #     if args.explainer != "all":
-    #         assert set(explainers).issubset(set(fpc_explainers))
-    #         get_accuracy(explainers)
-    #     else:
-    #         get_accuracy(fpc_explainers)
-        
-    # if args.feasibility:
-    #     get_feasibility(explainers)
-    #     # get_feasibility2(explainers)
+    projects = read_dataset()
+    if args.rq1:
+        table = []
+        for model_type in ["RandomForest", "XGBoost"]:
+            for explainer in explainers:
+                if explainer == "SQAPlanner_confidence":
+                    result = get_flip_rates("SQAPlanner", "confidence", model_type, verbose=False)
+                else:
+                    result = get_flip_rates(explainer, None, model_type, verbose=False)
+                table.append([model_type, explainer, result["Rate"]])
 
-    if args.rq2:
+            # Add mean per model
+            table.append([model_type, "Mean", np.mean([row[2] for row in table if row[0] == model_type])])
+        print(tabulate(table, headers=["Model", "Explainer", "Flip Rate"]))
     
-        
-        projects = read_dataset()
-        for model_type in ["XGBoost"]:
-            total_df = pd.DataFrame()
+        # table to csv
+        table = pd.DataFrame(table, columns=["Model", "Explainer", "Flip Rate"])
+        table.to_csv('./evaluations/flip_rates.csv', index=False)
+    
+
+    if args.rq2:    
+        table = []
+        for model_type in ["RandomForest", "XGBoost"]:
+            similarities = { explainer: pd.DataFrame() for explainer in explainers }
             for project in projects:
-                train, test = projects[project]
-                model = get_model(project, model_type)
-                true_positives = get_true_positives(model, train, test)
-                common_indices = set(true_positives.index)
-                similarities = {}
+                # train, test = projects[project]
+                # model = get_model(project, model_type)
+                # true_positives = get_true_positives(model, train, test)
+                # common_indices = set(true_positives.index)
+                
                 for explainer in explainers:
                     result = plan_similarity(project, model_type, explainer)
-                    
                     df = pd.DataFrame(result).T
-                    similarities[explainer] = df
-                    common_indices = common_indices.intersection(set(df.index))
-
-                df = pd.DataFrame()
-                for explainer in explainers:
-                    similarities[explainer] = similarities[explainer].loc[list(common_indices), :]
-                    df = pd.concat([df, similarities[explainer]], axis=1)
-                df.columns = explainers
-                total_df = pd.concat([total_df, df], axis=0)
-            print(total_df)
-
-
-
-    # print(np.mean(plan_similarity('camel@0', 'XGBoost', 'LIME-HPO')))
-    # print(plan_similarity('activemq@1', 'XGBoost', 'LIME'))
-    # print(plan_similarity('activemq@2', 'XGBoost', 'LIME'))
-    # print(plan_similarity('activemq@3', 'XGBoost', 'LIME'))
+                    similarities[explainer] = pd.concat([similarities[explainer], df], axis=0)
+            
+            row = [model_type]
+            for explainer in explainers:
+                row.append(similarities[explainer].mean()['score'])
+            table.append(row)
+        print(tabulate(table, headers=["Model"]+explainers))
+        # table to csv
+        table = pd.DataFrame(table, columns=["Model"]+explainers)
+        table.to_csv('./evaluations/accuracies.csv', index=False)

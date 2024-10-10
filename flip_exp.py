@@ -23,7 +23,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 np.random.seed(SEED)
 
 
-def get_flip_rates(explainer_type, search_strategy, model_type):
+def get_flip_rates(explainer_type, search_strategy, model_type, verbose=True):
     
     projects = read_dataset()
     project_result = []
@@ -62,7 +62,15 @@ def get_flip_rates(explainer_type, search_strategy, model_type):
             test_names = [ name for name in test_names if name not in computed_test_names]
             project_result.append([project_name, len(all_results_df.dropna()), len(all_results_df), len(plans.keys()), len(true_positives), len(all_results_df.dropna())/len(true_positives) ])
     project_result.append(["Total", sum([val[1] for val in project_result]), sum([val[2] for val in project_result]),sum([val[3] for val in project_result]), sum([val[4] for val in project_result]), sum([val[1] for val in project_result]) / sum([val[4] for val in project_result])])
-    print(tabulate(project_result, headers=["Project", "Flip", "Computed", "#Plan", "#TP", "Flip%"]))
+    if verbose:
+        print(tabulate(project_result, headers=["Project", "Flip", "Computed", "#Plan", "#TP", "Flip%"]))
+    else:
+        # return the result
+        return {
+            "Flip": sum([val[1] for val in project_result]),
+            "TP": sum([val[4] for val in project_result]),
+            "Rate": sum([val[1] for val in project_result]) / sum([val[4] for val in project_result])
+        }
         
 
 

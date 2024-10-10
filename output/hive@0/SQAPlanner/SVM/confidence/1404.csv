@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.037 < OWN_COMMIT <= 0.0105 & 0.855 < CountPath_Min <= 1.095,0.38395,0.99764,1.12057
+0.69 < CountDeclClass <= 1.05 & -0.037 < OWN_COMMIT <= 0.0105,0.29329,0.99691,1.11975
+1.64 < CountClassBase <= 2.055 & -0.037 < OWN_COMMIT <= 0.0105,0.12874,0.99648,1.11926
+1.28 < CountInput_Mean <= 2.36 & 0.855 < CountPath_Min <= 1.095,0.16455,0.99449,1.11703
+0.88 < CountOutput_Min <= 1.31 & -0.037 < OWN_COMMIT <= 0.0105,0.21351,0.99151,1.11368
+0.88 < CountOutput_Min <= 1.31 & -0.255 < MAJOR_LINE <= 0.09,0.16772,0.98649,1.10804
+AvgEssential <= 0.67,0.09474,0.98565,1.1071
+0.69 < CountDeclClass <= 1.05 & 0.97 < AvgEssential <= 1.235,0.38078,0.98452,1.10583
+PercentLackOfCohesion <= 4.4,0.21396,0.98305,1.10418

@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+17.85 < CountLineComment <= 22.1,0.33627,1.0,1.10449
+-0.04 < CountDeclInstanceVariable <= 0.76 & 0.9635 < AvgEssential <= 1.016,0.23382,0.9979,1.10218
+MAJOR_COMMIT <= 0.24,0.21078,0.99767,1.10193
+CountClassCoupled <= 0.66 & 0.9635 < AvgEssential <= 1.016,0.17402,0.99718,1.10138
+-0.1 < AvgLineComment <= 0.18 & -0.44 < CountDeclClassMethod <= 0,0.30833,0.99682,1.10098
+CountLineComment <= 17.85,0.12157,0.99597,1.10004
+0.66 < CountClassCoupled <= 2.18 & 0.9635 < AvgEssential <= 1.016,0.17598,0.99443,1.09834
+-0.1 < AvgLineComment <= 0.18 & 0.9635 < AvgEssential <= 1.016,0.34412,0.9943,1.0982
+0.92 < CountDeclMethodPublic <= 2.86,0.22108,0.99335,1.09715
+-0.1 < AvgLineComment <= 0.18 & 0.972 < AvgCyclomaticModified <= 1.118,0.2,0.99265,1.09637

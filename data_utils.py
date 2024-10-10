@@ -15,15 +15,13 @@ import joblib
 import xgboost
 
 def get_model(project_name: str, model_name: str = "RandomForest"):
-    if model_name == "RandomForest":
-        model_path = Path(f"{MODELS}/{project_name}/RandomForest.joblib")
-        model = joblib.load(model_path)
-    elif model_name == "XGBoost":
+    if model_name == "XGBoost":
         model_path = Path(f"{MODELS}/{project_name}/XGBoost.xgb")
         model = xgboost.XGBClassifier()
         model.load_model(model_path)
     else:
-        raise ValueError(f"Model {model_name} not supported")
+        model_path = Path(f"{MODELS}/{project_name}/{model_name}.joblib")
+        model = joblib.load(model_path)
     return model
 
 

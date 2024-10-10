@@ -7,16 +7,13 @@ from xgboost import XGBClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+import joblib
+
 
 from tqdm import tqdm
 
 from data_utils import read_dataset
 from hyparams import SEED, MODELS, MODEL_EVALUATION
-
-def train_and_save_model(model, X_train, y_train, model_path):
-    model.fit(X_train, y_train)
-    with open(model_path, "wb") as f:
-        pickle.dump(model, f)
 
 def evaluate_metrics(model, X, y):
     y_pred = model.predict(X)
@@ -33,13 +30,6 @@ def evaluate_metrics(model, X, y):
         '# of TP': sum(y_pred & y),
     }
 
-def load_and_evaluate_model(model_path, X_test, y_test):
-    with open(model_path, "rb") as f:
-        loaded_model = pickle.load(f)
-
-    test_metrics = evaluate_metrics(loaded_model, X_test, y_test)
-    
-    return test_metrics
 
 def train_single_project(project, train, test, metrics={}):
     models_path = Path(f"{MODELS}/{project}") 
@@ -53,18 +43,21 @@ def train_single_project(project, train, test, metrics={}):
     y_test = test['target'].values
 
     for model, model_name in [
-        (RandomForestClassifier(n_estimators=100, random_state=SEED), "RandomForest"),
-        (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
+        # (RandomForestClassifier(n_estimators=100, random_state=SEED), "RandomForest"),
+        # (XGBClassifier(n_estimators=100, random_state=SEED), "XGBoost"),
         (SVC(probability=True, random_state=SEED), "SVM"),
-        (LogisticRegression(random_state=SEED), "LogisticRegression"),
+        # (LogisticRegression(random_state=SEED), "LogisticRegression"),
     ]:
-        model_path = models_path / f"{model_name}.pkl"
-
-        # Train and save the model
-        train_and_save_model(model, X_train, y_train, model_path)
+        model.fit(X_train, y_train)
+        if model_name == "XGBoost":
+            model_path = models_path / f"{model_name}.xgb"
+            model.save_model(model)
+        else:
+            model_path = models_path / f"{model_name}.joblib"
+            joblib.dump(model, model_path)        
 
         tqdm.write(f"Working on {project} with {model_name}...")
-        test_metrics = load_and_evaluate_model(model_path, X_test, y_test)
+        test_metrics = evaluate_metrics(model, X_test, y_test)
         metrics[model_name][project] = test_metrics
 
     return metrics
