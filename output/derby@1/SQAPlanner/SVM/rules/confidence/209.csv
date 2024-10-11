@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'1.54 < CountDeclInstanceVariable <= 4.1 & 0.9 < MaxInheritanceTree <= 1.71'","b'target = 0'",0.06765,138,0.06765,138,1,0.01857,1.37838,8.73184e-13,0.72549,1480
+"b'000001'","b'0.9 < MaxInheritanceTree <= 1.71 & 0.65 < CountDeclMethodPublic <= 4.1'","b'target = 0'",0.06569,134,0.06569,134,1,0.01803,1.37838,6.24361e-11,0.72549,1480
+"b'000002'","b'0.9335 < OWN_LINE <= 0.977 & -0.02 < CountDeclInstanceVariable <= 1.54'","b'target = 0'",0.06029,123,0.06029,123,1,0.01655,1.37838,4.51488e-14,0.72549,1480
+"b'000003'","b'OWN_COMMIT <= 0.08 & -0.355 < CountDeclMethodPrivate <= 0.165'","b'target = 0'",0.12696,259,0.12598,257,0.99228,0.03387,1.36773,1.13964e-17,0.72549,1480
+"b'000004'","b'-0.07 < CountDeclMethodDefault <= 0.72 & -0.355 < CountDeclMethodPrivate <= 0.165 & -0.55 < CountDeclClassVariable <= 0.02'","b'target = 0'",0.1201,245,0.11912,243,0.99184,0.03199,1.36713,3.31562e-14,0.72549,1480
+"b'000005'","b'0.75 < CountClassCoupled <= 4.65 & -0.55 < CountDeclClassVariable <= 0.02 & 0.958 < CountDeclClass <= 1.047'","b'target = 0'",0.10098,206,0.1,204,0.99029,0.02674,1.365,1.44289e-19,0.72549,1480
+"b'000006'","b'0.75 < CountClassCoupled <= 4.65 & -0.275 < CountDeclClassMethod <= 0.04'","b'target = 0'",0.0951,194,0.09412,192,0.98969,0.02512,1.36417,9.92872e-18,0.72549,1480
+"b'000007'","b'0.75 < CountClassCoupled <= 4.65 & -0.255 < CountDeclMethodProtected <= 0.105'","b'target = 0'",0.09363,191,0.09265,189,0.98953,0.02472,1.36395,2.19014e-09,0.72549,1480
+"b'000008'","b'OWN_COMMIT <= 0.08 & -0.255 < CountDeclMethodProtected <= 0.105'","b'target = 0'",0.13186,269,0.1299,265,0.98513,0.03424,1.35788,3.19611e-12,0.72549,1480
+"b'000009'","b'0.9 < MaxInheritanceTree <= 1.71 & -0.07 < CountDeclMethodDefault <= 0.72'","b'target = 0'",0.06471,132,0.06373,130,0.98485,0.01678,1.35749,2.80229e-11,0.72549,1480

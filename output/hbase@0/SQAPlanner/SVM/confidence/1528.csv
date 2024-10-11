@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.64 < CountDeclClassMethod <= 0.58 & -0.24 < AvgLineBlank <= 0.035,0.23436,1.0,1.12037
+CountClassCoupled <= 1,0.19492,1.0,1.12037
+1 < CountClassCoupled <= 4.05,0.22212,0.99592,1.11579
+0.854 < OWN_COMMIT <= 1.004,0.30145,0.99098,1.11026
+CountOutput_Mean <= 1.7,0.19855,0.99087,1.11013
+OWN_COMMIT > 1.004,0.09746,0.9907,1.10994
+-0.71 < CountDeclMethodDefault <= 0.19 & -0.24 < AvgLineBlank <= 0.035,0.27697,0.99018,1.10936
+MaxNesting_Mean <= 0.085,0.21034,0.98922,1.10829
+PercentLackOfCohesion <= 19.6,0.19764,0.98853,1.10752
+-0.64 < CountDeclClassMethod <= 0.58 & 0.988 < AvgEssential <= 1.1,0.26836,0.98818,1.10712

@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+25.5 < Added_lines <= 72.5,0.14759,1.0,1.0858
+MAJOR_LINE <= -0.11,0.1049,1.0,1.0858
+Added_lines <= -18.5,0.09491,1.0,1.0858
+-18.5 < Added_lines <= 25.5,0.39055,0.99884,1.08454
+MINOR_LINE <= 1.04,0.27611,0.99836,1.08401
+-1 < CountDeclClassVariable <= 0.14 & -0.053 < MINOR_COMMIT <= 0.032,0.495,0.99633,1.08181
+0.075 < CountDeclClass <= 1.015 & -0.053 < MINOR_COMMIT <= 0.032,0.56857,0.99601,1.08146
+CountClassCoupled <= 0.9,0.21344,0.99574,1.08118
+0.9 < CountClassCoupled <= 3.25,0.18801,0.99517,1.08055

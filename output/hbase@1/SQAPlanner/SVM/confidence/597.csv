@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MINOR_LINE <= 1.135 & 0.9975 < AvgEssential <= 1.0265,0.13922,0.99648,1.09291
+1.08 < CountInput_Mean <= 2.6,0.225,0.99346,1.08961
+-0.02 < MAJOR_LINE <= 0.67,0.27696,0.99292,1.08901
+16.5 < CountLineComment <= 37,0.30098,0.99186,1.08784
+0.36 < MAJOR_COMMIT <= 1,0.28186,0.9913,1.08724
+-0.225 < CountClassDerived <= 0.135 & 0.9975 < AvgEssential <= 1.0265,0.3049,0.99035,1.08619
+MAJOR_COMMIT <= 0.36,0.2,0.9902,1.08602
+MaxNesting_Min > 0.114,0.18627,0.98947,1.08523

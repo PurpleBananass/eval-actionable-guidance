@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+PercentLackOfCohesion <= 2.5 & -12.8 < CountInput_Mean <= 5,0.17206,0.99715,1.11892
+PercentLackOfCohesion <= 2.5 & -14.3 < CountInput_Min <= 2.6,0.14118,0.99653,1.11822
+MAJOR_LINE <= 0.02 & -14.3 < CountInput_Min <= 2.6,0.17549,0.99162,1.11271
+MAJOR_LINE <= 0.02 & -12.8 < CountInput_Mean <= 5,0.17206,0.99145,1.11252
+-0.215 < CountDeclClassMethod <= 0.2 & -12.8 < CountInput_Mean <= 5,0.27598,0.98046,1.10019
+-0.215 < CountDeclClassMethod <= 0.2 & -14.3 < CountInput_Min <= 2.6,0.31961,0.97546,1.09458
+-0.066 < CountDeclMethodProtected <= 0.015 & -12.8 < CountInput_Mean <= 5,0.38824,0.96717,1.08528

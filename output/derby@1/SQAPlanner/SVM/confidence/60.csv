@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.85 < CountDeclMethodPublic <= 3.05 & -0.225 < CountDeclMethodProtected <= 0.035,0.13529,0.99275,1.172
+33.5 < CountLineComment <= 56,0.18873,0.98701,1.16522
+MaxInheritanceTree <= 0.92,0.17843,0.98626,1.16434
+0.858 < OWN_COMMIT <= 1.006 & -0.225 < CountDeclMethodProtected <= 0.035,0.1652,0.98516,1.16304
+CountLineComment <= 33.5,0.19804,0.98267,1.1601
+PercentLackOfCohesion <= 6.6,0.20294,0.97826,1.15489
+CountDeclMethodPrivate <= -0.31,0.11225,0.97817,1.15478
+RatioCommentToCode > 1.94,0.19804,0.97772,1.15426

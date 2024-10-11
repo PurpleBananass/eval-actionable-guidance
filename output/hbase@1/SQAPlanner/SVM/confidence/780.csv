@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.07 < AvgLineComment <= 0.76 & 0.9895 < AvgEssential <= 1.0165,0.19706,0.99254,1.10583
+-0.04 < CountDeclClassVariable <= 0.77,0.26127,0.98499,1.09742
+1.6 < CountClassCoupled <= 3.95,0.19069,0.98458,1.09696
+3.95 < CountClassCoupled <= 7.15,0.21078,0.9814,1.09342
+CountInput_Min > 3.24,0.19461,0.97985,1.09169
+PercentLackOfCohesion <= 12,0.2,0.97794,1.08957
+CountOutput_Min > 3.1,0.19461,0.97733,1.08889
+0.065 < MaxNesting_Mean <= 0.385,0.19216,0.97194,1.08288
+1.165 < MAJOR_COMMIT <= 1.85,0.14902,0.97039,1.08116
+0.97 < MINOR_LINE <= 1.27,0.31373,0.97031,1.08107

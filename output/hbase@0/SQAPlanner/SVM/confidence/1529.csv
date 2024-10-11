@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 1.2,0.20444,1.0,1.0997
+1.2 < CountClassCoupled <= 3.9,0.19628,0.99769,1.09716
+0.854 < OWN_COMMIT <= 1,0.30553,0.99703,1.09644
+OWN_COMMIT > 1,0.09157,0.99505,1.09426
+RatioCommentToCode > 4.08,0.0816,0.99444,1.09359
+PercentLackOfCohesion <= 16.6,0.19946,0.99318,1.0922
+-0.14 < CountDeclClassMethod <= 0.43 & -0.0585 < MINOR_COMMIT <= 0.019,0.36537,0.99256,1.09151
+MAJOR_LINE <= -0.04,0.09837,0.99078,1.08957
+-0.14 < CountDeclClassMethod <= 0.43,0.36899,0.98649,1.08484
+CountOutput_Mean <= 1.54,0.19855,0.9863,1.08464

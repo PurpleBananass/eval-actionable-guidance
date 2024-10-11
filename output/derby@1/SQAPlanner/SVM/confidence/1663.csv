@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-2.65 < CountDeclMethodPublic <= 3.1 & -1.22 < CountDeclMethodPrivate <= 0.34,0.13971,0.98947,1.21892
+-1.22 < CountDeclMethodPrivate <= 0.34 & -0.27 < CountDeclMethodProtected <= 0.12,0.225,0.98257,1.21041
+-1.22 < CountDeclMethodPrivate <= 0.34 & 0.953 < AvgEssential <= 1.005,0.23627,0.98133,1.20888
+0.75 < CountClassCoupled <= 3.2,0.23578,0.98129,1.20883
+0.35 < MAJOR_LINE <= 0.935 & 0.953 < AvgEssential <= 1.005,0.09657,0.9797,1.20687
+0.897 < OWN_LINE <= 0.9475 & 0.953 < AvgEssential <= 1.005,0.14069,0.97561,1.20184

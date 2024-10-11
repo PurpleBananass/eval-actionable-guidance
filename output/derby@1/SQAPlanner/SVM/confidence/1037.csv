@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.14 < CountDeclInstanceVariable <= 0.79,0.26863,0.99088,1.18418
+-8.5 < Added_lines <= 1.7 & -0.38 < CountDeclMethodProtected <= 0.13,0.33824,0.98986,1.18296
+-0.24 < CountDeclMethodDefault <= 0.15 & -0.38 < CountDeclMethodProtected <= 0.13,0.28382,0.98964,1.18269
+-0.38 < CountDeclMethodProtected <= 0.13 & 0.969 < AvgEssential <= 1.029,0.35441,0.98893,1.18186
+0.35 < CountClassCoupled <= 3.15,0.19069,0.98715,1.17972
+-0.02 < MAJOR_LINE <= 0.5,0.29853,0.98358,1.17546
+1.2 < CountInput_Mean <= 2.09,0.20196,0.98301,1.17477
+0.045 < MaxNesting_Mean <= 0.395,0.16176,0.97576,1.16611
+-0.71 < CountDeclMethodPrivate <= 0.13,0.50196,0.97559,1.1659
+-0.004 < OWN_COMMIT <= 0.156,0.29853,0.97373,1.16368
