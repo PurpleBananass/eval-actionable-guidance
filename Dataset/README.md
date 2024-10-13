@@ -34,5 +34,3 @@ Dataset
 ├── historical_dataset
     ├── activemq@k.csv (each feature's historical mean changes for k-th release)
 ```
-To determine feasibility, you need the Historical Mean Change (HMC) for each feature between consecutive releases. If you do not have the historical_dataset, please execute `data_utils.save_historical_changes()` or just run `python data_utils.py` in the root directory of this repository.
-
