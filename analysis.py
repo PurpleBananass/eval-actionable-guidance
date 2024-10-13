@@ -180,7 +180,7 @@ def visualize_implications():
 
     plt.figure(figsize=(4, 3))
     ax = sns.boxplot(data=total_df, x='Explainer', y='score', hue='Model', palette='crest', showfliers=False, hue_order=models)
-    ax.set_ylabel('Total Required Changes', rotation=90, labelpad=3, fontsize=12)
+    ax.set_ylabel('Total Amount of Changes Required', rotation=90, labelpad=3, fontsize=12)
     ax.set_xlabel('')
     plt.yticks(fontsize=12, ticks=[])
     ax.set_yticklabels(labels=[])
