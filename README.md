@@ -1,6 +1,6 @@
 # eval-actionable-guidance
 
-This is the replication package for the paper "Why Should Practitioners Trust the Actionable Guidance from Explainable AI Techniques for Software Defect Prediction?"
+This is the replication package for the paper "Why Should Practitioners Trust the Actionable Guidance from Explainable AI Techniques in Software Defect Prediction?"
 
 ## Abstract
 
