@@ -381,6 +381,7 @@ if __name__ == "__main__":
 
     if args.rq2:
         table = []
+        Path("./evaluations/similarities").mkdir(parents=True, exist_ok=True)
         for model_type in ["SVM", "RandomForest", "XGBoost"]:
             similarities = pd.DataFrame()
             for explainer in explainers:

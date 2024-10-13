@@ -142,8 +142,8 @@ def visualize_rq2():
                 plt.xticks(fontsize=12, ticks=[])
                 ax.set_xticklabels([])
             else:
-                plt.xticks(fontsize=12, ticks=[0, 0.5, 1])
-                ax.set_xticklabels([0, 0.5, 1])
+                plt.xticks(fontsize=12, ticks=[0, 0.2, 0.4, 0.6, 0.8, 1])
+                ax.set_xticklabels([0, 0.2, 0.4, 0.6, 0.8, 1])
 
             for i, container in enumerate(ax.containers):
                 for j, bar in enumerate(container):
