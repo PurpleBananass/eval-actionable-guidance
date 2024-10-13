@@ -1,18 +1,18 @@
+import joblib
 from pathlib import Path
+
+import xgboost
 import natsort
 import pandas as pd
-import pickle
 from pandas import DataFrame
 from sklearn.preprocessing import StandardScaler
+
 from hyparams import (
-    HISTORICAL_DATASET,
     MODELS,
     OUTPUT,
     PROJECT_DATASET,
     RELEASE_DATASET,
 )
-import joblib
-import xgboost
 
 def get_model(project_name: str, model_name: str = "RandomForest"):
     if model_name == "XGBoost":
@@ -24,21 +24,10 @@ def get_model(project_name: str, model_name: str = "RandomForest"):
         model = joblib.load(model_path)
     return model
 
-
-def get_model_file(project_name: str, model_name: str = "RandomForest") -> Path:
-    return Path(f"{MODELS}/{project_name}/{model_name}.pkl")
-
-
 def get_output_dir(project_name: str, explainer_type: str, model_type:str) -> Path:
     path = Path(OUTPUT) / project_name / explainer_type / model_type
     path.mkdir(parents=True, exist_ok=True)
     return path
-
-
-def load_model(model_file: Path):
-    with open(model_file, "rb") as f:
-        model = pickle.load(f)
-    return model
 
 
 def get_release_ratio(project_release):
@@ -112,13 +101,6 @@ def all_dataset(dataset: Path = Path("project_dataset")):
     return projects
 
 
-def models_pickle(path_model: Path):
-    model_load = []
-    for file in path_model.glob("*.pkl"):
-        model_load.append(file)
-    return model_load
-
-
 def read_dataset() -> dict[str, list[pd.DataFrame]]:
     projects = {}
     for project in Path(RELEASE_DATASET).iterdir():
@@ -129,70 +111,3 @@ def read_dataset() -> dict[str, list[pd.DataFrame]]:
 
         projects[project.name] = [train, test]
     return projects
-
-def read_dataset2() -> dict[str, list[pd.DataFrame]]:
-    projects = {}
-    for project in Path(RELEASE_DATASET).iterdir():
-        if not project.is_dir():
-            continue
-        train = pd.read_csv(project / "train.csv", index_col=0)
-        test = pd.read_csv(project / "test.csv", index_col=0)
-        if Path(project / "valid.csv").exists():
-            valid = pd.read_csv(project / "valid.csv", index_col=0)
-            projects[project.name] = [train, test, valid]
-        else:
-            projects[project.name] = [train, test]
-    return projects
-
-def save_historical_changes():
-    save_folder = Path(HISTORICAL_DATASET)
-    save_folder.mkdir(parents=True, exist_ok=True)
-    history = {}
-    for project in Path(RELEASE_DATASET).iterdir():
-        if not project.is_dir():
-            continue
-        history[project.name] = {}
-        train = pd.read_csv(project / "train.csv", index_col=0)
-        test = pd.read_csv(project / "test.csv", index_col=0)
-        exist_indices = train.index.intersection(test.index)
-        deltas = (
-            test.loc[exist_indices, test.columns != "target"]
-            - train.loc[exist_indices, train.columns != "target"]
-        )
-
-        for feature in deltas.columns:
-            nonzeros = deltas[deltas[feature] != 0][feature]
-            nonzeros = nonzeros.abs()
-            history[project.name][feature] = [
-                round(nonzeros.mean(), 2),
-                round(nonzeros.max(), 2),
-                round(nonzeros.max() / nonzeros.mean(), 2),
-                round(train[feature].max(), 2),
-                round(train[feature].max() / nonzeros.mean(), 2),
-                nonzeros.dtype,
-            ]
-
-    for project, features in history.items():
-        df = pd.DataFrame.from_dict(
-            features,
-            orient="index",
-            columns=[
-                "mean_change",
-                "max change",
-                "MAXChange/mean",
-                "max value",
-                "MAX/mean",
-                "dtype",
-            ],
-        )
-
-        df.to_csv(save_folder / f"{project}.csv")
-
-
-def load_historical_changes(project):
-    save_folder = Path(HISTORICAL_DATASET)
-    df = pd.read_csv(save_folder / f"{project}.csv", index_col=0)
-    return df
-
-if __name__ == "__main__":
-    save_historical_changes()

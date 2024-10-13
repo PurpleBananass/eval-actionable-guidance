@@ -1,28 +1,29 @@
-
-import os
-from pathlib import Path
-import pickle
-from argparse import ArgumentParser
-from tqdm import tqdm
-from Explainer.LIME_HPO import LIME_HPO, LIME_Planner
-from Explainer.SQAPlanner.LORMIKA import LORMIKA
-from Explainer.TimeLIME import TimeLIME
-from data_utils import get_true_positives, load_model, read_dataset, get_model_file, get_output_dir, get_model
-from hyparams import *
-import warnings
-from sklearn.exceptions import ConvergenceWarning
-
-# ConvergenceWarning을 무시
-warnings.filterwarnings("ignore", category=ConvergenceWarning)
 import concurrent.futures
+import warnings
+import os
+from argparse import ArgumentParser
 
-def process_test_idx(test_idx, true_positives, train_data, model, output_path, explainer_type):
+from Explainer.LIME_HPO import LIME_HPO, LIME_Planner
+from sklearn.exceptions import ConvergenceWarning
+from Explainer.TimeLIME import TimeLIME
+from tqdm import tqdm
+
+from data_utils import get_true_positives, read_dataset, get_output_dir, get_model
+from Explainer.SQAPlanner.LORMIKA import LORMIKA
+from hyparams import *
+
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
+
+
+def process_test_idx(
+    test_idx, true_positives, train_data, model, output_path, explainer_type
+):
     test_instance = true_positives.loc[test_idx, :]
     output_file = output_path / f"{test_idx}.csv"
 
     if output_file.exists():
         return None
-    
+
     print(f"Processing {test_idx} on {os.getpid()}")
 
     if explainer_type == "LIME":
@@ -45,7 +46,10 @@ def process_test_idx(test_idx, true_positives, train_data, model, output_path, e
 
     return os.getpid()
 
-def run_single_project(train_data, test_data, project_name, model_type, explainer_type, verbose=True):
+
+def run_single_project(
+    train_data, test_data, project_name, model_type, explainer_type, verbose=True
+):
     output_path = get_output_dir(project_name, explainer_type, model_type)
     model = get_model(project_name, model_type)
     true_positives = get_true_positives(model, train_data, test_data)
@@ -64,11 +68,16 @@ def run_single_project(train_data, test_data, project_name, model_type, explaine
                     train_data,
                     model,
                     output_path,
-                    explainer_type
+                    explainer_type,
                 )
-                for test_idx in true_positives.index 
+                for test_idx in true_positives.index
             ]
-            for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc=f"{project_name}", disable=not verbose):
+            for future in tqdm(
+                concurrent.futures.as_completed(futures),
+                total=len(futures),
+                desc=f"{project_name}",
+                disable=not verbose,
+            ):
                 out = future.result()
                 if out is not None:
                     tqdm.write(f"Process {out} finished")
@@ -86,7 +95,8 @@ def run_single_project(train_data, test_data, project_name, model_type, explaine
             output_path=gen_instances_path,
         )
         lormika.instance_generation()
-            # 2. Generate Association Rules on BigML -> generate_plans_SQA.py
+        # 2. Generate Association Rules on BigML -> generate_plans_SQA.py
+
 
 if __name__ == "__main__":
     argparser = ArgumentParser()

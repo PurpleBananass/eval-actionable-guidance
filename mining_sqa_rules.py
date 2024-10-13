@@ -1,16 +1,21 @@
 import argparse
 import time
-from bigml.api import BigML
-import pandas as pd
 import os
 import re
-from dotenv import load_dotenv
-from tqdm import tqdm
-from Explainer.SQAPlanner.bigml_mining import get_or_create_association, get_or_create_dataset
 
-from data_utils import get_model_file, get_true_positives, read_dataset, get_output_dir, load_model, get_model
+import pandas as pd
+from dotenv import load_dotenv
+from bigml.api import BigML
+from tqdm import tqdm
+
+from Explainer.SQAPlanner.bigml_mining import (
+    get_or_create_association,
+    get_or_create_dataset,
+)
+from data_utils import get_true_positives, read_dataset, get_output_dir, get_model
 
 load_dotenv()
+
 
 def comparison(word):
     regexp = re.finditer(r"\w+=[0-9]+", word)
@@ -21,25 +26,30 @@ def comparison(word):
         word = word.replace(matched_word, new_word)
     return word
 
+
 def generate_plans(project, search_strategy, model_type):
     username = os.getenv("BIGML_USERNAME")
     api_key = os.getenv("BIGML_API_KEY")
     api = BigML(username, api_key)
-
-    # print(username, api_key)
 
     projects = read_dataset()
 
     train, test = projects[project]
     model = get_model(project, model_type)
 
-    generated_path = get_output_dir(project, "SQAPlanner", model_type) / "generated_instances"
-    rules_path = get_output_dir(project, "SQAPlanner", model_type) / f"rules/{search_strategy}"
+    generated_path = (
+        get_output_dir(project, "SQAPlanner", model_type) / "generated_instances"
+    )
+    rules_path = (
+        get_output_dir(project, "SQAPlanner", model_type) / f"rules/{search_strategy}"
+    )
     rules_path.mkdir(parents=True, exist_ok=True)
 
-    output_path = get_output_dir(project, "SQAPlanner", model_type) / f"{search_strategy}"
+    output_path = (
+        get_output_dir(project, "SQAPlanner", model_type) / f"{search_strategy}"
+    )
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
     true_positives = get_true_positives(model, train, test)
 
     len_csv = len(list(generated_path.glob("*.csv")))
@@ -54,21 +64,6 @@ def generate_plans(project, search_strategy, model_type):
         output_file = output_path / f"{csv.stem}.csv"
         if output_file.exists():
             continue
-            # # check empty file
-            # try:
-            #     output_test = pd.read_csv(output_file)
-            #     if output_test.empty:
-            #         print("Empty file, removing it")
-            #         os.remove(output_file)
-            #         if (rules_path / f"{csv.stem}.csv").exists():
-            #             os.remove(rules_path / f"{csv.stem}.csv")
-            #     else:
-            #         continue
-            # except:
-            #     print("Error reading file, removing it")
-            #     os.remove(output_file)
-            #     if (rules_path / f"{csv.stem}.csv").exists():
-            #         os.remove(rules_path / f"{csv.stem}.csv")
 
         case_data = test.loc[int(csv.stem), :]
         x_test = case_data.drop("target")
@@ -96,8 +91,6 @@ def generate_plans(project, search_strategy, model_type):
 
         rules_df = pd.read_csv(file, encoding="utf-8")
         rules_df = rules_df.replace({r"^b'|'$": ""}, regex=True)
-
-
 
         x_test = x_test.to_frame().T
 
@@ -138,7 +131,12 @@ def main(projects, search_strategy, model_type):
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
     argparser.add_argument("--project", type=str)
-    argparser.add_argument("--search_strategy", type=str, default="confidence", choices=["coverage", "confidence", "lift"])
+    argparser.add_argument(
+        "--search_strategy",
+        type=str,
+        default="confidence",
+        choices=["coverage", "confidence", "lift"],
+    )
     argparser.add_argument("--model_type", type=str, default="RandomForest")
     args = argparser.parse_args()
     count = 0
