@@ -19,10 +19,11 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "tabulate>=0.9.0",
     "cliffs-delta>=1.0.0",
-    "rpy2>=3.5.16",
+    "statsmodels>=0.14.4",
+    "numpy==1.26.4",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.10"
 
 [tool.rye]
 virtual = true
