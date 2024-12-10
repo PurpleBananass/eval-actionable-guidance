@@ -14,6 +14,7 @@ from hyparams import (
     RELEASE_DATASET,
 )
 
+
 def get_model(project_name: str, model_name: str = "RandomForest"):
     if model_name == "XGBoost":
         model_path = Path(f"{MODELS}/{project_name}/XGBoost.xgb")
@@ -24,7 +25,8 @@ def get_model(project_name: str, model_name: str = "RandomForest"):
         model = joblib.load(model_path)
     return model
 
-def get_output_dir(project_name: str, explainer_type: str, model_type:str) -> Path:
+
+def get_output_dir(project_name: str, explainer_type: str, model_type: str) -> Path:
     path = Path(OUTPUT) / project_name / explainer_type / model_type
     path.mkdir(parents=True, exist_ok=True)
     return path
@@ -64,12 +66,12 @@ def get_true_positives(
 ) -> DataFrame:
     assert label in test_data.columns
 
-    ground_truth = test_data.loc[test_data[label] == True, test_data.columns != label]
+    ground_truth = test_data.loc[test_data[label], test_data.columns != label]
     scaler = StandardScaler()
     scaler.fit(train_data.drop("target", axis=1))
     ground_truth_scaled = scaler.transform(ground_truth)
     predictions = model.predict(ground_truth_scaled)
-    true_positives = ground_truth[predictions == True]
+    true_positives = ground_truth[predictions]
 
     return true_positives
 

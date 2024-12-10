@@ -11,7 +11,6 @@ from data_utils import get_model, get_true_positives, read_dataset, get_output_d
 
 
 def perturb(low, high, current, values, dtype):
-
     if dtype == "int64":
         perturbations = [val for val in values if low <= val <= high]
 
@@ -86,7 +85,6 @@ def run_single(
     search_strategy,
     verbose=False,
 ):
-
     output_path = get_output_dir(project_name, explainer_type, model_type)
     proposed_change_path = Path(f"./plans/{project_name}/{model_type}/{explainer_type}")
     if search_strategy is not None:
@@ -121,7 +119,6 @@ def run_single(
         assert test_instance["target"] == 1
 
         match explainer_type:
-
             case "LIME" | "LIME-HPO":
                 explanation_path = output_path / f"{test_idx}.csv"
 
@@ -164,7 +161,6 @@ def run_single(
                         dtype,
                     )
                     if not perturbations:
-
                         continue
                     perturb_features[feature] = perturbations
 
@@ -256,7 +252,6 @@ def run_single(
 def get_importance_ratio(
     train, test, project_name, model_type, explainer_type, verbose=False
 ):
-
     output_path = get_output_dir(project_name, explainer_type, model_type)
 
     train_min = train.min()
@@ -273,7 +268,6 @@ def get_importance_ratio(
         assert test_instance["target"] == 1
 
         match explainer_type:
-
             case "LIME" | "LIME-HPO":
                 explanation_path = output_path / f"{test_idx}.csv"
 
@@ -336,7 +330,6 @@ if __name__ == "__main__":
             )
         print(np.mean(np.array(total)))
     else:
-
         for project in tqdm(
             project_list, desc="Projects", leave=True, disable=not args.verbose
         ):

@@ -10,7 +10,6 @@ from tqdm import tqdm
 
 from data_utils import get_true_positives, read_dataset, get_output_dir, get_model
 from Explainer.SQAPlanner.LORMIKA import LORMIKA
-from hyparams import *
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 

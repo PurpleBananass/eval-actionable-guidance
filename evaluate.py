@@ -46,14 +46,13 @@ def plan_similarity(project, model_type, explainer):
     scaler = StandardScaler()
     scaler.fit(train.drop("target", axis=1).values)
     for test_idx in drops:
-
         if str(test_idx) in plans:
             original = test.loc[test_idx, test.columns != "target"]
             original_scaled = scaler.transform([original])
             pred_o = model.predict(original_scaled)[0]
             row = experiment.loc[[test_idx], :]
-            row_scaled = scaler.transform(row.values)  
-            pred = model.predict(row_scaled)[0]  
+            row_scaled = scaler.transform(row.values)
+            pred = model.predict(row_scaled)[0]
             assert pred_o == 1, pred == 0
 
             plan = {}
@@ -78,7 +77,6 @@ def plan_similarity(project, model_type, explainer):
 
 
 def normalized_mahalanobis_distance(df, x, y):
-    
     df = df.loc[:, (df.nunique() > 1)]
     if df.shape[1] < 1:
         return 0
@@ -100,7 +98,6 @@ def normalized_mahalanobis_distance(df, x, y):
     else:
         inv_cov_matrix = np.linalg.pinv(cov_matrix)
 
-    
     distance = mahalanobis(x_standardized, y_standardized, inv_cov_matrix)
 
     min_vector = np.array([min(df[feature]) for feature in df.columns])
@@ -140,7 +137,6 @@ def cosine_similarity(vec1, vec2):
     norm_vec1 = np.linalg.norm(vec1)
     norm_vec2 = np.linalg.norm(vec2)
 
-    
     if norm_vec1 == 0 or norm_vec2 == 0:
         print(vec1, vec2)
         return 0
@@ -231,7 +227,6 @@ def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"
 
         results = []
         for test_idx in flipped.index:
-
             if str(test_idx) in plans:
                 original_row = test.loc[test_idx, test.columns != "target"]
 

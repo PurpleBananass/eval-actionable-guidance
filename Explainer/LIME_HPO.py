@@ -6,6 +6,7 @@ from scipy.optimize import differential_evolution
 from sklearn.preprocessing import StandardScaler
 from hyparams import SEED
 
+
 def LIME_HPO(X_train, test_instance, training_labels, model, path):
     """Hyper-parameter optimized LIME explainer with feature restoration."""
 
@@ -35,11 +36,13 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
 
         # Calculate residuals and R² score
         residuals = model_predictions - local_model_predictions
-        SS_res = np.sum(residuals ** 2)
+        SS_res = np.sum(residuals**2)
         SS_tot = np.sum((model_predictions - np.mean(model_predictions)) ** 2)
 
         if SS_tot == 0:
-            print("SS_tot is 0 for this instance, likely due to no variance in model predictions.")
+            print(
+                "SS_tot is 0 for this instance, likely due to no variance in model predictions."
+            )
             return 100  # Apply a large penalty for non-variance cases
 
         R2 = 1 - (SS_res / SS_tot)
@@ -61,7 +64,10 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
 
     # Generate explanation with optimized number of samples
     explanation = explainer.explain_instance(
-        test_instance_scaled[0], model.predict_proba, num_samples=num_samples, num_features=len(X_train.columns)
+        test_instance_scaled[0],
+        model.predict_proba,
+        num_samples=num_samples,
+        num_features=len(X_train.columns),
     )
 
     # Extract top 5 features and their importance
@@ -75,14 +81,18 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
 
     rules, importances = zip(*top_features_rule)
     rules = list(rules)
-    importance_ratio = np.abs(np.array(importances)) / np.sum(np.abs(np.array([imp for _, imp in explanation.as_list()])))
+    importance_ratio = np.abs(np.array(importances)) / np.sum(
+        np.abs(np.array([imp for _, imp in explanation.as_list()]))
+    )
 
     dummy = test_instance_scaled[0].copy().tolist()
     # Restore original feature values in the rules
     for i, rule in enumerate(rules):
         feature = top_feature_names[i]
         # Restore range (a < feature <= b)
-        matches = re.search(r'([-.\d]+) < ' + re.escape(feature) + r' <= ([-.\d]+)', rule)
+        matches = re.search(
+            r"([-.\d]+) < " + re.escape(feature) + r" <= ([-.\d]+)", rule
+        )
         if matches:
             a, b = map(float, matches.groups())
 
@@ -90,33 +100,42 @@ def LIME_HPO(X_train, test_instance, training_labels, model, path):
             continue
 
         # Restore case (feature > a)
-        matches = re.search(re.escape(feature) + r' > ([-.\d]+)', rule)
+        matches = re.search(re.escape(feature) + r" > ([-.\d]+)", rule)
         if matches:
             a = float(matches.group(1))
-            rules[i] = restore_rule(scaler, dummy, top_features_index[i], a, None, feature, ">")
+            rules[i] = restore_rule(
+                scaler, dummy, top_features_index[i], a, None, feature, ">"
+            )
             continue
 
         # Restore case (feature <= b)
-        matches = re.search(re.escape(feature) + r' <= ([-.\d]+)', rule)
+        matches = re.search(re.escape(feature) + r" <= ([-.\d]+)", rule)
         if matches:
             b = float(matches.group(1))
-            rules[i] = restore_rule(scaler, dummy, top_features_index[i], None, b, feature, "<=")
+            rules[i] = restore_rule(
+                scaler, dummy, top_features_index[i], None, b, feature, "<="
+            )
             continue
 
     # Create DataFrame to save the rules and export as CSV
-    rules_df = pd.DataFrame({
-        'feature': top_feature_names,
-        'value': test_instance[top_features_index],
-        'importance': importances,
-        'min': min_val[top_features_index],
-        'max': max_val[top_features_index],
-        'rule': rules,
-        'importance_ratio': importance_ratio
-    })
+    rules_df = pd.DataFrame(
+        {
+            "feature": top_feature_names,
+            "value": test_instance[top_features_index],
+            "importance": importances,
+            "min": min_val[top_features_index],
+            "max": max_val[top_features_index],
+            "rule": rules,
+            "importance_ratio": importance_ratio,
+        }
+    )
 
     rules_df.to_csv(path, index=False)
 
-def restore_rule(scaler, dummy, feature_idx, a=None, b=None, feature=None, operator=None):
+
+def restore_rule(
+    scaler, dummy, feature_idx, a=None, b=None, feature=None, operator=None
+):
     """Helper function to restore original feature values."""
 
     if a is not None:
@@ -127,13 +146,11 @@ def restore_rule(scaler, dummy, feature_idx, a=None, b=None, feature=None, opera
         b = scaler.inverse_transform([dummy])[0][feature_idx]
 
     if operator == ">":
-        return f'{feature} > {a}'
+        return f"{feature} > {a}"
     elif operator == "<=":
-        return f'{feature} <= {b}'
+        return f"{feature} <= {b}"
     else:
-        return f'{a} < {feature} <= {b}'
-
-
+        return f"{a} < {feature} <= {b}"
 
 
 def LIME_Planner(X_train, test_instance, training_labels, model, path):
@@ -170,7 +187,9 @@ def LIME_Planner(X_train, test_instance, training_labels, model, path):
 
     rules, importances = zip(*top_features_rule)
     rules = list(rules)
-    importance_ratio = np.abs(np.array(importances)) / np.sum(np.abs(np.array([imp for _, imp in explanation.as_list()])))
+    importance_ratio = np.abs(np.array(importances)) / np.sum(
+        np.abs(np.array([imp for _, imp in explanation.as_list()]))
+    )
     dummy = test_instance_scaled[0].copy().tolist()
     # Restore original feature values in the rules
     feature_name_to_index = {name: i for i, name in enumerate(X_train.columns)}
@@ -200,17 +219,19 @@ def LIME_Planner(X_train, test_instance, training_labels, model, path):
                 l = scaler.inverse_transform([dummy])[0][feature_idx]
                 rule = f"{feature_name} <= {l}"
                 # assert min_val[feature_idx] <= l <= max_val[feature_idx], (scaled_rule, v2, l)
-        
+
         rules[i] = rule
     # Create DataFrame to save the rules and export as CSV
-    rules_df = pd.DataFrame({
-        'feature': top_feature_names,
-        'value': test_instance[top_features_index],
-        'importance': importances,
-        'min': min_val[top_features_index],
-        'max': max_val[top_features_index],
-        'rule': rules,
-        'importance_ratio': importance_ratio
-    })
+    rules_df = pd.DataFrame(
+        {
+            "feature": top_feature_names,
+            "value": test_instance[top_features_index],
+            "importance": importances,
+            "min": min_val[top_features_index],
+            "max": max_val[top_features_index],
+            "rule": rules,
+            "importance_ratio": importance_ratio,
+        }
+    )
 
     rules_df.to_csv(path, index=False)

@@ -23,7 +23,6 @@ np.random.seed(SEED)
 
 
 def get_flip_rates(explainer_type, search_strategy, model_type, verbose=True):
-
     projects = read_dataset()
     project_result = []
     for project_name in projects:
@@ -32,7 +31,7 @@ def get_flip_rates(explainer_type, search_strategy, model_type, verbose=True):
         scaler = StandardScaler()
         scaler.fit(train.drop("target", axis=1).values)
 
-        if search_strategy == None:
+        if search_strategy is None:
             plan_path = Path(
                 f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans_all.json"
             )
@@ -137,11 +136,10 @@ def flip_single_project(
     load=True,
     model_type="RandomForest",
 ):
-
     scaler = StandardScaler()
     scaler.fit(train.drop("target", axis=1))
 
-    if search_strategy == None:
+    if search_strategy is None:
         plan_path = Path(
             f"{PROPOSED_CHANGES}/{project_name}/{model_type}/{explainer_type}/plans_all.json"
         )
@@ -202,7 +200,6 @@ def flip_single_project(
         for test_name in tqdm(
             test_indices, desc=f"{project_name}", leave=False, disable=not verbose
         ):
-
             original_instance = test.loc[int(test_name), test.columns != "target"]
             features = list(plans[test_name].keys())
 
@@ -230,7 +227,6 @@ def flip_single_project(
         ):
             test_name = futures[future]
             try:
-
                 flipped_instance = future.result()
                 all_results_df = pd.concat([all_results_df, flipped_instance], axis=0)
                 all_results_df.to_csv(exp_path)

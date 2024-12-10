@@ -7,6 +7,7 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
+
 class LORMIKA:
     def __init__(self, **kwargs):
         self.__train_set: pd.DataFrame = kwargs["train_set"]
@@ -24,10 +25,12 @@ class LORMIKA:
         trainset_normalize = self.__train_set.copy()
         cases_normalize = self.__cases.copy()
 
-        trainset_normalize = pd.DataFrame(scaler.fit_transform(trainset_normalize), index=trainset_normalize.index)
-        cases_normalize = pd.DataFrame(scaler.transform(cases_normalize), index=cases_normalize.index)
-
-
+        trainset_normalize = pd.DataFrame(
+            scaler.fit_transform(trainset_normalize), index=trainset_normalize.index
+        )
+        cases_normalize = pd.DataFrame(
+            scaler.transform(cases_normalize), index=cases_normalize.index
+        )
 
         assert self.__train_set.index.equals(trainset_normalize.index)
         assert self.__cases.index.equals(cases_normalize.index)
@@ -37,8 +40,13 @@ class LORMIKA:
 
         width = math.sqrt(len(self.__train_set.columns)) * 0.75
 
-        for sample_number, test_instance in tqdm(cases_normalize.iterrows(), desc=f"{Path(self.__output_path).parent.name}", leave=False, total=len(cases_normalize)):
-            # We only consider the instances that are predicted as buggy 
+        for sample_number, test_instance in tqdm(
+            cases_normalize.iterrows(),
+            desc=f"{Path(self.__output_path).parent.name}",
+            leave=False,
+            total=len(cases_normalize),
+        ):
+            # We only consider the instances that are predicted as buggy
             pred = self.__model.predict(test_instance.values.reshape(1, -1))[0]
             if pred == 0:
                 continue
@@ -50,7 +58,9 @@ class LORMIKA:
                 continue
 
             # Calculate the euclidian distance from the instance to be explained
-            dist = np.linalg.norm(trainset_normalize.sub(np.array(test_instance)), axis=1)
+            dist = np.linalg.norm(
+                trainset_normalize.sub(np.array(test_instance)), axis=1
+            )
 
             # Convert distance to a similarity score
             similarity = np.sqrt(np.exp(-(dist**2) / (width**2)))
@@ -128,7 +138,6 @@ class LORMIKA:
                 sample_indexes_list = (
                     sample_indexes_list + rand_rows.index.values.tolist()
                 )
-                similarity_both = dist_df[dist_df.index.isin(rand_rows.index)]
                 sample_classes = train_class_neigh[
                     train_class_neigh.index.isin(rand_rows.index)
                 ]
@@ -152,7 +161,6 @@ class LORMIKA:
                 sample_indexes_list = (
                     sample_indexes_list + rand_rows.index.values.tolist()
                 )
-                similarity_both = dist_df[dist_df.index.isin(rand_rows.index)]
                 sample_classes = train_class_neigh[
                     train_class_neigh.index.isin(rand_rows.index)
                 ]
@@ -169,27 +177,24 @@ class LORMIKA:
                 new_ins = new_ins.to_frame().T
 
                 new_ins.name = num
-                new_con_df = pd.concat(
-                    [new_con_df, new_ins], axis=0, ignore_index=True
-                )
-            
+                new_con_df = pd.concat([new_con_df, new_ins], axis=0, ignore_index=True)
+
             # get the global model predictions of the generated instances and the instances in the neighbourhood
             predict_dataset = pd.concat(
                 [train_set_neigh, new_con_df], ignore_index=True
             )
 
             # normalize predict_dataset
-            predict_dataset_norm = pd.DataFrame(scaler.transform(predict_dataset), index=predict_dataset.index)
-
+            predict_dataset_norm = pd.DataFrame(
+                scaler.transform(predict_dataset), index=predict_dataset.index
+            )
 
             target = self.__model.predict(predict_dataset_norm.values)
             target_df = pd.DataFrame(target)
 
             new_df_case = pd.concat([predict_dataset, target_df], axis=1)
             new_df_case = np.round(new_df_case, 2)
-            new_df_case.rename(
-                columns={0: self.__train_class.columns[0]}, inplace=True
-            )
-            new_df_case['target'] = new_df_case['target'].astype(int)
-            new_df_case['target'] = new_df_case['target'].astype(str)
+            new_df_case.rename(columns={0: self.__train_class.columns[0]}, inplace=True)
+            new_df_case["target"] = new_df_case["target"].astype(int)
+            new_df_case["target"] = new_df_case["target"].astype(str)
             new_df_case.to_csv(file_name, index=False)

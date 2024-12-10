@@ -1,9 +1,9 @@
 [project]
 name = "eval-actionable-guidance"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.1.1"
+description = "The replication package for the paper 'Can We Trust the Actionable Guidance from Explainable AI Techniques in Defect Prediction?' (SANER 2025)"
 authors = [
-    { }
+    { name = "Hansae Ju", email = "sparky@hanyang.ac.kr" }
 ]
 dependencies = [
     "scikit-learn>=1.5.2",
@@ -21,9 +21,24 @@ dependencies = [
     "cliffs-delta>=1.0.0",
     "statsmodels>=0.14.4",
     "numpy==1.26.4",
+    "rpy2>=3.5.17",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"
 
 [tool.rye]
 virtual = true
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.format]
+indent-style = "space"
+
+[tool.ruff.lint]
+ignore = ["E741"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8.2",
+]

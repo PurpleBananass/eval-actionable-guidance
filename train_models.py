@@ -90,7 +90,7 @@ def eval_all_project():
         for model_name in metrics:
             model = get_model(project, model_name)
             scaler = StandardScaler()
-            X_train = scaler.fit_transform(train.iloc[:, train.columns != "target"].values)
+            scaler.fit(train.iloc[:, train.columns != "target"].values)
             X_test = scaler.transform(test.iloc[:, test.columns != "target"].values)
             y_test = test["target"].values
             test_metrics = evaluate_metrics(model, X_test, y_test)

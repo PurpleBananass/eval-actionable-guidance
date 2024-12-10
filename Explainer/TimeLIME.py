@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 import re
 
+
 def TimeLIME(train, test, model, output_path, top=5):
     """
     Based on https://github.com/ai-se/TimeLIME and https://github.com/kpeng2019/TimeLIME
@@ -33,7 +34,6 @@ def TimeLIME(train, test, model, output_path, top=5):
         else:
             actionable.append(0)
 
-
     seen = []
     seen_id = []
 
@@ -57,12 +57,15 @@ def TimeLIME(train, test, model, output_path, top=5):
     min_val = X_train.min()
     max_val = X_train.max()
 
-
     # Standardize the data
     scaler = StandardScaler()
-    X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns, index=X_train.index)
-    X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns, index=X_test.index)
-    
+    X_train_scaled = pd.DataFrame(
+        scaler.fit_transform(X_train), columns=X_train.columns, index=X_train.index
+    )
+    X_test_scaled = pd.DataFrame(
+        scaler.transform(X_test), columns=X_test.columns, index=X_test.index
+    )
+
     explainer = LimeTabularExplainer(
         training_data=X_train_scaled.values,
         training_labels=y_train.values,
@@ -76,18 +79,16 @@ def TimeLIME(train, test, model, output_path, top=5):
     ground_truth = X_test_scaled.loc[ground_truth_idx]
     predictions = model.predict(ground_truth.values)
     true_positives = ground_truth[predictions == 1]
-    
+
     for test_idx in tqdm(
         true_positives.index,
         desc="Generating",
         leave=False,
         total=len(y_test),
     ):
-        
         file_name = output_path / f"{test_idx}.csv"
         if file_name.exists():
             continue
-        
 
         ins = explainer.explain_instance(
             data_row=X_test_scaled.loc[test_idx].values,
@@ -98,8 +99,6 @@ def TimeLIME(train, test, model, output_path, top=5):
         ind = ins.local_exp[1]
         temp = X_test_scaled.loc[test_idx].values.copy()
         rule_pairs = ins.as_list(label=1)
-
-        feature_names = X_train.columns 
 
         # Restore the original feature values
         for j in range(0, len(rule_pairs)):
@@ -123,7 +122,7 @@ def TimeLIME(train, test, model, output_path, top=5):
                     temp[ind[j][0]] = float(v2)
                     l = scaler.inverse_transform([temp])[0][ind[j][0]]
                     rule = f"{feature_name} <= {l}"
-          
+
             rule_pairs[j] = (rule, rule_pairs[j][1])
 
         orivinal_values = X_test.loc[test_idx].values
@@ -137,7 +136,6 @@ def TimeLIME(train, test, model, output_path, top=5):
             min_val,
             max_val,
         )
-
 
         if rec in seen_id:
             supported_plan_id = seen[seen_id.index(rec)]
@@ -162,11 +160,10 @@ def TimeLIME(train, test, model, output_path, top=5):
                 importance = importance[1]
                 interval = rule_pairs[idx][0]
 
-
                 supported_plan.append(
                     [
                         feature_name,
-                        orivinal_values[k], # temp[k],
+                        orivinal_values[k],  # temp[k],
                         importance,
                         plan[k][0],
                         plan[k][1],
@@ -211,7 +208,6 @@ def flip(data_row, local_exp, ind, cols, actionable, min_val, max_val):
             cnt.append(i)
 
     record = [0 for n in range(len(cols))]
-    tem = data_row.copy()
     result = [[0 for m in range(2)] for n in range(len(cols))]
 
     pattern = re.compile(
@@ -231,11 +227,13 @@ def flip(data_row, local_exp, ind, cols, actionable, min_val, max_val):
                 r = float(v2)
             case None, None, feature_name, ">", v1:
                 l = float(v1)
-                r =  max_val[cache[j][0]]
+                r = max_val[cache[j][0]]
             case None, None, feature_name, "<=", v2:
                 l = min_val[cache[j][0]]
                 r = float(v2)
-        assert feature_name == cols[cache[j][0]], f"Feature name mismatch: {feature_name} != {cols[cache[j][0]]}"
+        assert (
+            feature_name == cols[cache[j][0]]
+        ), f"Feature name mismatch: {feature_name} != {cols[cache[j][0]]}"
 
         if j in cnt and act:
             if j in cntp:

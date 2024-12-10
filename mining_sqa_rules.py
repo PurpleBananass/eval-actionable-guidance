@@ -105,7 +105,7 @@ def generate_plans(project, search_strategy, model_type):
                 print("correctly predicted")
 
             # Practices  to  follow  to  decrease  the  risk  of  having defects
-            elif x_test.eval(rule).all() == False and real_target != class_val:
+            elif not x_test.eval(rule).all() and real_target != class_val:
                 ff_df = pd.concat([ff_df, row.to_frame().T])
 
         if ff_df.empty:
