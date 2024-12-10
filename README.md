@@ -1,4 +1,4 @@
-# eval-actionable-guidance
+# Replication Package for "Can We Trust the Actionable Guidance from Explainable AI Techniques in Defect Prediction?"
 
 This is the replication package for the paper "Can We Trust the Actionable Guidance from Explainable AI Techniques in Defect Prediction?"
 
