@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'0.8 < AvgLineComment <= 3.55 & -0.32 < CountDeclMethodDefault <= 0.7 & -0.285 < CountDeclClassMethod <= 0.145'","b'target = 0'",0.04216,86,0.04167,85,0.98837,0.02199,2.11794,4.90623e-11,0.46667,952
+"b'000001'","b'-0.15 < CountDeclMethodPrivate <= 0.45 & -0.32 < CountDeclMethodDefault <= 0.7 & -0.106 < CountDeclMethodProtected <= 0.042'","b'target = 0'",0.08431,172,0.08284,169,0.98256,0.0435,2.10548,5.80034e-28,0.46667,952
+"b'000002'","b'MAJOR_LINE <= 0.13 & -23.5 < Added_lines <= 12.5'","b'target = 0'",0.09951,203,0.09755,199,0.9803,0.05111,2.10063,3.75059e-22,0.46667,952
+"b'000003'","b'CountClassCoupled <= 0.35 & -23.5 < Added_lines <= 12.5'","b'target = 0'",0.09608,196,0.09412,192,0.97959,0.04928,2.09913,4.23233e-21,0.46667,952
+"b'000004'","b'CountLineComment <= 16.5 & -23.5 < Added_lines <= 12.5'","b'target = 0'",0.04706,96,0.04608,94,0.97917,0.02412,2.09821,6.24777e-10,0.46667,952
+"b'000005'","b'MaxNesting_Mean <= 0.245 & 16.5 < CountLineComment <= 65.5'","b'target = 0'",0.05735,117,0.05539,113,0.96581,0.02863,2.0696,1.32213e-20,0.46667,952
+"b'000006'","b'MaxNesting_Mean <= 0.245 & -23.5 < Added_lines <= 12.5'","b'target = 0'",0.09167,187,0.08824,180,0.96257,0.04546,2.06264,2.0731e-16,0.46667,952
+"b'000007'","b'-0.06 < AvgLineBlank <= 0.69 & -0.15 < CountDeclMethodPrivate <= 0.45 & -0.106 < CountDeclMethodProtected <= 0.042'","b'target = 0'",0.10931,223,0.10392,212,0.95067,0.05291,2.03716,2.09021e-14,0.46667,952
+"b'000008'","b'-0.06 < AvgLineBlank <= 0.69 & -23.5 < Added_lines <= 12.5'","b'target = 0'",0.13529,276,0.12745,260,0.94203,0.06431,2.01863,1.65648e-20,0.46667,952
+"b'000009'","b'-0.06 < AvgLineBlank <= 0.69 & -0.285 < CountDeclClassMethod <= 0.145 & -0.106 < CountDeclMethodProtected <= 0.042'","b'target = 0'",0.12745,260,0.11961,244,0.93846,0.06013,2.01099,1.87424e-12,0.46667,952

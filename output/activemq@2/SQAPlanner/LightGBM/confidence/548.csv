@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.3 < CountClassCoupled <= 1.8,0.19971,0.99281,1.11331
+-0.12 < AvgLineComment <= 0.24 & 0.9925 < CountDeclClass <= 1.029,0.27059,0.98407,1.10351
+18.9 < CountLineComment <= 25.8,0.25383,0.97925,1.0981
+OWN_LINE > 0.924,0.19875,0.97831,1.09706
+CountLineComment <= 18.9,0.15086,0.9746,1.0929
+-0.11 < Del_lines <= 0.56,0.79358,0.97405,1.09227
+-0.2 < CountDeclInstanceVariable <= 0.96,0.28688,0.97329,1.09142
+CountClassCoupled <= 0.3,0.20738,0.96998,1.08771
+CountClassBase <= 0.88,0.16236,0.9646,1.08168

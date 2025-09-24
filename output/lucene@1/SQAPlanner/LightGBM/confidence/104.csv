@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 0.85,0.19286,0.95833,1.15911
+RatioCommentToCode > 1.765,0.1942,0.94483,1.14277
+0.85 < CountClassCoupled <= 2.9,0.2067,0.93521,1.13113
+OWN_COMMIT <= 0.155,0.20134,0.93126,1.12637
+CountOutput_Mean <= 1.46,0.19554,0.92466,1.11838
+0.94 < RatioCommentToCode <= 1.765,0.1933,0.91686,1.10894
+-4 < Added_lines <= 23.5,0.30625,0.91545,1.10724
+1.45 < CountDeclMethodPublic <= 3.7,0.19464,0.91055,1.10131

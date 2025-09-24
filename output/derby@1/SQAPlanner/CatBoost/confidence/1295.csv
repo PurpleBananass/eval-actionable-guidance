@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MAJOR_LINE <= 0.02 & -37 < Added_lines <= 2,0.16384,0.9891,1.39785
+OWN_COMMIT <= 0.03 & MAJOR_LINE <= 0.02,0.11116,0.98795,1.39622
+-0.72 < CountDeclMethodPrivate <= 0.28 & -37 < Added_lines <= 2,0.25625,0.97213,1.37386
+OWN_COMMIT <= 0.03 & -0.72 < CountDeclMethodPrivate <= 0.28,0.125,0.97143,1.37287
+MAJOR_LINE <= 0.02 & 0.989 < CountDeclClass <= 1.04,0.22679,0.96457,1.36317
+2.9 < CountClassCoupled <= 6.45 & -0.42 < CountDeclClassMethod <= 0.31,0.09911,0.94595,1.33686
+24 < CountLineComment <= 64.5 & -0.72 < CountDeclMethodPrivate <= 0.28,0.17321,0.9433,1.33312
+-37 < Added_lines <= 2 & -0.275 < CountDeclMethodProtected <= 0.045,0.33438,0.94259,1.33211

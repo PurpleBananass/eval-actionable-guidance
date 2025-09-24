@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.15 < CountClassCoupled <= 2.7 & 0.9 < CountOutput_Min <= 1.29,0.15179,0.98824,1.19786
+RatioCommentToCode > 1.915,0.19821,0.98198,1.19028
+-0.1 < AvgLineComment <= 0.6 & 0.655 < CountDeclClass <= 1.065,0.15134,0.9646,1.16921
+0.9 < RatioCommentToCode <= 1.915,0.19196,0.96047,1.1642
+0.54 < RatioCommentToCode <= 0.9,0.19732,0.95249,1.15453
+16 < CountLineComment <= 29.4,0.30848,0.9508,1.15248
+MaxNesting_Mean <= 0.01,0.25223,0.93805,1.13703
+0.984 < AvgEssential <= 1.059 & -0.4 < CountDeclClassMethod <= 0.05,0.3942,0.93771,1.13662
+MINOR_LINE <= 1.04,0.25402,0.93673,1.13543
+0.01 < MaxNesting_Mean <= 0.365,0.15,0.92857,1.12554

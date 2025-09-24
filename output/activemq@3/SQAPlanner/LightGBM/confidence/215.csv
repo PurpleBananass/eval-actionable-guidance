@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassBase <= 0.902,0.14598,0.99083,1.07897
+1.05 < CountDeclMethodPublic <= 3.5,0.18482,0.99034,1.07844
+-0.245 < CountDeclMethodPrivate <= 0.01 & -0.018 < OWN_COMMIT <= 0.0025,0.47455,0.98871,1.07667
+RatioCommentToCode > 1.915,0.19598,0.98861,1.07656
+CountDeclMethodPublic <= 1.05,0.21295,0.98742,1.07527
+-0.115 < MAJOR_LINE <= 0.1,0.38661,0.98614,1.07387
+0.52 < CountClassCoupled <= 2.12,0.20804,0.98498,1.07261
+-0.2 < CountDeclInstanceVariable <= 0.9,0.3058,0.98102,1.0683

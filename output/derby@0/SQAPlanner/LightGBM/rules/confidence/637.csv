@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.26 < CountDeclInstanceVariable <= 0.52 & -0.71 < CountDeclClassMethod <= 0.23'","b'target = 0'",0.11765,240,0.11471,234,0.975,0.03368,1.41566,2.47759e-16,0.68873,1405
+"b'000001'","b'0.9295 < OWN_LINE <= 0.957 & -0.24 < CountDeclMethodDefault <= 0.33'","b'target = 0'",0.07696,157,0.075,153,0.97452,0.022,1.41496,2.06005e-13,0.68873,1405
+"b'000002'","b'0.957 < OWN_LINE <= 0.981 & -0.26 < CountDeclInstanceVariable <= 0.52'","b'target = 0'",0.07941,162,0.07696,157,0.96914,0.02227,1.40714,1.76008e-11,0.68873,1405
+"b'000003'","b'-0.26 < CountDeclInstanceVariable <= 0.52 & -0.18 < CountDeclMethodPrivate <= 0.275'","b'target = 0'",0.11961,244,0.11471,234,0.95902,0.03233,1.39245,7.69031e-15,0.68873,1405
+"b'000004'","b'-0.24 < CountDeclMethodDefault <= 0.33 & -0.71 < CountDeclClassMethod <= 0.23'","b'target = 0'",0.13039,266,0.125,255,0.95865,0.0352,1.39191,2.69614e-14,0.68873,1405
+"b'000005'","b'MAJOR_LINE <= 0.14 & 5.25 < Added_lines <= 9.4'","b'target = 0'",0.17647,360,0.16863,344,0.95556,0.04709,1.38743,4.81908e-29,0.68873,1405
+"b'000006'","b'-0.18 < CountDeclMethodPrivate <= 0.275 & -0.2 < CountDeclMethodProtected <= 0.085 & 5.25 < Added_lines <= 9.4'","b'target = 0'",0.18971,387,0.18039,368,0.9509,0.04974,1.38067,6.84943e-13,0.68873,1405
+"b'000007'","b'-0.18 < CountDeclMethodPrivate <= 0.275 & -0.71 < CountDeclClassMethod <= 0.23 & 5.25 < Added_lines <= 9.4'","b'target = 0'",0.23873,487,0.22647,462,0.94867,0.06205,1.37742,1.2553e-21,0.68873,1405
+"b'000008'","b'-0.26 < CountDeclInstanceVariable <= 0.52 & -0.215 < CountDeclClassVariable <= 0.11'","b'target = 0'",0.13627,278,0.12843,262,0.94245,0.03458,1.36839,2.65363e-22,0.68873,1405
+"b'000009'","b'0.935 < CountClassDerived <= 2.535 & 4.5 < AvgLineComment <= 7.45'","b'target = 0'",0.04951,101,0.04657,95,0.94059,0.01247,1.3657,6.68937e-10,0.68873,1405

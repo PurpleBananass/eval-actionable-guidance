@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 3.09,0.19963,1.0,1.04904
+CountInput_Mean <= 0.51,0.19448,0.9976,1.04652
+1.98 < RatioCommentToCode <= 3.09,0.18887,0.99752,1.04645
+OWN_COMMIT > 0.5865,0.2043,0.99542,1.04424
+0.36 < CountClassCoupled <= 1.66,0.1856,0.99496,1.04376
+0.51 < CountInput_Mean <= 1.28,0.21272,0.99341,1.04213
+-0.21 < CountDeclInstanceVariable <= 0.23,0.39084,0.98565,1.03399
+-0.245 < CountDeclMethodProtected <= 0.055,0.55026,0.98471,1.033

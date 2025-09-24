@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT > 1.012,0.06161,0.99275,1.24094
+0.995 < OWN_COMMIT <= 1.012 & -0.018 < CountDeclMethodPrivate <= 0.148,0.42545,0.98951,1.23688
+0.995 < OWN_COMMIT <= 1.012,0.52545,0.96602,1.20752
+1.57 < ADEV <= 2.26,0.2433,0.9578,1.19725
+CountClassCoupled <= 0.46,0.1933,0.9261,1.15762
+0.93 < RatioCommentToCode <= 1.765,0.19509,0.9222,1.15275
+RatioCommentToCode > 1.765,0.19955,0.91723,1.14653
+0.46 < CountClassCoupled <= 2.26,0.22143,0.91331,1.14163
+CountClassBase <= 0.914,0.16384,0.91281,1.14101

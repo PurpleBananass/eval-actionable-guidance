@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT <= -0.021,0.07926,1.0,1.12941
+CountLineComment <= 2,0.06114,1.0,1.12941
+-0.021 < OWN_COMMIT <= 0.059,0.36866,0.9914,1.1197
+RatioCommentToCode > 2.065,0.19611,0.9746,1.10072
+2 < CountLineComment <= 26.8,0.34284,0.96962,1.0951
+CountClassBase <= 0.918,0.17255,0.96588,1.09088
+MaxNesting_Mean <= 0.08,0.21875,0.9648,1.08966
+PercentLackOfCohesion <= 3.5,0.22509,0.96378,1.08851
+-0.23 < CountDeclMethodPrivate <= 0.135,0.44928,0.9627,1.08729
+CountInput_Min > 2.43,0.17572,0.95876,1.08284

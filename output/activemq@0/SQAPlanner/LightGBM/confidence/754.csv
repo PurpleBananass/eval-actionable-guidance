@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+ADEV <= 1.42,0.2001,0.98568,1.10316
+1.115 < RatioCommentToCode <= 1.785,0.20583,0.98144,1.09841
+0.65 < RatioCommentToCode <= 1.115,0.19341,0.97778,1.09432
+-0.068 < CountInput_Min <= 0.106 & -0.02 < CountDeclMethodPrivate <= 0.128,0.30134,0.97306,1.08904
+CountClassCoupled <= 0.24,0.18911,0.97222,1.0881
+0.24 < CountClassCoupled <= 2.24,0.234,0.96735,1.08264
+0.76 < CountInput_Mean <= 1.71,0.20917,0.96119,1.07575
+2.21 < ADEV <= 3.01,0.21633,0.96026,1.07472

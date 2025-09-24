@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountLineComment <= 32 & 0.73 < CountOutput_Min <= 1.095,0.06029,1.0,1.27024
+0.914 < OWN_LINE <= 0.9495 & -0.21 < CountDeclMethodPrivate <= 0.095,0.0902,0.99457,1.26333
+0.8125 < OWN_LINE <= 0.914 & -0.21 < CountDeclMethodPrivate <= 0.095,0.10343,0.98578,1.25218
+32 < CountLineComment <= 57.5 & -0.21 < CountDeclMethodPrivate <= 0.095,0.125,0.98039,1.24533
+32 < CountLineComment <= 57.5 & -0.235 < CountDeclClassMethod <= 0.015,0.13529,0.97826,1.24262
+0.51 < MaxInheritanceTree <= 1.14 & -0.28 < CountDeclMethodProtected <= 0.016,0.14461,0.97288,1.23579

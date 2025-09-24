@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 2.01 & -37 < Added_lines <= 4,0.12143,0.97059,1.45426
+MAJOR_LINE <= 0.06 & -37 < Added_lines <= 4,0.15268,0.95906,1.43699
+19 < CountLineComment <= 61 & -37 < Added_lines <= 4,0.19643,0.95,1.42341
+19 < CountLineComment <= 61,0.25848,0.89637,1.34306
+MAJOR_LINE <= 0.06 & 0.96 < CountDeclClass <= 1.036,0.20402,0.89497,1.34095
+CountLineComment <= 19,0.13973,0.89137,1.33557
+-37 < Added_lines <= 4,0.53259,0.87427,1.30994
+RatioCommentToCode > 2.01,0.1942,0.87126,1.30544
+CountClassCoupled <= 0.8,0.19777,0.86005,1.28863
+OWN_COMMIT <= 0.04,0.22188,0.85915,1.2873

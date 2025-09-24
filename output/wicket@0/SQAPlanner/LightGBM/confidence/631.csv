@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-2 < Del_lines <= 2.55,0.43419,1.0,1.05992
+CountInput_Mean <= 0.67,0.20081,1.0,1.05992
+0.4875 < OWN_COMMIT <= 0.51 & -0.0585 < MaxNesting_Min <= 0.0145,0.30077,0.99549,1.05514
+RatioCommentToCode > 2.82,0.19493,0.99536,1.055
+MaxInheritanceTree > 5.16,0.19358,0.99533,1.05497
+CountLineComment <= 29.2,0.22886,0.98814,1.04736
+0.67 < CountInput_Mean <= 1.54,0.21303,0.98726,1.04642
+0.4875 < OWN_COMMIT <= 0.51,0.30846,0.98534,1.04438
+-0.075 < CountDeclInstanceVariable <= 0.39,0.37042,0.98291,1.0418

@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountDeclMethodPublic <= 0.8,0.15546,0.99099,1.1309
+MAJOR_LINE <= -0.02,0.09851,0.98578,1.12496
+CountClassCoupled <= 0.85,0.18487,0.98232,1.12101
+MaxInheritanceTree <= 1.035 & -0.005 < CountDeclMethodProtected <= 0.26,0.18954,0.9803,1.1187
+-0.02 < MAJOR_LINE <= 0.59,0.30392,0.97696,1.11489
+Added_lines <= -7.5,0.11485,0.96341,1.09943
+0.08 < CountDeclInstanceVariable <= 1.74,0.19981,0.96262,1.09852

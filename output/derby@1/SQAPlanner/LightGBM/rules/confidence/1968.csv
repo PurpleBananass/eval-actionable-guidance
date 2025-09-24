@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.94 < CountDeclClassVariable <= 0.62 & -0.064 < CountDeclMethodProtected <= 0.098 & -0.31 < CountDeclMethodDefault <= 0.1 & -0.1965 < MINOR_COMMIT <= 0.0175'","b'target = 0'",0.11961,244,0.11863,242,0.9918,0.04217,1.55159,6.78913e-19,0.63922,1304
+"b'000001'","b'MaxInheritanceTree <= 0.95 & -0.94 < CountDeclClassVariable <= 0.62'","b'target = 0'",0.05735,117,0.05686,116,0.99145,0.0202,1.55105,1.03894e-10,0.63922,1304
+"b'000002'","b'RatioCommentToCode > 2.03 & -29.5 < Added_lines <= 7'","b'target = 0'",0.08922,182,0.08775,179,0.98352,0.03072,1.53863,6.86861e-14,0.63922,1304
+"b'000003'","b'0.95 < MaxInheritanceTree <= 1.375 & -0.94 < CountDeclClassVariable <= 0.62'","b'target = 0'",0.1049,214,0.10294,210,0.98131,0.03589,1.53518,1.21781e-17,0.63922,1304
+"b'000004'","b'0.95 < MaxInheritanceTree <= 1.375 & -0.31 < CountDeclMethodPrivate <= 0.38'","b'target = 0'",0.10539,215,0.10294,210,0.97674,0.03557,1.52804,7.5002e-18,0.63922,1304
+"b'000005'","b'-0.56 < CountInput_Min <= 0.39 & -0.68 < CountDeclClassMethod <= 0.34 & -0.31 < CountDeclMethodDefault <= 0.1'","b'target = 0'",0.07941,162,0.07745,158,0.97531,0.02669,1.52579,8.2998e-12,0.63922,1304
+"b'000006'","b'CountDeclMethodPublic <= 2.1 & MaxNesting_Mean <= 0.165'","b'target = 0'",0.04706,96,0.04559,93,0.96875,0.01551,1.51553,2.35728e-09,0.63922,1304
+"b'000007'","b'MaxNesting_Mean <= 0.165 & -0.94 < CountDeclClassVariable <= 0.62'","b'target = 0'",0.06961,142,0.06716,137,0.96479,0.02266,1.50933,5.6632e-09,0.63922,1304
+"b'000008'","b'CountClassBase > 1.995 & -0.064 < CountDeclMethodProtected <= 0.098'","b'target = 0'",0.05539,113,0.05343,109,0.9646,0.01802,1.50904,2.29121e-09,0.63922,1304
+"b'000009'","b'0.95 < MaxInheritanceTree <= 1.375 & -0.31 < CountDeclMethodDefault <= 0.1'","b'target = 0'",0.1598,326,0.15343,313,0.96012,0.05128,1.50203,3.16357e-25,0.63922,1304

@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxInheritanceTree <= 0.9 & -19.2 < Added_lines <= 2.8,0.08929,0.99,1.45416
+MAJOR_LINE <= 0.055 & -19.2 < Added_lines <= 2.8,0.1375,0.97403,1.4307
+MaxInheritanceTree <= 0.9 & CountClassBase <= 0.814,0.09464,0.9717,1.42728
+MaxInheritanceTree <= 0.9 & -0.28 < CountDeclMethodProtected <= 0.035,0.10357,0.96983,1.42453
+CountLineComment <= 27,0.19375,0.91244,1.34024
+CountOutput_Min <= 0.465 & -0.03 < CountDeclInstanceVariable <= 0.76,0.06607,0.90541,1.32991

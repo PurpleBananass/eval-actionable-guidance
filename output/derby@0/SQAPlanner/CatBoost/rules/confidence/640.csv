@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'MINOR_COMMIT <= -0.1985'","b'target = 0'",0.0152,31,0.0152,31,1,0.00761,2.00196,3.58234e-10,0.49951,1019
+"b'000001'","b'-3.05 < CountDeclClassVariable <= 1 & -0.71 < CountDeclMethodProtected <= 0.08 & -0.255 < CountDeclClassMethod <= 0.02 & 0.9608 < CountDeclClass <= 1.0094'","b'target = 0'",0.20245,413,0.19755,403,0.97579,0.09642,1.95349,2.77659e-78,0.49951,1019
+"b'000002'","b'-1 < CountDeclMethodPrivate <= 0.23 & -3.05 < CountDeclClassVariable <= 1 & -0.255 < CountDeclClassMethod <= 0.02'","b'target = 0'",0.17647,360,0.17157,350,0.97222,0.08342,1.94635,8.40386e-54,0.49951,1019
+"b'000003'","b'MAJOR_LINE <= 0.1 & -8.4 < Added_lines <= 10.2'","b'target = 0'",0.13627,278,0.13186,269,0.96763,0.06379,1.93715,1.95872e-17,0.49951,1019
+"b'000004'","b'-1 < CountDeclMethodPrivate <= 0.23 & -3.05 < CountDeclClassVariable <= 1 & -0.71 < CountDeclMethodProtected <= 0.08'","b'target = 0'",0.19608,400,0.18824,384,0.96,0.09029,1.92188,3.98385e-32,0.49951,1019
+"b'000005'","b'-0.07 < AvgLineBlank <= 0.57 & -3.05 < CountDeclClassVariable <= 1 & -0.71 < CountDeclMethodProtected <= 0.08'","b'target = 0'",0.13529,276,0.12843,262,0.94928,0.06085,1.90041,2.37465e-15,0.49951,1019
+"b'000006'","b'-8.4 < Added_lines <= 10.2 & -3.05 < CountDeclClassVariable <= 1'","b'target = 0'",0.28137,574,0.26667,544,0.94774,0.12612,1.89733,2.98563e-108,0.49951,1019
+"b'000007'","b'CountLineComment <= 32.5 & -8.4 < Added_lines <= 10.2'","b'target = 0'",0.1,204,0.09461,193,0.94608,0.04466,1.89401,6.91191e-09,0.49951,1019
+"b'000008'","b'CountClassCoupled <= 1.15 & MAJOR_LINE <= 0.1'","b'target = 0'",0.10049,205,0.09461,193,0.94146,0.04441,1.88477,2.99063e-09,0.49951,1019
+"b'000009'","b'1.23 < RatioCommentToCode <= 2.89 & -8.4 < Added_lines <= 10.2'","b'target = 0'",0.11225,229,0.10539,215,0.93886,0.04932,1.87957,5.99204e-09,0.49951,1019

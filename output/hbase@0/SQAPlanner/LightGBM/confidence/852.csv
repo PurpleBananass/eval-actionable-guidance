@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountOutput_Min > 2.38 & -0.02 < CountDeclMethodDefault <= 0.78,0.12545,0.97153,1.20433
+Del_lines <= -32,0.06295,0.95745,1.18687
+OWN_COMMIT > 0.998,0.2808,0.9539,1.18247
+CountClassCoupled <= 1.4,0.19464,0.95183,1.17992
+1.4 < CountClassCoupled <= 4.35,0.22277,0.93988,1.1651
+CountDeclClassMethod <= -0.27,0.1125,0.93254,1.156
+-32 < Del_lines <= 8,0.45625,0.92857,1.15108
+RatioCommentToCode > 1.315,0.19286,0.91667,1.13632
+PercentLackOfCohesion <= 29.4,0.19777,0.91422,1.13329
+4.35 < CountClassCoupled <= 7.5,0.1808,0.90864,1.12637

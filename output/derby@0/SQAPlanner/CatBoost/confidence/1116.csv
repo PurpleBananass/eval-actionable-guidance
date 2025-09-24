@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MINOR_COMMIT <= -0.1818,0.00931,1.0,2.04819
+-0.48 < CountDeclMethodPrivate <= 1 & -0.14 < CountInput_Min <= 0.66 & -15 < Added_lines <= 9.5,0.09608,0.9949,2.03774
+-0.04 < AvgLineBlank <= 0.72 & -15 < Added_lines <= 9.5,0.1549,0.98734,2.02227
+MAJOR_LINE <= 0.31 & -0.48 < CountDeclClassVariable <= 0.96,0.06912,0.97163,1.99009
+39.5 < CountLineComment <= 86.5 & -15 < Added_lines <= 9.5,0.15147,0.9644,1.97528
+0.951 < OWN_LINE <= 0.9825 & -0.14 < CountInput_Min <= 0.66 & -1.02 < CountDeclClassMethod <= 0.14,0.05,0.96078,1.96787
+CountClassCoupled <= 1.15 & -0.48 < CountDeclMethodPrivate <= 1,0.08186,0.95808,1.96234
+MAJOR_LINE <= 0.31 & -1.02 < CountDeclClassMethod <= 0.14,0.10049,0.9561,1.95827
+CountClassCoupled <= 1.15 & -15 < Added_lines <= 9.5,0.12941,0.95076,1.94733
+MAJOR_LINE <= 0.31 & -15 < Added_lines <= 9.5,0.11716,0.94979,1.94535

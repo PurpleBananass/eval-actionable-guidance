@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.22 < MAJOR_COMMIT <= 0.92,0.12188,0.98901,1.19428
+MAJOR_COMMIT <= 0.22,0.20982,0.97872,1.18185
+19.8 < CountLineComment <= 35 & 0.17 < RatioCommentToCode <= 1.25,0.18304,0.9439,1.13981
+3.85 < CountClassCoupled <= 6.95,0.19018,0.93897,1.13385
+CountClassBase <= 0.885,0.14152,0.93691,1.13136
+MAJOR_LINE <= 0.03,0.25313,0.93122,1.12449
+CountLineComment <= 19.8,0.15446,0.92775,1.1203
+0.8 < CountClassCoupled <= 3.85,0.21607,0.92769,1.12022
+OWN_COMMIT <= 0.16,0.20313,0.92308,1.11466
+1.62 < CountOutput_Mean <= 3.26,0.20848,0.90792,1.09636

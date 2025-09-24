@@ -331,7 +331,7 @@ if __name__ == "__main__":
 
     args = argparser.parse_args()
 
-    model_map = {"SVM": "SVM", "RandomForest": "RF", "XGBoost": "XGB"}
+    model_map = {"SVM": "SVM", "RandomForest": "RF", "XGBoost": "XGB", "LightGBM": "LGBM", "CatBoost": "CatB"}
 
     explainer_map = {
         "LIME": "LIME",
@@ -347,12 +347,14 @@ if __name__ == "__main__":
     projects = read_dataset()
     if args.rq1:
         table = []
-        for model_type in ["SVM", "RandomForest", "XGBoost"]:
+        for model_type in ["SVM", "RandomForest", "XGBoost", "LightGBM", "CatBoost"]:
             for explainer in explainers:
                 if explainer == "SQAPlanner_confidence":
+                    print("Processing SQAPlanner")
                     result = get_flip_rates(
                         "SQAPlanner", "confidence", model_type, verbose=False
                     )
+                    print(result)
                     table.append([model_map[model_type], "SQAPlanner", result["Rate"]])
                 else:
                     result = get_flip_rates(explainer, None, model_type, verbose=False)
@@ -377,7 +379,7 @@ if __name__ == "__main__":
     if args.rq2:
         table = []
         Path("./evaluations/similarities").mkdir(parents=True, exist_ok=True)
-        for model_type in ["SVM", "RandomForest", "XGBoost"]:
+        for model_type in ["SVM", "RandomForest", "XGBoost", "LightGBM", "CatBoost"]:
             similarities = pd.DataFrame()
             for explainer in explainers:
                 for project in projects:
@@ -411,7 +413,7 @@ if __name__ == "__main__":
         Path(f"./evaluations/feasibility/{args.distance}").mkdir(
             parents=True, exist_ok=True
         )
-        for model_type in ["RandomForest", "SVM", "XGBoost"]:
+        for model_type in ["CatBoost", "RandomForest", "SVM", "XGBoost", "LightGBM"]:
             for explainer in explainer_map:
                 results = []
                 for project_list in project_lists:
@@ -467,7 +469,7 @@ if __name__ == "__main__":
 
     if args.implications:
         table = []
-        for model_type in ["RandomForest", "XGBoost", "SVM"]:
+        for model_type in ["RandomForest", "XGBoost", "SVM", "LightGBM", "CatBoost"]:
             for explainer in explainers:
                 results = []
                 for project in projects:

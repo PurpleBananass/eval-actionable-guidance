@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-37 < Added_lines <= 0 & -0.65 < CountDeclClassMethod <= 0.11,0.2317,0.95954,1.41872
+0.8 < MaxInheritanceTree <= 1.37 & -1.7 < CountDeclClassVariable <= 0.6,0.08795,0.93909,1.38848
+0.8 < MaxInheritanceTree <= 1.37 & -1.04 < CountDeclMethodPrivate <= 0.24,0.08571,0.9375,1.38614
+CountLineComment <= 37,0.21786,0.92213,1.36342
+1.2 < CountClassCoupled <= 3.65 & -0.65 < CountDeclClassMethod <= 0.11,0.10089,0.92035,1.36079
+0.9115 < OWN_LINE <= 0.9505 & -0.65 < CountDeclClassMethod <= 0.11,0.12768,0.91608,1.35447
+-37 < Added_lines <= 0,0.37545,0.90131,1.33263
+OWN_COMMIT <= 0.015,0.25804,0.88408,1.30716
+37 < CountLineComment <= 64.5,0.18616,0.88249,1.30481
+0.07 < MAJOR_LINE <= 0.76 & 0.978 < CountDeclClass <= 1.08,0.11429,0.87891,1.2995

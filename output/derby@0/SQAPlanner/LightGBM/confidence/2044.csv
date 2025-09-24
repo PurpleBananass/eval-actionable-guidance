@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MAJOR_LINE <= 0.105 & 3.95 < Added_lines <= 6.8,0.13824,1.0,1.51335
+RatioCommentToCode > 2.005 & 3.95 < Added_lines <= 6.8,0.09363,1.0,1.51335
+33 < CountLineComment <= 69.5 & 3.95 < Added_lines <= 6.8,0.1402,0.9965,1.50806
+5 < PercentLackOfCohesion <= 35.2 & 3.95 < Added_lines <= 6.8,0.09902,0.99505,1.50586
+CountInput_Mean <= 1.2 & 3.95 < Added_lines <= 6.8,0.09363,0.99476,1.50543
+1.2 < CountInput_Mean <= 2.36 & 3.95 < Added_lines <= 6.8,0.10098,0.99029,1.49866
+PercentLackOfCohesion <= 5 & 3.95 < Added_lines <= 6.8,0.09853,0.99005,1.49829
+CountLineComment <= 33 & 3.95 < Added_lines <= 6.8,0.09853,0.99005,1.49829
+-0.205 < AvgLineBlank <= 0.275 & 3.95 < Added_lines <= 6.8,0.18039,0.98641,1.49279
+1.395 < RatioCommentToCode <= 2.005 & 3.95 < Added_lines <= 6.8,0.10735,0.9863,1.49262

@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'1.26 < MaxInheritanceTree <= 2.11 & -0.11 < AvgLineBlank <= 0.67 & 3 < Added_lines <= 25'","b'target = 0'",0.05931,121,0.05637,115,0.95041,0.0239,1.73576,3.87326e-15,0.54755,1117
+"b'000001'","b'1.26 < MaxInheritanceTree <= 2.11 & -0.2 < CountDeclMethodPrivate <= 0.34 & 3 < Added_lines <= 25'","b'target = 0'",0.0652,133,0.06176,126,0.94737,0.02607,1.7302,2.23752e-10,0.54755,1117
+"b'000002'","b'-0.11 < CountDeclMethodDefault <= 0.58 & -0.2 < CountDeclMethodPublic <= 3.6 & 0.96 < CountDeclClass <= 1.006'","b'target = 0'",0.08186,167,0.07402,151,0.90419,0.0292,1.65134,2.37688e-14,0.54755,1117
+"b'000003'","b'-0.11 < CountDeclMethodDefault <= 0.58 & -0.2 < CountDeclMethodPrivate <= 0.34 & 3 < Added_lines <= 25'","b'target = 0'",0.11765,240,0.1049,214,0.89167,0.04048,1.62847,1.33591e-10,0.54755,1117
+"b'000004'","b'CountClassDerived > 1.175 & -0.282 < CountDeclMethodProtected <= 0.018'","b'target = 0'",0.12157,248,0.10588,216,0.87097,0.03932,1.59067,1.32276e-15,0.54755,1117
+"b'000005'","b'-20 < Added_lines <= 3'","b'target = 0'",0.04559,93,0.03971,81,0.87097,0.01474,1.59067,9.52165e-12,0.54755,1117
+"b'000006'","b'CountDeclMethodProtected <= -0.282'","b'target = 0'",0.0652,133,0.0549,112,0.84211,0.0192,1.53795,1.11554e-13,0.54755,1117
+"b'000007'","b'-0.11 < CountDeclMethodDefault <= 0.58 & -0.282 < CountDeclMethodProtected <= 0.018 & 0.96 < CountDeclClass <= 1.006'","b'target = 0'",0.17402,355,0.1451,296,0.8338,0.04981,1.52279,3.61562e-11,0.54755,1117
+"b'000008'","b'CountClassBase <= 0.786 & -0.282 < CountDeclMethodProtected <= 0.018'","b'target = 0'",0.13382,273,0.11078,226,0.82784,0.03751,1.5119,5.56693e-11,0.54755,1117
+"b'000009'","b'RatioCommentToCode > 1.925 & -0.282 < CountDeclMethodProtected <= 0.018'","b'target = 0'",0.14265,291,0.11667,238,0.81787,0.03856,1.49369,1.83134e-10,0.54755,1117

@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 1,0.20938,0.99574,1.23914
+OWN_COMMIT > 1.002,0.10402,0.96567,1.20172
+0.856 < OWN_COMMIT <= 1.002 & -0.01 < CountDeclMethodProtected <= 0.51,0.2442,0.96527,1.20122
+1 < CountClassCoupled <= 4.05,0.20446,0.96288,1.19825
+1.66 < CountOutput_Mean <= 3.3 & -0.01 < CountDeclMethodProtected <= 0.51,0.1567,0.96011,1.19481
+CountOutput_Mean <= 1.66,0.19955,0.94407,1.17484
+MAJOR_LINE <= -0.09,0.09643,0.93981,1.16955
+0.856 < OWN_COMMIT <= 1.002,0.29598,0.93665,1.16561
+-0.35 < CountDeclClassMethod <= 0.49 & -0.01 < CountDeclMethodProtected <= 0.51,0.3058,0.92555,1.15179

@@ -71,7 +71,9 @@ def get_true_positives(
     scaler.fit(train_data.drop("target", axis=1))
     ground_truth_scaled = scaler.transform(ground_truth)
     predictions = model.predict(ground_truth_scaled)
-    true_positives = ground_truth[predictions]
+    # true_positives = ground_truth[predictions]
+    true_positives = ground_truth.iloc[predictions.astype(bool).ravel()]
+
 
     return true_positives
 

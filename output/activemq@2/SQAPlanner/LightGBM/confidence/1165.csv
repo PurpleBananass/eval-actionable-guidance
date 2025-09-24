@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.004 < CountDeclClassMethod <= 0.19 & -0.11 < Del_lines <= 0.4,0.54147,0.9956,1.09704
+CountClassCoupled <= 0.78,0.17874,0.98133,1.08132
+-0.11 < CountDeclInstanceVariable <= 0.85,0.29361,0.9789,1.07864
+0.78 < CountClassCoupled <= 2.34,0.24357,0.97847,1.07817
+CountInput_Min > 1.675,0.19685,0.97821,1.07788
+OWN_LINE > 0.956,0.19828,0.97356,1.07275
+-0.046 < MAJOR_LINE <= 0.09,0.40944,0.96973,1.06854
+RatioCommentToCode > 1.94,0.19924,0.96651,1.06499
+PercentLackOfCohesion <= 2,0.24023,0.96627,1.06472

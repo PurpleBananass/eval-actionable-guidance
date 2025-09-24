@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.895 < AvgCyclomaticModified <= 1.13 & -0.04 < CountDeclClassMethod <= 0.165,0.36847,0.99624,1.05527
+0.895 < AvgCyclomaticModified <= 1.13 & -0.007 < CountDeclMethodPrivate <= 0.093,0.34258,0.99595,1.05497
+RatioCommentToCode > 2.05,0.1988,0.99535,1.05433
+CountDeclMethodPublic <= 0.55,0.19001,0.99513,1.0541
+0.38 < CountClassCoupled <= 1.86,0.21822,0.99364,1.05252
+OWN_LINE > 0.966,0.20342,0.99091,1.04963
+1.125 < RatioCommentToCode <= 2.05,0.19972,0.99074,1.04945
+-0.1 < CountDeclInstanceVariable <= 0.9,0.29681,0.99065,1.04936
+CountClassCoupled <= 0.38,0.19556,0.99054,1.04924
+1.86 < CountClassCoupled <= 3.36,0.18678,0.9901,1.04877

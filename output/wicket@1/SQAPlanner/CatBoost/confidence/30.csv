@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.06 < CountDeclMethodProtected <= 0.15 & -0.132 < CountDeclMethodPrivate <= 0.01,0.29766,1.0,1.0516
+-2.65 < Del_lines <= 1.45,0.43925,0.99787,1.04936
+1.64 < RatioCommentToCode <= 2.665,0.19673,0.99762,1.0491
+CountClassCoupled <= 0.8,0.19019,0.99754,1.04901
+0.39 < CountInput_Mean <= 1.21,0.21589,0.99567,1.04704
+CountLineComment <= 27.4,0.21262,0.9956,1.04697
+RatioCommentToCode > 2.665,0.20234,0.99076,1.04188
+-0.205 < CountDeclInstanceVariable <= 0.21,0.41168,0.98184,1.0325

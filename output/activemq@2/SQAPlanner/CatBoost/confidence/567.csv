@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.85 < AvgCyclomaticModified <= 1.085 & -0.117 < MAJOR_LINE <= 0.017,0.25089,0.99644,1.10991
+-0.117 < MAJOR_LINE <= 0.017 & -0.006 < CountDeclMethodPrivate <= 0.12,0.4317,0.9938,1.10696
+0.44 < CountClassCoupled <= 1.9,0.18929,0.99292,1.10599
+-0.125 < Del_lines <= 0.27,0.81518,0.98083,1.09252
+-0.375 < CountClassDerived <= 0.11 & -0.006 < CountDeclMethodPrivate <= 0.12,0.32857,0.97826,1.08966
+0.375 < CountDeclMethodProtected <= 1.02,0.18304,0.97805,1.08942
+CountClassCoupled <= 0.44,0.19196,0.97674,1.08797
+RatioCommentToCode > 1.875,0.19955,0.97539,1.08646
+1.9 < CountClassCoupled <= 3.46,0.20848,0.9743,1.08525

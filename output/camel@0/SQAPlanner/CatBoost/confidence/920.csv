@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.75 < MAJOR_COMMIT <= 1.245,0.20096,0.99762,1.17466
+0.07 < MAJOR_COMMIT <= 0.75,0.1488,0.99678,1.17368
+-0.06 < CountDeclInstanceVariable <= 0.69 & 0.932 < AvgCyclomaticModified <= 1.029,0.15742,0.9848,1.15957
+CountDeclClassVariable <= -0.24,0.07895,0.97576,1.14892
+0.5 < CountClassCoupled <= 2.16,0.25215,0.95636,1.12608
+0.932 < AvgCyclomaticModified <= 1.029 & -0.32 < CountClassDerived <= 1.26,0.35885,0.95067,1.11938
+CountOutput_Min > 1.995,0.2134,0.94395,1.11146
+-0.05 < CountDeclMethodProtected <= 0.6,0.29378,0.93485,1.10076

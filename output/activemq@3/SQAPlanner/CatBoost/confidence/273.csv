@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_LINE > 0.982,0.20714,0.99353,1.05325
+CountDeclMethodPublic <= 0.05,0.17277,0.98966,1.04915
+CountClassCoupled <= 0.52,0.20625,0.98918,1.04863
+3.05 < CountDeclMethodPublic <= 6.25,0.19688,0.98866,1.04808
+PercentLackOfCohesion <= 1,0.25759,0.98787,1.04724
+0.85 < OWN_LINE <= 0.982,0.1817,0.98771,1.04708
+RatioCommentToCode > 1.84,0.19866,0.98652,1.04581
+-0.04 < OWN_COMMIT <= 0.0055,0.62187,0.98564,1.04488
+0.05 < CountDeclMethodPublic <= 3.05,0.24732,0.98375,1.04288

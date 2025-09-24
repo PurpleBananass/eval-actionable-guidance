@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-3.5 < Added_lines <= 30.5 & -0.79 < AvgLineBlank <= 0.18,0.16741,0.99467,1.16774
+0.85 < CountClassCoupled <= 2.85,0.21161,0.98312,1.15419
+CountClassCoupled <= 0.85,0.1933,0.9746,1.14418
+RatioCommentToCode > 1.55,0.19598,0.97039,1.13924
+CountOutput_Mean <= 1.72,0.2,0.96652,1.1347
+OWN_COMMIT <= 0.22,0.20357,0.96491,1.13281
+1.72 < CountOutput_Mean <= 3,0.20446,0.95852,1.1253
+2.85 < CountClassCoupled <= 5.75,0.19643,0.95682,1.12331
+CountDeclMethodPublic <= 1.5,0.19107,0.95561,1.12189

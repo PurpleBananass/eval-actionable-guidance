@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.023 < OWN_COMMIT <= 0.051,0.34025,1.0,1.0537
+CountLineComment <= 18.7,0.1614,1.0,1.0537
+0.76 < RatioCommentToCode <= 1.24,0.19349,0.99512,1.04856
+5 < PercentLackOfCohesion <= 37,0.18782,0.99246,1.04576
+CountInput_Min > 1.61,0.20387,0.98843,1.04151
+-0.13 < CountDeclMethodPrivate <= 0.054 & -0.017 < CountDeclMethodProtected <= 0.073,0.39453,0.98804,1.0411
+-0.75 < CountDeclInstanceVariable <= 1.5,0.32421,0.97962,1.03223

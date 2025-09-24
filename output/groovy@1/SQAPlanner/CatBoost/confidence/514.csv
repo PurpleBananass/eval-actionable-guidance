@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 0.2,0.18275,1.0,1.05119
+CountInput_Mean <= 0.8,0.17625,1.0,1.05119
+-0.011 < OWN_COMMIT <= 0.063,0.31494,0.99853,1.04965
+CountOutput_Mean <= 1.38,0.20965,0.99779,1.04887
+0.2 < CountClassCoupled <= 1.86,0.23516,0.99606,1.04705
+1.38 < CountOutput_Mean <= 2.07,0.20547,0.99549,1.04645
+0.8 < CountInput_Mean <= 1.98,0.20315,0.99315,1.04399
+RatioCommentToCode > 1.935,0.19852,0.99065,1.04137
+0.85 < AvgCyclomaticModified <= 1.06,0.40213,0.97924,1.02937

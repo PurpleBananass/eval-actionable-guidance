@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountLineComment <= 6.6,0.08073,1.0,1.09411
+CountDeclMethodPrivate <= -0.59,0.06824,1.0,1.09411
+RatioCommentToCode > 2.27 & -0.0515 < MINOR_COMMIT <= 0.012,0.18933,0.99746,1.09133
+-0.036 < OWN_COMMIT <= 0.014,0.51418,0.9972,1.09104
+MINOR_LINE <= 0.97,0.11821,0.99593,1.08966
+6.6 < CountLineComment <= 26.8,0.34551,0.99026,1.08346
+MaxNesting_Mean <= 0.025,0.24556,0.98826,1.08126
+RatioCommentToCode > 2.27,0.19414,0.98515,1.07786
+26.8 < CountLineComment <= 40.8,0.22489,0.98504,1.07775

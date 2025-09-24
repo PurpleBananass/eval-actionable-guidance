@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+PercentLackOfCohesion <= 2 & MAJOR_LINE <= 0.03,0.09216,0.94681,1.30506
+0.9385 < OWN_LINE <= 0.982 & -0.24 < CountDeclMethodProtected <= 0.008,0.18627,0.93421,1.2877
+MAJOR_LINE <= 0.03 & -0.24 < CountDeclMethodProtected <= 0.008,0.1549,0.91772,1.26497
+0 < Added_lines <= 22 & -0.24 < CountDeclMethodProtected <= 0.008,0.20539,0.91169,1.25666
+-2.5 < CountDeclClassVariable <= 0.2 & -0.24 < CountDeclMethodProtected <= 0.008,0.30637,0.9088,1.25267
+-29 < Added_lines <= 0,0.38039,0.90851,1.25226
+0.9385 < OWN_LINE <= 0.982,0.25245,0.87961,1.21244

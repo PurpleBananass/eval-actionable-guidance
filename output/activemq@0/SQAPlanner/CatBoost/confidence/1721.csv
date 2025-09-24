@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT > 1.0232,0.07927,0.99398,1.12023
+0.9994 < OWN_COMMIT <= 1.0232,0.61605,0.99302,1.11916
+1.53 < ADEV <= 2.16,0.23878,0.982,1.10673
+CountClassCoupled <= 0.62 & -0.043 < MaxNesting_Min <= 0.0082,0.17335,0.98072,1.10529
+1.01 < RatioCommentToCode <= 1.7,0.19771,0.98068,1.10524
+0.62 < CountClassCoupled <= 2.08,0.21394,0.97545,1.09935
+-0.14 < AvgLineComment <= 0.42 & 0.965 < CountDeclClass <= 1.205,0.28223,0.97462,1.09841
+0.01 < CountDeclInstanceVariable <= 0.79,0.1213,0.97244,1.09596
+-0.14 < AvgLineComment <= 0.42 & -0.0225 < CountDeclMethodPrivate <= 0.021,0.266,0.96409,1.08655

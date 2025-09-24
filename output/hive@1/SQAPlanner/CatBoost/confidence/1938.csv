@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountLineComment <= 11.4,0.10179,1.0,1.07692
+CountDeclMethodPrivate <= -0.4,0.08348,1.0,1.07692
+11.4 < CountLineComment <= 28.2,0.32857,0.99185,1.06814
+CountDeclInstanceVariable <= -0.32,0.10893,0.9918,1.0681
+-0.145 < MAJOR_LINE <= 0.3,0.35714,0.99,1.06615
+-0.7 < CountClassCoupled <= 2.85,0.32902,0.98779,1.06377
+1.04 < MINOR_LINE <= 1.77,0.13884,0.98714,1.06307
+-0.023 < OWN_COMMIT <= 0.047,0.36116,0.9864,1.06228
+MaxNesting_Mean <= 0.085,0.20938,0.98507,1.06085
+MINOR_LINE <= 1.04,0.25938,0.98451,1.06024

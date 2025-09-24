@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'0.954 < CountOutput_Min <= 1.152 & -0.66 < CountDeclClassMethod <= 0.38 & -0.5 < CountDeclMethodDefault <= 0.19'","b'target = 0'",0.05343,109,0.05343,109,1,0.0231,1.76166,4.86134e-13,0.56765,1158
+"b'000001'","b'1.94 < CountInput_Mean <= 3.18 & -0.28 < CountDeclClassVariable <= 0.39 & 0.74 < CountDeclClass <= 1.018'","b'target = 0'",0.06324,129,0.06275,128,0.99225,0.02685,1.748,1.24708e-14,0.56765,1158
+"b'000002'","b'-0.02 < AvgLineBlank <= 0.37 & -0.5 < CountDeclMethodDefault <= 0.19 & 5.8 < Added_lines <= 17.2'","b'target = 0'",0.10196,208,0.10049,205,0.98558,0.04261,1.73625,4.93974e-23,0.56765,1158
+"b'000003'","b'-0.02 < AvgLineBlank <= 0.37 & -0.66 < CountDeclClassMethod <= 0.38 & -0.5 < CountDeclMethodDefault <= 0.19'","b'target = 0'",0.05833,119,0.05735,117,0.98319,0.02424,1.73205,1.99471e-11,0.56765,1158
+"b'000004'","b'CountClassDerived > 1.285 & 1.4 < CountDeclMethodPublic <= 3.75'","b'target = 0'",0.05196,106,0.05098,104,0.98113,0.02149,1.72842,3.79943e-13,0.56765,1158
+"b'000005'","b'0.08 < MAJOR_LINE <= 0.75 & -0.66 < CountDeclClassMethod <= 0.38'","b'target = 0'",0.07402,151,0.07255,148,0.98013,0.03053,1.72666,3.41348e-26,0.56765,1158
+"b'000006'","b'0.954 < CountOutput_Min <= 1.152 & -0.22 < CountDeclMethodPrivate <= 0.39'","b'target = 0'",0.11225,229,0.1098,224,0.97817,0.04608,1.72319,1.25492e-20,0.56765,1158
+"b'000007'","b'-0.02 < AvgLineBlank <= 0.37 & -0.5 < CountDeclMethodDefault <= 0.19 & 0.74 < CountDeclClass <= 1.018'","b'target = 0'",0.09853,201,0.09608,196,0.97512,0.04015,1.71784,2.00208e-21,0.56765,1158
+"b'000008'","b'CountInput_Mean <= 1.94 & -0.22 < CountDeclMethodPrivate <= 0.39'","b'target = 0'",0.09559,195,0.09265,189,0.96923,0.03839,1.70745,3.54257e-15,0.56765,1158
+"b'000009'","b'MAJOR_LINE <= 0.08'","b'target = 0'",0.23333,476,0.22598,461,0.96849,0.09353,1.70614,6.93826e-112,0.56765,1158

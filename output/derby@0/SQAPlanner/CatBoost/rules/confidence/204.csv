@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.28 < AvgLineBlank <= 0.47 & -0.23 < CountDeclMethodProtected <= 0.105 & -1.4 < Added_lines <= 7.6'","b'target = 0'",0.19608,400,0.1951,398,0.995,0.07822,1.66924,2.66869e-14,0.59608,1216
+"b'000001'","b'3.85 < CountDeclMethodPublic <= 8.1 & -0.21 < CountDeclMethodPrivate <= 0.33 & -0.7 < CountDeclClassVariable <= 0.56'","b'target = 0'",0.08676,177,0.08627,176,0.99435,0.03456,1.66815,4.66576e-17,0.59608,1216
+"b'000002'","b'-0.21 < CountDeclMethodPrivate <= 0.33 & -0.23 < CountDeclMethodProtected <= 0.105 & 0.958 < AvgEssential <= 1.12'","b'target = 0'",0.13971,285,0.13775,281,0.98596,0.05447,1.65409,4.76793e-44,0.59608,1216
+"b'000003'","b'MAJOR_LINE <= 0.07 & -1.4 < Added_lines <= 7.6'","b'target = 0'",0.15147,309,0.14902,304,0.98382,0.05873,1.65049,2.58809e-19,0.59608,1216
+"b'000004'","b'CountLineComment <= 30.5 & -1.4 < Added_lines <= 7.6'","b'target = 0'",0.14951,305,0.14657,299,0.98033,0.05745,1.64463,7.46195e-18,0.59608,1216
+"b'000005'","b'-0.21 < CountDeclMethodPrivate <= 0.33 & -0.186 < CountClassDerived <= 0.034 & 0.958 < AvgEssential <= 1.12'","b'target = 0'",0.09167,187,0.08971,183,0.97861,0.03507,1.64175,5.19185e-27,0.59608,1216
+"b'000006'","b'PercentLackOfCohesion <= 3 & -1.4 < Added_lines <= 7.6'","b'target = 0'",0.15588,318,0.15245,311,0.97799,0.05953,1.6407,6.01937e-18,0.59608,1216
+"b'000007'","b'-0.21 < CountDeclMethodPrivate <= 0.33 & 0.958 < AvgEssential <= 1.12 & -0.04 < CountDeclMethodDefault <= 1.4'","b'target = 0'",0.13431,274,0.13088,267,0.97445,0.05082,1.63477,9.02797e-29,0.59608,1216
+"b'000008'","b'3 < PercentLackOfCohesion <= 31 & -1.4 < Added_lines <= 7.6'","b'target = 0'",0.09412,192,0.09167,187,0.97396,0.03557,1.63394,9.15699e-10,0.59608,1216
+"b'000009'","b'MaxNesting_Mean <= 0.185 & MAJOR_LINE <= 0.07'","b'target = 0'",0.0549,112,0.05343,109,0.97321,0.02071,1.6327,5.64976e-11,0.59608,1216

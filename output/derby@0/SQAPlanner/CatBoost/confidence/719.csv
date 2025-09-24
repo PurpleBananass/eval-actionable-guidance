@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+PercentLackOfCohesion <= 2.5 & 2.2 < Added_lines <= 10.6,0.08529,0.98851,1.92603
+RatioCommentToCode > 2.675 & 2.2 < Added_lines <= 10.6,0.0848,0.98844,1.9259
+CountClassBase <= 0.345 & 2.2 < Added_lines <= 10.6,0.08137,0.98193,1.91321
+MaxNesting_Mean <= 0.1 & 2.2 < Added_lines <= 10.6,0.08922,0.97802,1.9056
+0.5 < CountClassCoupled <= 2.5 & 2.2 < Added_lines <= 10.6,0.08775,0.97207,1.894
+0.35 < CountDeclMethodPublic <= 3.05 & 2.2 < Added_lines <= 10.6,0.10049,0.96585,1.88189
+MaxInheritanceTree <= 0.42 & 2.2 < Added_lines <= 10.6,0.08529,0.96552,1.88124
+CountLineComment <= 17 & RatioCommentToCode > 2.675,0.03971,0.96296,1.87626
+2.2 < Added_lines <= 10.6 & -0.235 < CountDeclMethodPrivate <= 0.145,0.18824,0.94271,1.8368
+MaxNesting_Mean <= 0.1 & 17 < CountLineComment <= 45.5,0.05049,0.94175,1.83492

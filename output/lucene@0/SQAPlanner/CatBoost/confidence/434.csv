@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.01 < OWN_COMMIT <= 0.052,0.3375,0.99074,1.29857
+OWN_COMMIT <= -0.01,0.07857,0.98864,1.29581
+1.705 < MaxInheritanceTree <= 2.11 & 0.755 < CountDeclClass <= 1.035,0.12277,0.95636,1.25351
+CountClassCoupled <= 0.85,0.18527,0.94458,1.23807
+RatioCommentToCode > 1.445,0.19464,0.93578,1.22653
+CountClassDerived > 1.12 & -0.225 < CountDeclClassMethod <= 0.08,0.11161,0.916,1.20061
+1.705 < MaxInheritanceTree <= 2.11 & -0.225 < CountDeclMethodDefault <= 0.07,0.1317,0.90508,1.1863

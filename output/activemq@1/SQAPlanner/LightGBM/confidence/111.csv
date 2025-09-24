@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 1.9,0.1965,1.0,1.06919
+CountDeclMethodPublic <= 0.55,0.17383,0.99728,1.06629
+-0.16 < CountDeclInstanceVariable <= 1,0.3146,0.997,1.06598
+CountDeclInstanceVariable <= -0.16,0.11573,0.99592,1.06483
+0.955 < RatioCommentToCode <= 1.9,0.19839,0.99048,1.05901
+1 < CountInput_Mean <= 2.02,0.19698,0.99041,1.05894
+0.55 < CountDeclMethodPublic <= 3.7,0.23193,0.98982,1.0583
+CountDeclMethodDefault > 0.645,0.17478,0.98919,1.05763
+1.165 < AvgCyclomaticModified <= 1.77,0.16675,0.98867,1.05708
+1 < CountDeclInstanceVariable <= 2.7,0.16013,0.9882,1.05658

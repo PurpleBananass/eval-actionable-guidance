@@ -1,0 +1,7 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxNesting_Mean <= 0.1 & 25 < CountLineComment <= 60.5,0.06652,0.99329,1.49628
+MaxInheritanceTree <= 0.75 & CountClassBase <= 0.836,0.09866,0.9638,1.45186
+MAJOR_LINE <= 0.04 & -0.63 < CountDeclMethodPrivate <= 0.26,0.14152,0.95899,1.44461
+0.95 < CountClassCoupled <= 3.35 & -0.76 < CountDeclClassMethod <= 0.15,0.12232,0.92701,1.39643
+CountLineComment <= 25,0.16696,0.91444,1.3775
+0.95 < CountClassCoupled <= 3.35 & -0.26 < CountDeclMethodProtected <= 0.045,0.17589,0.91117,1.37257

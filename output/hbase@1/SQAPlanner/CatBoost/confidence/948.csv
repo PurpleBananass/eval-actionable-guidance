@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MAJOR_COMMIT <= 0.225,0.21518,0.98963,1.131
+0.225 < MAJOR_COMMIT <= 0.91,0.12411,0.98921,1.13052
+OWN_COMMIT <= 0.158 & -0.81 < CountDeclMethodDefault <= 0.07,0.12321,0.98913,1.13043
+0 < MAJOR_LINE <= 0.63,0.12946,0.96897,1.10739
+0.3 < CountClassCoupled <= 3.8,0.24196,0.96863,1.10701
+MAJOR_LINE <= 0,0.27009,0.9686,1.10697
+3.8 < CountClassCoupled <= 7.35,0.21071,0.9661,1.10412
+CountClassBase <= 0.85,0.14732,0.96061,1.09784
+CountLineComment <= 18.8,0.1567,0.96011,1.09727
+CountClassCoupled <= 0.3,0.1567,0.95157,1.08751

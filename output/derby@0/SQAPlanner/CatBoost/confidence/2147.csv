@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+Added_lines <= -6.5 & CountLineComment <= 25,0.06324,1.0,2.00787
+Added_lines <= -6.5 & MAJOR_LINE <= 0.1,0.05637,1.0,2.00787
+MAJOR_LINE <= 0.1 & -6.5 < Added_lines <= 18,0.0848,0.98844,1.98466
+CountInput_Mean <= 2 & -6.5 < Added_lines <= 18,0.07794,0.98742,1.98262
+-0.08 < AvgLineBlank <= 0.72 & -6.5 < Added_lines <= 18,0.13431,0.97445,1.95658
+MINOR_COMMIT <= -0.1974,0.01471,0.96667,1.94094
+0.1 < MAJOR_LINE <= 0.89 & -6.5 < Added_lines <= 18,0.08333,0.96471,1.93701
+0.9225 < OWN_LINE <= 0.969 & -0.08 < AvgLineBlank <= 0.72,0.06667,0.96324,1.93406
+2 < CountInput_Mean <= 3.96 & -6.5 < Added_lines <= 18,0.09216,0.96277,1.93311
+0.805 < MaxInheritanceTree <= 1.19 & 25 < CountLineComment <= 83,0.06029,0.93496,1.87728

@@ -1,0 +1,5 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxInheritanceTree <= 0.89 & CountDeclInstanceVariable <= 0.04,0.07098,0.98742,1.42514
+MAJOR_LINE <= 0.02 & -0.35 < CountDeclMethodPrivate <= 0.24,0.13839,0.96129,1.38743
+RatioCommentToCode > 2.145 & CountDeclInstanceVariable <= 0.04,0.11473,0.9572,1.38152
+CountLineComment <= 29,0.19911,0.93274,1.34622

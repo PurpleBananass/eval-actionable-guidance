@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_LINE > 0.95,0.19008,0.99512,1.11447
+CountClassCoupled <= 0.68,0.18962,0.99267,1.11172
+CountDeclInstanceVariable <= -0.38,0.11405,0.98374,1.10173
+-0.44 < Del_lines <= 0.66,0.77793,0.97735,1.09458
+PercentLackOfCohesion <= 4,0.22578,0.97331,1.09004
+0.68 < CountClassCoupled <= 2.18,0.22717,0.96735,1.08337
+-0.38 < CountDeclInstanceVariable <= 1.06,0.32221,0.96691,1.08288
+27.6 < CountLineComment <= 39.2,0.17339,0.96524,1.08101
+0.818 < OWN_LINE <= 0.95,0.21372,0.96095,1.07621
+2.33 < MaxInheritanceTree <= 3.25,0.20399,0.95909,1.07412

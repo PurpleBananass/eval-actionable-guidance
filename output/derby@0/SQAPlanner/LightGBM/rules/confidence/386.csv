@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.13 < AvgLineBlank <= 0.47 & -1.6 < Added_lines <= 7.7 & -0.235 < CountDeclClassMethod <= 0.06'","b'target = 0'",0.16961,346,0.16324,333,0.96243,0.06995,1.74987,2.88464e-15,0.55,1122
+"b'000001'","b'CountClassCoupled <= 1.45 & -1.6 < Added_lines <= 7.7'","b'target = 0'",0.10931,223,0.1049,214,0.95964,0.04478,1.7448,6.20019e-10,0.55,1122
+"b'000002'","b'MAJOR_LINE <= 0.065 & -1.6 < Added_lines <= 7.7'","b'target = 0'",0.13284,271,0.12696,259,0.95572,0.0539,1.73767,1.8218e-11,0.55,1122
+"b'000003'","b'PercentLackOfCohesion <= 12.5 & -1.6 < Added_lines <= 7.7'","b'target = 0'",0.10735,219,0.10245,209,0.95434,0.04341,1.73516,6.49463e-09,0.55,1122
+"b'000004'","b'-0.9 < CountDeclMethodPublic <= 4.8 & -0.215 < CountDeclMethodProtected <= 0.075 & -0.175 < CountDeclMethodDefault <= 0.055'","b'target = 0'",0.07892,161,0.07304,149,0.92547,0.02963,1.68267,6.94538e-14,0.55,1122
+"b'000005'","b'0.88 < MaxInheritanceTree <= 1.49 & -0.215 < CountDeclMethodProtected <= 0.075 & 0.995 < AvgEssential <= 1.265'","b'target = 0'",0.09118,186,0.08431,172,0.92473,0.03417,1.68133,2.10665e-12,0.55,1122
+"b'000006'","b'-0.9 < CountDeclMethodPublic <= 4.8 & -0.175 < CountDeclMethodDefault <= 0.055 & -0.235 < CountDeclClassMethod <= 0.06'","b'target = 0'",0.07892,161,0.07255,148,0.91925,0.02914,1.67137,1.49923e-10,0.55,1122
+"b'000007'","b'-0.05 < CountDeclInstanceVariable <= 0.68 & -0.235 < CountDeclClassMethod <= 0.06'","b'target = 0'",0.14069,287,0.12843,262,0.91289,0.05105,1.6598,7.44283e-27,0.55,1122
+"b'000008'","b'-1.6 < Added_lines <= 7.7 & 0.995 < AvgEssential <= 1.265'","b'target = 0'",0.38578,787,0.34902,712,0.9047,0.13684,1.64491,3.01919e-134,0.55,1122
+"b'000009'","b'MaxNesting_Mean <= 0.145 & -0.215 < CountDeclMethodProtected <= 0.075'","b'target = 0'",0.10784,220,0.09706,198,0.9,0.03775,1.63636,1.02213e-18,0.55,1122

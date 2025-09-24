@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_LINE > 0.9825 & MAJOR_LINE <= 0.07,0.06275,1.0,1.49123
+1.45 < CountDeclMethodPublic <= 4 & 0.93 < MaxInheritanceTree <= 1.08,0.07157,0.9863,1.4708
+0.947 < OWN_LINE <= 0.9825 & 0.68 < MAJOR_LINE <= 1.1,0.1,0.97549,1.45468
+CountClassCoupled <= 0.95 & 0.93 < MaxInheritanceTree <= 1.08,0.08971,0.97268,1.45048
+0.95 < CountClassCoupled <= 3.2 & 0.93 < MaxInheritanceTree <= 1.08,0.07794,0.96855,1.44433
+MAJOR_LINE <= 0.07 & 0.93 < MaxInheritanceTree <= 1.08,0.08088,0.96364,1.437
+0.68 < MAJOR_LINE <= 1.1 & 0.93 < MaxInheritanceTree <= 1.08,0.12941,0.96212,1.43474

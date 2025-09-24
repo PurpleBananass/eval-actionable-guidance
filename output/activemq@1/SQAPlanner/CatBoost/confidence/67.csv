@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+-0.26 < CountDeclInstanceVariable <= 0.9,0.32165,1.0,1.06821
+0.62 < CountClassCoupled <= 2.12,0.19971,1.0,1.06821
+CountClassCoupled <= 0.62,0.19683,1.0,1.06821
+CountDeclInstanceVariable <= -0.26,0.11474,1.0,1.06821
+-0.25 < CountDeclClassVariable <= 0.105,0.43783,0.9989,1.06703
+-0.225 < CountDeclMethodProtected <= 0.205,0.39462,0.99878,1.06691
+-0.2 < PercentLackOfCohesion <= 18.4,0.29813,0.99839,1.06648
+0.7 < CountDeclMethodPublic <= 4.1,0.22948,0.99791,1.06597

@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'CountLineComment <= 42.5 & -0.6 < Added_lines <= 12.2'","b'target = 0'",0.08578,175,0.08382,171,0.97714,0.04337,2.07211,5.4793e-20,0.47157,962
+"b'000001'","b'-0.35 < CountDeclInstanceVariable <= 1.85 & -0.29 < CountDeclMethodDefault <= 0.32 & -0.64 < CountDeclClassVariable <= 0.48'","b'target = 0'",0.06471,132,0.06176,126,0.95455,0.03125,2.02419,2.08948e-19,0.47157,962
+"b'000002'","b'PercentLackOfCohesion <= 9.4 & -0.35 < CountDeclInstanceVariable <= 1.85 & -0.29 < CountDeclMethodDefault <= 0.32'","b'target = 0'",0.04118,84,0.03922,80,0.95238,0.0198,2.0196,3.09453e-11,0.47157,962
+"b'000003'","b'-0.48 < AvgLineBlank <= 0.57 & -0.35 < CountDeclInstanceVariable <= 1.85 & -0.64 < CountDeclClassVariable <= 0.48'","b'target = 0'",0.04853,99,0.04608,94,0.94949,0.02319,2.01348,2.1514e-11,0.47157,962
+"b'000004'","b'42.5 < CountLineComment <= 81 & OWN_LINE > 0.9695'","b'target = 0'",0.04216,86,0.03971,81,0.94186,0.01983,1.99729,1.0024e-09,0.47157,962
+"b'000005'","b'0.785 < CountOutput_Min <= 1.155 & -0.35 < CountDeclInstanceVariable <= 1.85 & -0.64 < CountDeclClassVariable <= 0.48'","b'target = 0'",0.05735,117,0.05392,110,0.94017,0.02688,1.99371,5.72298e-13,0.47157,962
+"b'000006'","b'1.5 < CountClassCoupled <= 5.4 & 0.785 < CountOutput_Min <= 1.155'","b'target = 0'",0.04657,95,0.04363,89,0.93684,0.02167,1.98665,2.21368e-19,0.47157,962
+"b'000007'","b'-0.29 < CountDeclMethodDefault <= 0.32 & 0.824 < CountClassBase <= 1.012 & -0.64 < CountDeclClassVariable <= 0.48'","b'target = 0'",0.06176,126,0.05784,118,0.93651,0.02872,1.98594,3.34048e-18,0.47157,962
+"b'000008'","b'MAJOR_LINE <= 0.33 & -0.6 < Added_lines <= 12.2'","b'target = 0'",0.08971,183,0.08382,171,0.93443,0.04152,1.98153,2.89965e-13,0.47157,962
+"b'000009'","b'MAJOR_LINE <= 0.33 & 0.785 < CountOutput_Min <= 1.155'","b'target = 0'",0.05196,106,0.04853,99,0.93396,0.02403,1.98054,1.51953e-21,0.47157,962

@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxInheritanceTree <= 1.2 & PercentLackOfCohesion <= 2.5,0.05588,1.0,1.65989
+MAJOR_LINE <= 0.12 & -2.6 < Added_lines <= 3.2,0.07892,0.98137,1.62896
+PercentLackOfCohesion <= 2.5 & OWN_COMMIT <= 0.01,0.09804,0.98,1.62669
+MAJOR_LINE <= 0.12 & OWN_COMMIT <= 0.01,0.11225,0.97817,1.62364
+MaxNesting_Mean <= 0.355 & -2.6 < Added_lines <= 3.2,0.08922,0.97802,1.62341
+MAJOR_LINE <= 0.12 & -0.175 < CountDeclMethodPrivate <= 0.28,0.08333,0.97059,1.61107
+1.75 < AvgLineComment <= 4.55 & -0.175 < CountDeclMethodPrivate <= 0.28,0.09608,0.96939,1.60907
+OWN_COMMIT <= 0.01 & -0.42 < CountDeclMethodProtected <= 0.27,0.12696,0.96525,1.60221
+OWN_COMMIT <= 0.01 & -0.58 < CountDeclInstanceVariable <= 0.86,0.09216,0.96277,1.59808

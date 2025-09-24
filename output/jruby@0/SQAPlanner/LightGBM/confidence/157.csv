@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+OWN_COMMIT <= 0.015 & -0.095 < MINOR_COMMIT <= 0.027,0.25999,1.0,1.11641
+0.5 < CountClassCoupled <= 3.05,0.19109,0.99279,1.10836
+OWN_COMMIT <= 0.015,0.26642,0.98966,1.10486
+-38 < Added_lines <= 19,0.44051,0.98749,1.10244
+RatioCommentToCode > 2.105,0.19798,0.98608,1.10087
+-0.85 < CountDeclMethodPrivate <= 0.03 & -0.095 < MINOR_COMMIT <= 0.027,0.57143,0.98312,1.09756
+3.05 < CountClassCoupled <= 6.25,0.22003,0.97912,1.0931
+-0.022 < MaxNesting_Mean <= 0.136,0.28525,0.97907,1.09304
+CountClassCoupled <= 0.5,0.19384,0.97867,1.0926

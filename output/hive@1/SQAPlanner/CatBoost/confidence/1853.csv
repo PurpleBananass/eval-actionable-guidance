@@ -1,0 +1,10 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountLineComment <= 18.2,0.17009,0.99738,1.09785
+MAJOR_LINE <= -0.23,0.10134,0.99559,1.09589
+18.2 < CountLineComment <= 30,0.31339,0.99003,1.08976
+-0.4 < CountClassCoupled <= 2.15 & -0.6 < MINOR_COMMIT <= 0,0.3317,0.98923,1.08889
+-0.15 < AvgLineComment <= 0.43 & -0.6 < MINOR_COMMIT <= 0,0.325,0.98901,1.08864
+-0.016 < OWN_COMMIT <= 0.0285,0.40804,0.98578,1.08508
+-0.23 < MAJOR_LINE <= 0.195,0.40982,0.98475,1.08395
+-0.4 < CountClassCoupled <= 2.15,0.33438,0.98264,1.08163
+-0.15 < AvgLineComment <= 0.43,0.32813,0.98231,1.08127

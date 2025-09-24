@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountClassCoupled <= 0.54 & 0.985 < AvgEssential <= 1.028,0.14922,0.98413,1.12176
+0.54 < CountClassCoupled <= 2.32 & -0.004 < CountDeclMethodPrivate <= 0.136,0.16911,0.97759,1.11431
+CountOutput_Min > 2.2,0.16769,0.9774,1.11409
+0.54 < CountClassCoupled <= 2.32 & -0.035 < CountDeclClassMethod <= 0.21,0.18001,0.97632,1.11285
+CountInput_Mean <= 1.16 & 0.985 < AvgEssential <= 1.028,0.16153,0.97361,1.10976
+-0.26 < CountDeclInstanceVariable <= 1.08 & 0.985 < AvgEssential <= 1.028,0.30696,0.97222,1.10819
+CountDeclInstanceVariable <= -0.26,0.12553,0.96604,1.10114
+1.08 < CountDeclInstanceVariable <= 2.6,0.14259,0.95681,1.09062

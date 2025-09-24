@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+MaxInheritanceTree <= 0.53 & 0.81 < MAJOR_LINE <= 1.48,0.04853,0.9798,1.46646
+0.53 < MaxInheritanceTree <= 1.35 & 26 < CountLineComment <= 69.5,0.10245,0.97608,1.46089
+MAJOR_LINE <= 0.16 & -0.59 < CountDeclClassMethod <= 0.24,0.08186,0.97605,1.46085
+0.8895 < OWN_LINE <= 0.944 & -29 < Added_lines <= 2.5,0.0848,0.96532,1.44479
+1.45 < CountDeclMethodPublic <= 4.45 & 0.985 < AvgEssential <= 1.087,0.12255,0.948,1.41887
+0.8895 < OWN_LINE <= 0.944 & -0.78 < CountDeclClassVariable <= 0.32,0.10882,0.93694,1.40231
+1.45 < CountDeclMethodPublic <= 4.45 & 0.8212 < CountDeclClass <= 1.0006 & -0.234 < MINOR_COMMIT <= 0.02,0.1451,0.9223,1.3804
+0.8895 < OWN_LINE <= 0.944 & -0.65 < CountDeclMethodProtected <= 0.19,0.11324,0.92208,1.38007
+0.53 < MaxInheritanceTree <= 1.35 & -7 < CountDeclInstanceVariable <= 10,0.15,0.9183,1.37442
+CountDeclMethodPublic <= 1.45 & -7 < CountDeclInstanceVariable <= 10,0.11912,0.9177,1.37351

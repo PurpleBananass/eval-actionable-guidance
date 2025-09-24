@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.15 < CountDeclMethodDefault <= 0.57 & -0.06 < CountDeclMethodPrivate <= 0.61 & 0.83 < CountClassBase <= 1.006'","b'target = 0'",0.07647,156,0.07598,155,0.99359,0.0271,1.55439,9.92376e-13,0.63922,1304
+"b'000001'","b'-0.15 < CountDeclMethodDefault <= 0.57 & -0.06 < CountDeclMethodPrivate <= 0.61 & -7 < CountDeclInstanceVariable <= 2.2'","b'target = 0'",0.10343,211,0.10245,209,0.99052,0.03634,1.54959,2.34817e-11,0.63922,1304
+"b'000002'","b'-0.15 < CountDeclMethodDefault <= 0.57 & -0.06 < CountDeclMethodPrivate <= 0.61 & -0.245 < CountClassDerived <= 0.1'","b'target = 0'",0.09755,199,0.09657,197,0.98995,0.03421,1.54869,5.25106e-13,0.63922,1304
+"b'000003'","b'-0.15 < CountDeclMethodDefault <= 0.57 & -0.06 < CountDeclMethodPrivate <= 0.61 & -0.249 < MINOR_COMMIT <= 0.037'","b'target = 0'",0.13333,272,0.13186,269,0.98897,0.04663,1.54716,5.25357e-13,0.63922,1304
+"b'000004'","b'-0.15 < CountDeclMethodDefault <= 0.57 & -0.06 < CountDeclMethodPrivate <= 0.61 & 0.964 < AvgEssential <= 1.027'","b'target = 0'",0.10245,209,0.10098,206,0.98565,0.03549,1.54196,2.50363e-10,0.63922,1304
+"b'000005'","b'1.43 < MaxInheritanceTree <= 2.14 & -7 < CountDeclInstanceVariable <= 2.2'","b'target = 0'",0.1098,224,0.10784,220,0.98214,0.03765,1.53648,1.57525e-12,0.63922,1304
+"b'000006'","b'0.9465 < OWN_LINE <= 0.985 & -0.47 < CountDeclMethodProtected <= 0.2'","b'target = 0'",0.13088,267,0.12843,262,0.98127,0.04477,1.53512,1.96133e-15,0.63922,1304
+"b'000007'","b'1.43 < MaxInheritanceTree <= 2.14 & 13.5 < CountLineComment <= 55'","b'target = 0'",0.10294,210,0.10098,206,0.98095,0.03518,1.53462,1.62436e-09,0.63922,1304
+"b'000008'","b'0.9465 < OWN_LINE <= 0.985 & -0.06 < CountDeclMethodPrivate <= 0.61'","b'target = 0'",0.075,153,0.07353,150,0.98039,0.02559,1.53374,1.87365e-11,0.63922,1304
+"b'000009'","b'0.9 < CountClassCoupled <= 3 & 1.43 < MaxInheritanceTree <= 2.14'","b'target = 0'",0.04804,98,0.04706,96,0.97959,0.01635,1.53249,6.4962e-10,0.63922,1304

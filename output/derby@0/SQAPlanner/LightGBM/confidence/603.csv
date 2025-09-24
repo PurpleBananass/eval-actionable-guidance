@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+CountLineComment <= 32.5 & -6.2 < Added_lines <= 10.6,0.10245,0.96651,1.99562
+MINOR_COMMIT <= -0.209,0.01961,0.95,1.96154
+AvgLineComment <= 1.45 & -6.2 < Added_lines <= 10.6,0.08873,0.93923,1.93929
+MAJOR_LINE <= 0.2 & -6.2 < Added_lines <= 10.6,0.11176,0.92982,1.91988
+32.5 < CountLineComment <= 79 & -6.2 < Added_lines <= 10.6,0.125,0.91765,1.89474
+CountInput_Mean <= 1.98 & -6.2 < Added_lines <= 10.6,0.08186,0.91617,1.89168
+OWN_LINE > 0.9835 & MAJOR_LINE <= 0.2,0.05245,0.91589,1.8911

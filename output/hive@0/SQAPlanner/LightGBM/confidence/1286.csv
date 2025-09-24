@@ -1,0 +1,9 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+RatioCommentToCode > 1.8,0.18393,0.97573,1.22719
+0.96 < RatioCommentToCode <= 1.8,0.17366,0.94087,1.18336
+-0.18 < MAJOR_LINE <= 0.185 & 0.95 < CountDeclClass <= 1.61,0.23661,0.93585,1.17704
+0.535 < RatioCommentToCode <= 0.96,0.21696,0.9321,1.17232
+1.02 < MINOR_LINE <= 1.55,0.10938,0.92245,1.16018
+MaxNesting_Mean <= 0.04,0.22813,0.91194,1.14696
+0.185 < MAJOR_LINE <= 0.705,0.12188,0.9011,1.13333
+-0.335 < CountDeclMethodPrivate <= 0.12,0.53929,0.88907,1.11821

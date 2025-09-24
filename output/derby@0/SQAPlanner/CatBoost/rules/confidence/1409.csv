@@ -1,0 +1,11 @@
+"Rule ID","Antecedent","Consequent","Antecedent Coverage %","Antecedent Coverage","Support %","Support","Confidence","Leverage","Lift","p-value","Consequent Coverage %","Consequent Coverage"
+"b'000000'","b'-0.205 < CountDeclMethodDefault <= 0.2 & -0.58 < CountDeclMethodPrivate <= 0.18 & -4.8 < Added_lines <= 10.2'","b'target = 0'",0.11912,243,0.11814,241,0.99177,0.05204,1.78729,1.7282e-13,0.5549,1132
+"b'000001'","b'CountLineComment <= 34 & -4.8 < Added_lines <= 10.2'","b'target = 0'",0.09412,192,0.09314,190,0.98958,0.04091,1.78335,1.64479e-11,0.5549,1132
+"b'000002'","b'MAJOR_LINE <= 0.12 & -4.8 < Added_lines <= 10.2'","b'target = 0'",0.09412,192,0.09265,189,0.98438,0.04042,1.77396,2.16772e-10,0.5549,1132
+"b'000003'","b'-0.11 < AvgLineBlank <= 0.48 & -4.8 < Added_lines <= 10.2'","b'target = 0'",0.14118,288,0.13824,282,0.97917,0.0599,1.76458,1.05133e-14,0.5549,1132
+"b'000004'","b'34 < CountLineComment <= 66.5 & -4.8 < Added_lines <= 10.2'","b'target = 0'",0.1152,235,0.11275,230,0.97872,0.04882,1.76378,1.48536e-11,0.5549,1132
+"b'000005'","b'-0.1 < CountDeclInstanceVariable <= 1 & -0.5 < CountDeclClassVariable <= 0.44 & -0.58 < CountDeclMethodPrivate <= 0.18 & 0.904 < AvgEssential <= 1.012'","b'target = 0'",0.06127,125,0.0598,122,0.976,0.0258,1.75887,1.9846e-12,0.5549,1132
+"b'000006'","b'-0.11 < AvgLineBlank <= 0.48 & -0.4 < CountDeclClassMethod <= 0.2 & -0.23 < CountClassDerived <= 0.11'","b'target = 0'",0.06078,124,0.05931,121,0.97581,0.02558,1.75852,1.03038e-15,0.5549,1132
+"b'000007'","b'0.835 < MAJOR_LINE <= 1.33 & -4.8 < Added_lines <= 10.2'","b'target = 0'",0.12451,254,0.12059,246,0.9685,0.0515,1.74536,2.63644e-10,0.5549,1132
+"b'000008'","b'MAJOR_LINE <= 0.12 & -0.4 < CountDeclClassMethod <= 0.2 & 0.904 < AvgEssential <= 1.012'","b'target = 0'",0.07402,151,0.07157,146,0.96689,0.0305,1.74245,3.7567e-22,0.5549,1132
+"b'000009'","b'-0.11 < AvgLineBlank <= 0.48 & -0.5 < CountDeclClassVariable <= 0.44 & -0.4 < CountDeclClassMethod <= 0.2'","b'target = 0'",0.0848,173,0.08186,167,0.96532,0.0348,1.73962,9.86584e-26,0.5549,1132

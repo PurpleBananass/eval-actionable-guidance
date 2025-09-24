@@ -1,0 +1,8 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.8 < AvgLineComment <= 3.55 & -0.32 < CountDeclMethodDefault <= 0.7 & -0.285 < CountDeclClassMethod <= 0.145,0.04216,0.98837,2.11794
+MAJOR_LINE <= 0.13 & -23.5 < Added_lines <= 12.5,0.09951,0.9803,2.10063
+CountClassCoupled <= 0.35 & -23.5 < Added_lines <= 12.5,0.09608,0.97959,2.09913
+CountLineComment <= 16.5 & -23.5 < Added_lines <= 12.5,0.04706,0.97917,2.09821
+MaxNesting_Mean <= 0.245 & 16.5 < CountLineComment <= 65.5,0.05735,0.96581,2.0696
+MaxNesting_Mean <= 0.245 & -23.5 < Added_lines <= 12.5,0.09167,0.96257,2.06264
+-0.06 < AvgLineBlank <= 0.69 & -23.5 < Added_lines <= 12.5,0.13529,0.94203,2.01863

@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.9 < CountInput_Mean <= 1.96 & 0.745 < CountDeclClass <= 1.015,0.14178,1.0,1.12818
+AvgLineComment > 3.33 & -0.03 < CountDeclMethodDefault <= 0.49,0.11784,0.99602,1.12368
+-0.26 < CountClassDerived <= 0.07 & -0.02 < OWN_COMMIT <= 0.0035,0.32958,0.9943,1.12175
+1.96 < CountClassCoupled <= 4.42,0.21784,0.99138,1.11845
+-0.066 < MAJOR_LINE <= 0.048 & -0.02 < OWN_COMMIT <= 0.0035,0.33521,0.9902,1.11712
+CountClassCoupled <= 0.26,0.18122,0.98446,1.11064
+CountDeclMethodPublic <= -0.65,0.10939,0.97854,1.10397
+-0.066 < MAJOR_LINE <= 0.048 & 0.745 < CountDeclClass <= 1.015,0.32347,0.97678,1.10198
+-0.65 < CountDeclMethodPublic <= 2.35,0.31455,0.97313,1.09787
+1.13 < RatioCommentToCode <= 2.025,0.20282,0.97222,1.09684

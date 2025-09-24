@@ -1,0 +1,11 @@
+Antecedent,Antecedent Coverage %,Confidence,Lift
+0.996 < OWN_COMMIT <= 1.0235 & -0.014 < CountDeclMethodPrivate <= 0.112,0.4173,0.99317,1.15131
+0.4 < CountDeclMethodPublic <= 2.75 & -0.04 < CountDeclMethodDefault <= 0.68,0.16255,0.9883,1.14567
+PercentLackOfCohesion <= 1.5 & -0.04 < CountDeclMethodDefault <= 0.68,0.16207,0.9824,1.13883
+-0.064 < MAJOR_LINE <= 0.036 & -0.04 < CountDeclMethodDefault <= 0.68,0.31369,0.9803,1.1364
+1.37 < ADEV <= 2.02 & -0.014 < CountDeclMethodPrivate <= 0.112,0.25238,0.97552,1.13085
+-0.24 < CountDeclInstanceVariable <= 1 & -0.04 < CountDeclMethodDefault <= 0.68,0.23812,0.97405,1.12915
+ADEV <= 1.37,0.19867,0.97129,1.12595
+0.996 < OWN_COMMIT <= 1.0235,0.53707,0.96903,1.12332
+2.02 < ADEV <= 2.65,0.10932,0.96522,1.11891
+1.8 < CountClassCoupled <= 3.34,0.20675,0.96322,1.11659
