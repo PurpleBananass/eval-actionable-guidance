@@ -33,6 +33,8 @@ print("="*50)
 
 for model in model_types:
     for explainer in explainer_types:
+        if model == "LightGBM" and explainer == "LIME-HPO":
+            continue  # Skip invalid combination
         subprocess.run([
             "python", "flip_exp.py",
             "--model_type", model,
@@ -48,5 +50,5 @@ for model in model_types:
             "--model_type", model,
             "--explainer_type", "SQAPlanner",
             "--search_strategy", strategy,
-            "--get_flip_rate"
+            # "--get_flip_rate"
         ])

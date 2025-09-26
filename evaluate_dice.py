@@ -2,25 +2,27 @@
 # -*- coding: utf-8 -*-
 
 """
-Evaluate DiCE outputs (long-format CSV written by your flip scripts) for RQ1, RQ2, RQ3,
-with support for different methods (random, kdtree, genetic) and organized file structure.
-All outputs are suffixed accordingly to avoid overwrites.
+DiCE-only evaluation that replicates the baseline script's behavior
+(except for file paths/locations). RQ2 is skipped (DiCE has no plans_all.json).
+- RQ1: Flip rates per model/method/project
+- RQ3: Feasibility vs historical deltas (cosine | mahalanobis), supports best|first
+- Implications: total scaled change without plans (diff flipped vs original)
 """
 
 import math
 import json
 from argparse import ArgumentParser
-from pathlib import Path
 from itertools import product
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from tabulate import tabulate
 from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import mahalanobis
+from tabulate import tabulate
 
+from hyparams import PROPOSED_CHANGES, EXPERIMENTS  # PROPOSED_CHANGES unused (kept for parity)
 from data_utils import read_dataset, get_model, get_true_positives
-from hyparams import EXPERIMENTS, PROPOSED_CHANGES
 
 # ----------------------------- config / helpers -----------------------------
 
@@ -38,17 +40,10 @@ DEFAULT_GROUPS = [
     ["wicket@0", "wicket@1"],
 ]
 
-def _flip_path(project: str, model_type: str, method: str) -> Path:
-    """Updated to include method subdirectory"""
-    return Path(EXPERIMENTS) / project / model_type / method / "DiCE_all.csv"
-
-def _safe_read_csv(path: Path) -> pd.DataFrame | None:
-    if not path.exists() or path.stat().st_size == 0:
-        return None
-    try:
-        return pd.read_csv(path)
-    except Exception:
-        return None
+def _dice_flip_path(project: str, model_type: str, method: str, use_hist_seed: bool) -> Path:
+    """DiCE long-format outputs live under a method subdir."""
+    filename = "DiCE_all_100.csv"
+    return Path(EXPERIMENTS) / project / model_type / method / filename
 
 def _feature_cols(df: pd.DataFrame) -> list[str]:
     non_feats = {"test_idx", "candidate_id", "proba0", "proba1", "target"}
@@ -59,76 +54,160 @@ def _features_only(df_or_row, label="target"):
         return df_or_row[df_or_row.index != label]
     return df_or_row.loc[:, df_or_row.columns != label]
 
-def _generate_all_combinations(values_map: dict[str, list]) -> pd.DataFrame:
-    if not values_map:
-        return pd.DataFrame()
-    cols = list(values_map.keys())
-    combos = list(product(*[values_map[c] for c in cols]))
-    return pd.DataFrame(combos, columns=cols)
+def _load_flips_long(flip_path: Path, feature_cols: list[str]) -> pd.DataFrame | None:
+    """
+    Return a long-format DataFrame with potentially multiple rows per test_idx.
+    Keeps only feature columns + 'test_idx' (+ 'candidate_id' if present).
+    """
+    if not flip_path.exists() or flip_path.stat().st_size == 0:
+        return None
+    try:
+        df = pd.read_csv(flip_path)
+    except Exception:
+        return None
+    if df is None or df.empty:
+        return None
 
-def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
-    na = float(np.linalg.norm(a)); nb = float(np.linalg.norm(b))
-    if na == 0 or nb == 0:
-        return 0.0
-    return float(np.dot(a, b) / (na * nb))
+    # Ensure test_idx exists
+    if "test_idx" not in df.columns:
+        try:
+            df = pd.read_csv(flip_path, index_col=0).reset_index().rename(columns={"index": "test_idx"})
+        except Exception:
+            return None
 
-def _cosine_all(df: pd.DataFrame, x: pd.Series) -> list[float]:
-    xv = x.values.astype(float)
-    return [_cosine_similarity(xv, r.values.astype(float)) for _, r in df.iterrows()]
+    keep = ["test_idx"] + ([c for c in ("candidate_id",) if c in df.columns]) + [c for c in feature_cols if c in df.columns]
+    df = df.loc[:, [c for c in keep if c in df.columns]].copy()
 
-def _normalized_mahalanobis_distance(df: pd.DataFrame, x: pd.Series, y: pd.Series) -> float:
+    df["test_idx"] = pd.to_numeric(df["test_idx"], errors="coerce")
+    df = df.dropna(subset=["test_idx"]).copy()
+    df["test_idx"] = df["test_idx"].astype(int)
+
+    if "candidate_id" in df.columns:
+        df = df.sort_values(["test_idx", "candidate_id"], kind="stable")
+    else:
+        df = df.sort_values(["test_idx"], kind="stable")
+
+    return df
+
+def generate_all_combinations(data):
+    combinations = []
+    feature_values = []
+    for feature in data:
+        feature_values.append(data[feature])
+    combinations = list(product(*feature_values))
+    return pd.DataFrame(combinations, columns=data.keys())
+
+def normalized_mahalanobis_distance(df, x, y):
     df = df.loc[:, (df.nunique() > 1)]
     if df.shape[1] < 1:
-        return 0.0
+        return 0
 
-    mu = df.mean()
-    sd = df.std(ddof=0).replace(0, 1.0)
-    zdf = (df - mu) / sd
+    standardized_df = (df - df.mean()) / df.std()
 
-    xz = (x[df.columns] - mu) / sd
-    yz = (y[df.columns] - mu) / sd
+    x_standardized = [
+        (x[feature] - df[feature].mean()) / df[feature].std() for feature in df.columns
+    ]
+    y_standardized = [
+        (y[feature] - df[feature].mean()) / df[feature].std() for feature in df.columns
+    ]
 
-    cov = np.cov(zdf.T)
-    inv_cov = np.linalg.pinv(cov) if cov.ndim > 0 else (np.array([[1 / cov]]) if cov != 0 else np.array([[np.inf]]))
+    cov_matrix = np.cov(standardized_df.T)
+    if cov_matrix.ndim == 0:
+        inv_cov_matrix = (
+            np.array([[1 / cov_matrix]]) if cov_matrix != 0 else np.array([[np.inf]])
+        )
+    else:
+        inv_cov_matrix = np.linalg.pinv(cov_matrix)
 
-    dist = float(mahalanobis(xz.values, yz.values, inv_cov))
+    distance = mahalanobis(x_standardized, y_standardized, inv_cov_matrix)
 
-    zmin = ((df.min() - mu) / sd).values
-    zmax = ((df.max() - mu) / sd).values
-    denom = float(mahalanobis(zmin, zmax, inv_cov))
-    if denom == 0 or not np.isfinite(denom):
-        return 0.0
-    return dist / denom
+    min_vector = np.array([min(df[feature]) for feature in df.columns])
+    max_vector = np.array([max(df[feature]) for feature in df.columns])
 
-def _mahalanobis_all(df: pd.DataFrame, x: pd.Series) -> list[float]:
-    df = df.loc[:, (df.nunique() > 1)]
-    if df.shape[1] < 1:
-        return []
+    min_vector_standardized = [
+        (min_vector[i] - df[feature].mean()) / df[feature].std()
+        for i, feature in enumerate(df.columns)
+    ]
+    max_vector_standardized = [
+        (max_vector[i] - df[feature].mean()) / df[feature].std()
+        for i, feature in enumerate(df.columns)
+    ]
 
-    mu = df.mean()
-    sd = df.std(ddof=0).replace(0, 1.0)
-    zdf = (df - mu) / sd
-    xz = (x[df.columns] - mu) / sd
+    max_vector_distance = mahalanobis(
+        min_vector_standardized, max_vector_standardized, inv_cov_matrix
+    )
 
-    cov = np.cov(zdf.T)
-    inv_cov = np.linalg.pinv(cov) if cov.ndim > 0 else (np.array([[1 / cov]]) if cov != 0 else np.array([[np.inf]]))
+    normalized_distance = (
+        distance / max_vector_distance if max_vector_distance != 0 else 0
+    )
+    return normalized_distance
 
-    zmin = ((df.min() - mu) / sd).values
-    zmax = ((df.max() - mu) / sd).values
-    denom = float(mahalanobis(zmin, zmax, inv_cov))
-    if denom == 0 or not np.isfinite(denom):
-        return []
+def cosine_similarity(vec1, vec2):
+    dot_product = np.dot(vec1, vec2)
+    norm_vec1 = np.linalg.norm(vec1)
+    norm_vec2 = np.linalg.norm(vec2)
+    if norm_vec1 == 0 or norm_vec2 == 0:
+        # baseline behavior prints and returns 0
+        print(vec1, vec2)
+        return 0
+    return dot_product / (norm_vec1 * norm_vec2)
 
-    out = []
+def cosine_all(df, x):
+    distances = []
     for _, row in df.iterrows():
-        yz = ((row[df.columns] - mu) / sd).values
-        d = float(mahalanobis(xz.values, yz, inv_cov))
-        out.append(d / denom)
-    return out
+        distance = cosine_similarity(x, row)
+        distances.append(distance)
+    return distances
 
-# ----------------------------- RQ1: Flip rates -----------------------------
+def mahalanobis_all(df, x):
+    df = df.loc[:, (df.nunique() > 1)]
+    if df.shape[1] < 1:
+        return 0
 
-def _count_flips_for_project_model(project: str, model_type: str, method: str) -> tuple[int, int, int]:
+    standardized_df = (df - df.mean()) / df.std()
+    x_standardized = [
+        (x[feature] - df[feature].mean()) / df[feature].std() for feature in df.columns
+    ]
+
+    cov_matrix = np.cov(standardized_df.T)
+    if cov_matrix.ndim == 0:
+        inv_cov_matrix = (
+            np.array([[1 / cov_matrix]]) if cov_matrix != 0 else np.array([[np.inf]])
+        )
+    else:
+        inv_cov_matrix = np.linalg.pinv(cov_matrix)
+
+    min_vector = np.array([min(df[feature]) for feature in df.columns])
+    max_vector = np.array([max(df[feature]) for feature in df.columns])
+
+    min_vector_standardized = [
+        (min_vector[i] - df[feature].mean()) / df[feature].std()
+        for i, feature in enumerate(df.columns)
+    ]
+    max_vector_standardized = [
+        (max_vector[i] - df[feature].mean()) / df[feature].std()
+        for i, feature in enumerate(df.columns)
+    ]
+
+    max_vector_distance = mahalanobis(
+        min_vector_standardized, max_vector_standardized, inv_cov_matrix
+    )
+
+    distances = []
+    for _, y in df.iterrows():
+        y_standardized = [
+            (y[feature] - df[feature].mean()) / df[feature].std()
+            for feature in df.columns
+        ]
+        distance = mahalanobis(x_standardized, y_standardized, inv_cov_matrix)
+        distances.append(
+            distance / max_vector_distance if max_vector_distance != 0 else 0
+        )
+    return distances
+
+# ----------------------------- RQ1: Flip rates (DiCE) -----------------------------
+
+def _count_flips_for_project_model(project: str, model_type: str, method: str, use_hist_seed: bool = False) -> tuple[int, int, int]:
     """
     Returns (flipped_TPs, unique_testidx_in_file, num_TP).
     A TP is counted as flipped if *any* saved candidate for that test_idx predicts class 0.
@@ -148,12 +227,10 @@ def _count_flips_for_project_model(project: str, model_type: str, method: str) -
     tp_idx_set = set(tp_df.index.astype(int).tolist())
     tp_count = len(tp_idx_set)
 
-    flips = _safe_read_csv(_flip_path(project, model_type, method))
+    flip_path = _dice_flip_path(project, model_type, method, use_hist_seed)
+    flips = _load_flips_long(flip_path, feat_cols)
     if flips is None or flips.empty:
         return 0, 0, tp_count
-
-    if "test_idx" not in flips.columns:
-        flips["test_idx"] = range(len(flips))  # fallback
 
     # consider only genuine TPs
     flips = flips[flips["test_idx"].astype(int).isin(tp_idx_set)]
@@ -161,252 +238,164 @@ def _count_flips_for_project_model(project: str, model_type: str, method: str) -
         return 0, 0, tp_count
 
     fcols = [c for c in _feature_cols(flips) if c in feat_cols]
-
     flipped_set = set()
-    for test_idx, group in flips.groupby("test_idx"):
-        t = int(test_idx)
+
+    for t, group in flips.groupby("test_idx"):
         X = group[fcols].astype(float).values
 
         # reconstruct to full feature order if needed
-        if set(fcols) != set(feat_cols):
-            orig = test.loc[t, feat_cols].astype(float)
-            full_rows = []
-            for r in X:
-                v = orig.copy()
-                v[fcols] = r
-                full_rows.append(v.values)
-            X_use = np.asarray(full_rows)
-        else:
-            X_use = X[:, [feat_cols.index(c) for c in fcols]] if fcols != feat_cols else X
+        orig = test.loc[int(t), feat_cols].astype(float)
+        full_rows = []
+        for r in X:
+            v = orig.copy()
+            v[fcols] = r
+            full_rows.append(v.values)
+        X_use = np.asarray(full_rows)
 
         preds = model.predict(scaler.transform(X_use))
         if np.any(preds == 0):
-            flipped_set.add(t)
+            flipped_set.add(int(t))
 
     flipped = len(flipped_set)
     computed = flips["test_idx"].astype(int).nunique()
     return flipped, computed, tp_count
 
-def rq1_flip_rates(model_types: list[str], projects: list[str], methods: list[str]):
+def rq1_flip_rates(model_types: list[str], projects: list[str], methods: list[str], use_hist_seed: bool = False):
     ds = read_dataset()
     project_list = list(sorted(ds.keys())) if projects is None else projects
     rows = []
-    
+
     for m in model_types:
         for method in methods:
             for p in project_list:
-                flipped, computed, tp_count = _count_flips_for_project_model(p, m, method)
+                flipped, computed, tp_count = _count_flips_for_project_model(p, m, method, use_hist_seed)
                 rate = flipped / tp_count if tp_count > 0 else 0.0
                 rows.append([m, method, p, flipped, computed, tp_count, rate])
 
     df = pd.DataFrame(rows, columns=["Model", "Method", "Project", "Flip", "Computed", "#TP", "Flip%"])
-    
-    # Group by Model and Method for summary
-    model_method_means = (
-        df.groupby(["Model", "Method"])[["Flip", "Computed", "#TP", "Flip%"]]
-        .mean(numeric_only=True)
-        .reset_index()
-    )
 
+    # Save & print
     Path("./evaluations").mkdir(parents=True, exist_ok=True)
-    out = f"./evaluations/flip_rates_DiCE_all_methods.csv"
+    suffix = "_hist_seed" if use_hist_seed else ""
+    out = f"./evaluations/flip_rates_DiCE_all_methods{suffix}.csv"
     df.to_csv(out, index=False)
 
     print("\nPer-project flip rates (DiCE):")
     print(tabulate(df, headers=df.columns, tablefmt="github", showindex=False))
+
+    # Simple per-model-method summary (mean of columns, like your earlier DiCE eval)
+    model_method_means = (
+        df.groupby(["Model", "Method"])[["Flip", "Computed", "#TP", "Flip%"]]
+        .mean(numeric_only=True).reset_index()
+    )
     print("\nPer-model-method means (DiCE):")
     print(tabulate(model_method_means, headers=model_method_means.columns, tablefmt="github", showindex=False))
     print(f"\nSaved to {out}")
 
-# ----------------------------- RQ2: Plan similarity (if plans exist) -----------------------------
+# ----------------------------- RQ3: Feasibility vs historical deltas (DiCE) -----------------------------
 
-def plan_similarity_dice(project: str, model_type: str, method: str) -> dict[int, dict]:
-    """
-    For each TP, among its DiCE candidates compute normalized Mahalanobis score
-    against the plan's combination space (anchored at first value per feature).
-    Keep the **lowest** score per TP.
-    """
-    plan_path = Path(PROPOSED_CHANGES) / project / model_type / "DiCE" / "plans_all.json"
-    flip_path = _flip_path(project, model_type, method)
-    if not plan_path.exists():
-        return {}
-
-    flips = _safe_read_csv(flip_path)
-    if flips is None or flips.empty:
-        return {}
-
-    with open(plan_path, "r") as f:
-        plans = json.load(f)
-
-    ds = read_dataset()
-    train, test = ds[project]
-    feat_cols = list(_features_only(test).columns)
-    model = get_model(project, model_type)
-    scaler = StandardScaler().fit(train[feat_cols].values)
-
-    if "test_idx" not in flips.columns:
-        return {}
-
-    res = {}
-    for test_idx, g in flips.groupby("test_idx"):
-        t = int(test_idx)
-        if str(t) not in plans:
-            continue
-
-        original = test.loc[t, feat_cols]
-        _ = model.predict(scaler.transform([original.values.astype(float)]))  # sanity
-
-        best = None
-        for _, cand in g.iterrows():
-            changed = {}
-            for f, vals in plans[str(t)].items():
-                if f not in feat_cols:
-                    continue
-                if not math.isclose(float(cand[f]), float(original[f]), rel_tol=1e-9, abs_tol=1e-9):
-                    changed[f] = [float(v) for v in vals]
-            if not changed:
-                continue
-
-            flipped_vec = pd.Series({f: float(cand[f]) for f in changed})
-            min_changes = pd.Series([changed[f][0] for f in changed], index=list(changed.keys()), dtype=float)
-            combi = _generate_all_combinations(changed)
-            if combi.shape[1] == 0:
-                continue
-
-            score = _normalized_mahalanobis_distance(combi, flipped_vec, min_changes)
-            if best is None or score < best:
-                best = score
-
-        if best is not None:
-            res[t] = {"score": float(best)}
-
-    return res
-
-def rq2_similarity(model_types: list[str], projects: list[str], methods: list[str]):
-    ds = read_dataset()
-    project_list = list(sorted(ds.keys())) if projects is None else projects
-    Path("./evaluations/similarities").mkdir(parents=True, exist_ok=True)
-
-    for m in model_types:
-        for method in methods:
-            all_scores = pd.DataFrame()
-            for p in project_list:
-                d = plan_similarity_dice(p, m, method)
-                if not d:
-                    continue
-                dfp = pd.DataFrame(d).T
-                dfp["project"] = p
-                dfp["explainer"] = "DiCE"
-                dfp["method"] = method
-                dfp["model"] = MODEL_ABBR.get(m, m)
-                all_scores = pd.concat([all_scores, dfp], axis=0)
-            if not all_scores.empty:
-                out = f"./evaluations/similarities/{MODEL_ABBR.get(m, m)}_DiCE_{method}.csv"
-                all_scores.to_csv(out)
-
-# ----------------------------- RQ3: Feasibility vs historical deltas -----------------------------
-
-def _flip_feasibility_for_group(
+def flip_feasibility(
     project_list,
     model_type,
     method,
     *,
     distance="mahalanobis",
-    min_rows=5,
-    require_all_nonzero=True,
-    selection_strategy="best"  # "best" or "first"
+    selection_strategy="best",
+    use_hist_seed=False
 ):
+    """
+    DiCE feasibility vs historical deltas.
+    - selection_strategy='first': use the first candidate row per test_idx
+    - selection_strategy='best' : evaluate all candidates and keep the one with the lowest *mean* distance
+    """
     ds = read_dataset()
 
-    # Build historical delta pool
-    pool = pd.DataFrame()
-    for p in project_list:
-        train, test = ds[p]
+    # Build historical delta pool once
+    total_deltas = pd.DataFrame()
+    for project in project_list:
+        train, test = ds[project]
         common = train.index.intersection(test.index)
         deltas = test.loc[common, test.columns != "target"] - \
                  train.loc[common, train.columns != "target"]
-        pool = pd.concat([pool, deltas], axis=0)
+        total_deltas = pd.concat([total_deltas, deltas], axis=0)
 
-    results_rows, totals, cannot = [], 0, 0
+    cannot = 0
+    results_all = []
+    total_seen = 0
 
-    for p in project_list:
-        flip_path = _flip_path(p, model_type, method)
-        flips = _safe_read_csv(flip_path)
-        if flips is None or flips.empty or "test_idx" not in flips.columns:
-            continue
-
-        train, test = ds[p]
+    for project in project_list:
+        train, test = ds[project]
         feat_cols = [c for c in test.columns if c != "target"]
 
-        for test_idx, g in flips.groupby("test_idx"):
-            t = int(test_idx)
-            totals += 1
-            if t not in test.index:
-                cannot += 1
-                continue
+        flip_path = _dice_flip_path(project, model_type, method, use_hist_seed)
+        flips_long = _load_flips_long(flip_path, feat_cols)
+        if flips_long is None or flips_long.empty:
+            continue
 
-            original = test.loc[t, feat_cols]
-            best = None
+        for test_idx, g in flips_long.groupby("test_idx", sort=False):
+            total_seen += 1
+            original_row = test.loc[test_idx, feat_cols].astype(float)
 
-            # Filter candidates based on selection strategy
+            # choose rows to evaluate
             if selection_strategy == "first":
-                # Only use candidate_id=0 (first generated CF)
-                if "candidate_id" in g.columns:
-                    g = g[g["candidate_id"] == 0]
-                else:
-                    g = g.iloc[:1]  # fallback: take first row
-        
-            for _, cand in g.iterrows():
-                changed = {
-                    f: float(cand[f]) - float(original[f])
-                    for f in feat_cols if f in g.columns
-                    if not math.isclose(float(cand[f]), float(original[f]), rel_tol=1e-9, abs_tol=1e-9)
-                }
-                if not changed:
+                g_eval = g.iloc[[0]]
+            else:  # 'best' → evaluate all, pick lowest mean distance later
+                g_eval = g
+
+            best = None
+            for _, cand in g_eval.iterrows():
+                cand_row = cand[feat_cols].astype(float)
+
+                # detect actually changed features
+                changed_mask = ~np.isclose(cand_row.values, original_row.values, rtol=1e-7, atol=1e-7)
+                if not np.any(changed_mask):
                     continue
 
-                names = list(changed.keys())
-                x = pd.Series(changed, index=names, dtype=float)
+                changed_features = {feat_cols[i]: (cand_row.values[i] - original_row.values[i])
+                                    for i in np.where(changed_mask)[0]}
+                names = list(changed_features.keys())
+                x = pd.Series(changed_features, index=names, dtype=float)
 
-                sub = pool[names].dropna()
-                sub = sub.loc[(sub != 0).all(axis=1)] if require_all_nonzero else sub.loc[(sub != 0).any(axis=1)]
-
-                if distance == "mahalanobis":
-                    if len(sub) < min_rows:
-                        continue
-                    dists = _mahalanobis_all(sub, x)
-                else:
-                    if len(sub) == 0:
-                        continue
-                    dists = _cosine_all(sub, x)
-
-                if len(dists) == 0:
+                # strict historical pool: same features & all non-zero deltas
+                sub = total_deltas[names].dropna()
+                sub = sub.loc[(sub != 0).all(axis=1)]
+                if sub.empty:
                     continue
 
-                mean_d = float(np.mean(dists))
-                min_d  = float(np.min(dists))
-                max_d  = float(np.max(dists))
+                # distances
+                if distance == "cosine":
+                    dists = cosine_all(sub, x)
+                elif distance == "mahalanobis":
+                    # classical requirement: rows > features
+                    if len(sub) <= len(names):
+                        # print(f"Skipping test_idx {test_idx} in {project} ({len(sub)} rows ≤ {len(names)} features)")
+                        continue
+                    dists = mahalanobis_all(sub, x)
+                else:
+                    raise ValueError("distance must be 'mahalanobis' or 'cosine'")
 
-                # Store candidate data for selection
-                candidate_data = {
-                    "mean": mean_d,   # selection criterion for "best"
-                    "min":  min_d,    # minimum distance
-                    "max":  max_d,    # maximum distance
+                if not dists:
+                    continue
+
+                cand_stats = {
+                    "min": float(np.min(dists)),
+                    "max": float(np.max(dists)),
+                    "mean": float(np.mean(dists)),
                 }
 
-                if selection_strategy == "best":
-                    if (best is None) or (mean_d < best["mean"]):
-                        best = candidate_data
-                else:  # "first" - just take the first (and only) candidate
-                    best = candidate_data
-                    break  # exit after first candidate
+                if selection_strategy == "first":
+                    best = cand_stats
+                    break
+                else:
+                    if (best is None) or (cand_stats["min"] < best["min"]):
+                        best = cand_stats
 
             if best is not None:
-                results_rows.append(best)
+                results_all.append(best)
             else:
                 cannot += 1
 
-    return results_rows, totals, cannot
+    return results_all, total_seen, cannot
 
 def rq3_feasibility(
     model_types: list[str],
@@ -414,30 +403,26 @@ def rq3_feasibility(
     methods: list[str],
     distance: str = "mahalanobis",
     use_default_groups: bool = True,
-    min_rows: int = 5,
-    require_all_nonzero: bool = True,
-    selection_strategy: str = "best"
+    selection_strategy: str = "best",
+    use_hist_seed: bool = False
 ):
-    # Always include strategy in filename for clarity
-    strategy_suffix = f"_{selection_strategy}"
     Path(f"./evaluations/feasibility/{distance}").mkdir(parents=True, exist_ok=True)
-    
+
     ds = read_dataset()
     all_projects = list(sorted(ds.keys()))
     groups = DEFAULT_GROUPS if use_default_groups else [[p] for p in (projects or all_projects)]
-    
+
     summary = []
-    
+
     for m in model_types:
         for method in methods:
             all_rows, totals, cannots = [], 0, 0
             for g in groups:
-                rows, tot, cannot = _flip_feasibility_for_group(
+                rows, tot, cannot = flip_feasibility(
                     g, m, method,
                     distance=distance,
-                    min_rows=min_rows,
-                    require_all_nonzero=require_all_nonzero,
-                    selection_strategy=selection_strategy
+                    selection_strategy=selection_strategy,
+                    use_hist_seed=use_hist_seed
                 )
                 totals += tot
                 cannots += cannot
@@ -445,38 +430,145 @@ def rq3_feasibility(
 
             if all_rows:
                 df = pd.DataFrame(all_rows)
-                # Include method and strategy in filename
-                out = f"./evaluations/feasibility/{distance}/{MODEL_ABBR.get(m, m)}_DiCE_{method}{strategy_suffix}.csv"
+                out = f"./evaluations/feasibility/{distance}/{MODEL_ABBR.get(m, m)}_DiCE_{method}_{selection_strategy}{'_100'}.csv"
                 df.to_csv(out, index=False)
+                summary.append([
+                    m, method, "DiCE",
+                    df["min"].mean(),
+                    df["max"].mean(),
+                    df["mean"].mean()
+                ])
 
-                # Use the same column names as original format for summary
-                mean_min = df["min"].mean()
-                mean_max = df["max"].mean()
-                mean_mean = df["mean"].mean()
-                summary.append([m, method, "DiCE", mean_min, mean_max, mean_mean])
+            print(f"[{m}/{method}/{selection_strategy}{' (hist_seed2)' if use_hist_seed else ''}] totals={totals}, cannot={cannots}")
 
-            print(f"[{m}/{method}/{selection_strategy}] totals={totals}, cannot={cannots}")
-
-    if summary:
+    if True:
         s = pd.DataFrame(summary, columns=["Model", "Method", "Explainer", "Min", "Max", "Mean"])
-        s.to_csv(f"./evaluations/feasibility_{distance}_DiCE_all_methods{strategy_suffix}.csv", index=False)
-        print(f"\nFeasibility summary ({selection_strategy} candidate per TP):")
+        s.to_csv(f"./evaluations/feasibility_{distance}_DiCE_all_methods_{selection_strategy}{'_100'}.csv", index=False)
+        print("\nFeasibility summary:")
         print(tabulate(s, headers=s.columns, tablefmt="github", showindex=False))
-        print(f"Total: {totals}, Cannot: {cannots} ({cannots/totals*100:.2f}%)" if totals > 0 else "No data processed")
-    else:
-        print("No feasibility results to summarize.")
+
+# ----------------------------- Implications (no plans; direct diff) -----------------------------
+
+def _build_historical_deltas():
+    """Pool historical deltas across all projects (test - train on overlapping rows)."""
+    ds = read_dataset()
+    total = pd.DataFrame()
+    for proj, (train, test) in ds.items():
+        common = train.index.intersection(test.index)
+        if len(common) == 0:
+            continue
+        d = test.loc[common, test.columns != "target"] - \
+            train.loc[common, train.columns != "target"]
+        total = pd.concat([total, d], axis=0)
+    return total
+
+
+def implications(project: str,
+                 model_type: str,
+                 method: str,
+                 use_hist_seed: bool = False,
+                 selection_strategy: str = "best"):
+    """
+    Select ONE CF per test_idx by the SAME Mahalanobis rule as RQ3 ('best' = smallest *min* distance),
+    then compute implications as sum |z(flipped)-z(original)| over changed features.
+
+    selection_strategy:
+      - "first": use first candidate per test_idx
+      - "best" : Mahalanobis-best (lowest *min* distance to historical deltas),
+                 matching your RQ3 selection behavior.
+    """
+    flip_path = _dice_flip_path(project, model_type, method, use_hist_seed)
+    if not flip_path.exists():
+        return []
+
+    ds = read_dataset()
+    train, test = ds[project]
+    feat_cols = [c for c in test.columns if c != "target"]
+
+    flips_long = _load_flips_long(flip_path, feat_cols)
+    if flips_long is None or flips_long.empty:
+        return []
+
+    scaler = StandardScaler().fit(train.drop("target", axis=1).values)
+
+    # historical deltas pool (same spirit as RQ3)
+    total_deltas = _build_historical_deltas()
+
+    totals = []
+
+    for test_idx, g in flips_long.groupby("test_idx", sort=False):
+        original_row = test.loc[int(test_idx), feat_cols].astype(float)
+        print("SDFADFA")
+        if selection_strategy == "first":
+            # First candidate only
+            cand = g.iloc[0]
+            flipped_row = cand[feat_cols].astype(float)
+            changed_mask = ~np.isclose(flipped_row.values, original_row.values, rtol=1e-7, atol=1e-7)
+            if not np.any(changed_mask):
+                continue
+            zf = scaler.transform([flipped_row.values])[0]
+            zo = scaler.transform([original_row.values])[0]
+            totals.append(float(np.abs(zf - zo)[changed_mask].sum()))
+            continue
+
+        # selection_strategy == "best": Mahalanobis-best candidate (match RQ3)
+        best_key = None   # smallest *min* Mahalanobis distance
+        best_cand = None
+
+        for _, cand in g.iterrows():
+            flipped_row = cand[feat_cols].astype(float)
+            changed_mask = ~np.isclose(flipped_row.values, original_row.values, rtol=1e-7, atol=1e-7)
+            if not np.any(changed_mask):
+                continue
+
+            names = [feat_cols[i] for i in np.where(changed_mask)[0]]
+            x = pd.Series(
+                (flipped_row.values - original_row.values)[changed_mask],
+                index=names, dtype=float
+            )
+
+            sub = total_deltas[names].dropna()
+            sub = sub.loc[(sub != 0).all(axis=1)]
+            if sub.empty or (len(sub) <= len(names)):
+                continue
+
+            dists = mahalanobis_all(sub, x)
+            if not dists:
+                continue
+
+            key = float(np.min(dists))  # <-- match your RQ3 code's 'min' criterion
+            if (best_key is None) or (key < best_key):
+                best_key = key
+                best_cand = cand
+
+        if best_cand is None:
+            continue
+
+        # compute implications for the selected candidate
+        flipped_row = best_cand[feat_cols].astype(float)
+        changed_mask = ~np.isclose(flipped_row.values, original_row.values, rtol=1e-7, atol=1e-7)
+        if not np.any(changed_mask):
+            continue
+
+        zf = scaler.transform([flipped_row.values])[0]
+        zo = scaler.transform([original_row.values])[0]
+        totals.append(float(np.abs(zf - zo)[changed_mask].sum()))
+
+    return totals
+
 
 # ----------------------------- CLI -----------------------------
 
 def main():
-    ap = ArgumentParser(description="Evaluate DiCE counterfactuals across different methods")
+    ap = ArgumentParser(description="DiCE-only evaluation (RQ1, RQ3, Implications)")
     ap.add_argument("--rq1", action="store_true", help="Flip rates")
-    ap.add_argument("--rq2", action="store_true", help="Plan similarity (needs plans_all.json)")
     ap.add_argument("--rq3", action="store_true", help="Feasibility vs historical deltas")
+    ap.add_argument("--implications", action="store_true", help="Total scaled change (no plans)")
+
     ap.add_argument("--models", type=str, default="RandomForest,SVM,XGBoost,LightGBM,CatBoost",
                     help="Comma-separated model types")
     ap.add_argument("--methods", type=str, default="random",
-                    help="Comma-separated DiCE methods: random,kdtree,genetic (default: random)")
+                    help="Comma-separated DiCE methods: random,kdtree,genetic")
     ap.add_argument("--projects", type=str, default="all",
                     help="Project name(s) or 'all' (space/comma separated allowed)")
     ap.add_argument("--distance", type=str, default="mahalanobis", choices=["mahalanobis", "cosine"],
@@ -484,13 +576,15 @@ def main():
     ap.add_argument("--use_default_groups", action="store_true",
                     help="Use predefined release groups for RQ3")
     ap.add_argument("--selection_strategy", type=str, choices=["best", "first"], default="best",
-                    help="Selection strategy for RQ3: 'best' (lowest mean distance) or 'first' (first candidate)")
+                    help="RQ3 selection: 'best' (lowest mean distance) or 'first' (first candidate)")
+    ap.add_argument("--use_hist_seed", action="store_true",
+                    help="Use historical seeding results (DiCE_all_hist_seed2.csv)")
     args = ap.parse_args()
 
     model_types = [m.strip() for m in args.models.replace(",", " ").split() if m.strip()]
     methods = [m.strip() for m in args.methods.replace(",", " ").split() if m.strip()]
 
-    # Validate methods
+    # validate methods
     valid_methods = ["random", "kdtree", "genetic"]
     invalid_methods = [m for m in methods if m not in valid_methods]
     if invalid_methods:
@@ -505,27 +599,45 @@ def main():
         project_list = [p.strip() for p in args.projects.replace(",", " ").split() if p.strip()]
 
     print(f"Evaluating {len(model_types)} models × {len(methods)} methods × {len(project_list)} projects")
-    print(f"Models: {model_types}")
+    print(f"Models:  {model_types}")
     print(f"Methods: {methods}")
     print(f"Projects: {project_list[:3]}{'...' if len(project_list) > 3 else ''}")
+    if args.use_hist_seed:
+        print("Using historical seeding results")
     print()
 
     if args.rq1:
-        print("=== Running RQ1: Flip Rates ===")
-        rq1_flip_rates(model_types, project_list, methods)
-
-    if args.rq2:
-        print("\n=== Running RQ2: Plan Similarity ===")
-        rq2_similarity(model_types, project_list, methods)
+        print("=== Running RQ1: Flip Rates (DiCE) ===")
+        rq1_flip_rates(model_types, project_list, methods, args.use_hist_seed)
 
     if args.rq3:
-        print(f"\n=== Running RQ3: Feasibility (strategy: {args.selection_strategy}) ===")
+        print(f"\n=== Running RQ3: Feasibility (DiCE) — strategy: {args.selection_strategy} ===")
         rq3_feasibility(
             model_types, project_list, methods,
-            distance=args.distance, 
+            distance=args.distance,
             use_default_groups=args.use_default_groups,
-            selection_strategy=args.selection_strategy
+            selection_strategy=args.selection_strategy,
+            use_hist_seed=args.use_hist_seed
         )
+
+    if args.implications:
+        print("\n=== Running Implications (DiCE, no plans) ===")
+        rows = []
+        for m in model_types:
+            for method in methods:
+                all_scores = []
+                for p in project_list:
+                    # vals = implications(p, m, method, args.use_hist_seed)
+                    vals = implications(p, m, method, args.use_hist_seed, selection_strategy=args.selection_strategy)
+
+                    all_scores.extend(vals)
+                if all_scores:
+                    out = f"./evaluations/abs_changes/{MODEL_ABBR.get(m, m)}_DiCE_{method}_{args.selection_strategy}{'_hist_seed2' if args.use_hist_seed else '_100'}.csv"
+                    pd.DataFrame(all_scores, columns=["score"]).to_csv(out, index=False)
+                    rows.append([MODEL_ABBR.get(m, m), method, np.mean(all_scores)])
+        if rows:
+            tdf = pd.DataFrame(rows, columns=["Model", "Method", "Mean"])
+            print(tabulate(tdf, headers=tdf.columns, tablefmt="github", showindex=False))
 
 if __name__ == "__main__":
     main()

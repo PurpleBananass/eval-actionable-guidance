@@ -332,132 +332,129 @@ def visualize_implications():
 
 
 
+
 def visualize_rq3():
-    """
-    RQ3: show normalized histograms (proportions) of normalized distances.
-    - One subplot per model (RF, XGB, SVM, LGBM, CatB)
-    - Overlaid histogram curves for each explainer (LIME, LIME-HPO, TimeLIME, SQAPlanner, DiCE)
-    - y-axis is proportion (0..1) for each explainer separately (common_norm=False)
-    - x-axis is [0,1] since distances are already normalized
-    """
-    import glob
-
     plt.rcParams["font.family"] = "Times New Roman"
-
-    explainers = ["LIME", "LIME-HPO", "TimeLIME", "SQAPlanner", "DiCE"]
-    models_to_plot = {
-        "RandomForest": "RF",
-        "XGBoost": "XGB",
-        "SVM": "SVM",
-        "LightGBM": "LGBM",
-        "CatBoost": "CatB",
-    }
-    distance_dir = "./evaluations/feasibility/mahalanobis"
-
-    # Load all (min) distances into a single frame
-    total_df = pd.DataFrame(columns=["Model", "Explainer", "min"])
-    for model_full, abbr in models_to_plot.items():
-        # 1) four classic explainers
-        for expl in ["LIME", "LIME-HPO", "TimeLIME", "SQAPlanner"]:
-            path = f"{distance_dir}/{abbr}_{expl}.csv"
+    explainers = ["LIME", "LIME-HPO", "TimeLIME", "SQAPlanner"]
+    
+    # Choose which models to visualize (original 3 only to match your original plot)
+    # models_to_plot = {" RandomForest": "RF", "XGBoost": "XGB", "SVM": "SVM"}
+    models_to_plot = {"RandomForest": "RF", "XGBoost": "XGB", "SVM": "SVM", "LightGBM": "LGBM", "CatBoost": "CatB"}
+    
+    total_df = pd.DataFrame()
+    for model in models_to_plot:
+        for explainer in explainers:
             try:
-                df = pd.read_csv(path)
-                if "min" not in df.columns:
+                df = pd.read_csv(
+                    f"./evaluations/feasibility/mahalanobis/{models_to_plot[model]}_{explainer}.csv"
+                )
+                df["Model"] = model
+                df["Explainer"] = explainer
+                if df is None or df.empty:
+                    print(f"[RQ3] Missing file: {file_path}")
                     continue
-                df = df[["min"]].copy()
-                df["Model"] = model_full
-                df["Explainer"] = expl
+
+                if "min" in df.columns:  # Updated to match original format
+                    y = pd.to_numeric(df["min"], errors="coerce").dropna()
+                    print(len(y))
                 total_df = pd.concat([total_df, df], ignore_index=True)
             except FileNotFoundError:
-                print(f"Warning: missing {path}")
-        # 2) DiCE (aggregate all methods/selection variants)
-        dice_files = glob.glob(f"{distance_dir}/{abbr}_DiCE_*.csv")
-        parts = []
-        for pth in dice_files:
-            try:
-                d = pd.read_csv(pth)
-                if "min" in d.columns:
-                    parts.append(d[["min"]])
-            except Exception as e:
-                print(f"Warning: could not read {pth}: {e}")
-        if parts:
-            dcat = pd.concat(parts, ignore_index=True)
-            dcat["Model"] = model_full
-            dcat["Explainer"] = "DiCE"
-            total_df = pd.concat([total_df, dcat], ignore_index=True)
+                print(f"Warning: feasibility file not found for {models_to_plot[model]}_{explainer}")
+                continue
 
-    # Clean & coerce
-    total_df["min"] = pd.to_numeric(total_df["min"], errors="coerce")
-    total_df.dropna(subset=["min"], inplace=True)
+    fig = plt.figure(figsize=(6, 5.5))  
+    test_df = total_df.loc[:, ["Model", "Explainer", "min"]]
 
-    if total_df.empty:
-        print("[RQ3] No data found to plot.")
-        return
-
-    # Prepare figure: 1 row × 5 models
-    fig, axes = plt.subplots(
-        1, len(models_to_plot),
-        figsize=(12.5, 2.8),
-        sharex=True, sharey=True
+    sns.stripplot(
+        data=test_df,
+        x="Explainer",
+        y="min",
+        hue="Model",
+        palette="crest",
+        dodge=True,
+        jitter=0.2,
+        size=4,
+        alpha=0.25,
+        legend=False,
+    )
+    ax = sns.pointplot(
+        data=test_df,
+        x="Explainer",
+        y="min",
+        hue="Model",
+        palette=["red"] * len(models_to_plot),  # Fixed: use models_to_plot
+        dodge=0.8 - 0.8 / len(models_to_plot),  # Fixed: use models_to_plot
+        errorbar=None,
+        markers="x",
+        markersize=4,
+        linestyles="none",
+        legend=False,
+        zorder=10,
     )
 
-    # Colors per explainer (crest has enough variety)
-    palette = sns.color_palette("crest", len(explainers))
-    color_by_expl = {e: palette[i] for i, e in enumerate(explainers)}
-
-    bin_edges = np.linspace(0.0, 1.0, 21)  # 20 equal-width bins in [0,1]
-
-    for ax, (model_full, abbr) in zip(axes, models_to_plot.items()):
-        sub = total_df[total_df["Model"] == model_full]
-
-        # Overlay each explainer as a "step" histogram, normalized to proportion
-        for e in explainers:
-            s = sub.loc[sub["Explainer"] == e, "min"].dropna()
-            if len(s) == 0:
-                continue
-            sns.histplot(
-                x=s,
-                bins=bin_edges,
-                binrange=(0, 1),
-                stat="proportion",       # normalize counts to [0,1]
-                common_norm=False,       # normalize per-explainer independently
-                element="step",          # outline only for cleaner overlays
-                fill=False,
-                ax=ax,
-                label=e if model_full == list(models_to_plot.keys())[0] else None,  # legend once
-                alpha=0.95,
-                color=color_by_expl[e],
-                linewidth=1.15
-            )
-
-        # Cosmetics
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)  # y in [0,1] because stat='proportion'
-        ax.set_xlabel("")
-        ax.set_ylabel("")
-        ax.set_title(abbr, fontsize=11)
-        ax.grid(False)
-        sns.despine(ax=ax)
-
-    # Axis labels
-    fig.text(0.5, -0.02, "Normalized distance (0–1)", ha="center", va="top", fontsize=12)
-    fig.text(0.02, 0.5, "Proportion (per explainer)", ha="left", va="center", rotation=90, fontsize=12)
-
-    # One legend for all (from the first axis that has labels)
-    handles, labels = axes[0].get_legend_handles_labels()
-    if handles:
-        fig.legend(
-            handles, labels,
-            loc="upper center",
-            frameon=False,
-            ncols=len(explainers),
-            fontsize=10,
-            bbox_to_anchor=(0.5, 1.18)
+    mean_df = test_df.groupby(["Model", "Explainer"]).mean()
+    for i, row in mean_df.iterrows():
+        model_idx = list(models_to_plot.keys()).index(i[0])  # Fixed: use models_to_plot
+        val_str = f'.{row["min"]:.2f}'
+        val_str = "." + val_str[3:]
+        
+        # Text positioning for 3 models (original layout)
+        # if model_idx == 0:
+        #     offset = -0.3
+        # elif model_idx == 1:
+        #     offset = -0.05
+        # else:
+        #     offset = 0.25
+        offsets = [-0.4, -0.2, 0, 0.2, 0.4]  # Evenly spaced for 5 models
+        model_idx = list(models_to_plot.keys()).index(i[0])
+        offset = offsets[model_idx]
+        ax.text(
+            explainers.index(i[1]) + offset,
+            row["min"] + 0.01,
+            val_str,
+            va="bottom",
+            ha="center",
+            fontsize=12,
+            fontfamily="monospace",
+            color="black",
         )
 
-    plt.tight_layout()
-    plt.savefig("./evaluations/rq3_hist.png", dpi=300, bbox_inches="tight")
-    print("[RQ3] Saved histogram to ./evaluations/rq3_hist.png")
+    plt.ylabel("")
+    plt.xlabel("")
+    plt.ylim(0, 1.5)
+
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+
+    colors = sns.color_palette("crest", len(models_to_plot))  # Fixed: use models_to_plot
+    legend_elements = [
+        Patch(
+            facecolor=colors[i], edgecolor="black", label=models_to_plot[list(models_to_plot.keys())[i]]
+        )
+        for i in range(len(models_to_plot))  # Fixed: use models_to_plot
+    ]
+
+    # fig.legend(
+    #     handles=legend_elements,
+    #     title="",
+    #     loc="upper center",
+    #     fontsize=12,
+    #     frameon=False,
+    #     ncols=3,  # Back to 3 columns for 3 models
+    #     bbox_to_anchor=(0.525, 0.94),
+    # )
+    fig.legend(
+        handles=legend_elements,
+        title="",
+        loc="upper center",
+        fontsize=10,  # Smaller font for 5 models
+        frameon=False,
+        ncols=5,  # 5 columns for 5 models
+        bbox_to_anchor=(0.525, 0.94),
+    )
+
+    plt.savefig("./evaluations/rq3.png", dpi=300, bbox_inches="tight")
+
 
 def group_diff(d1, d2):
     d1 = d1.dropna()

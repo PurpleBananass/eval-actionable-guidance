@@ -377,7 +377,8 @@ if __name__ == "__main__":
     if args.rq2:
         table = []
         Path("./evaluations/similarities").mkdir(parents=True, exist_ok=True)
-        for model_type in ["SVM", "RandomForest", "XGBoost", "CatBoost", "LightGBM"]:
+        # for model_type in ["SVM", "RandomForest", "XGBoost", "CatBoost", "LightGBM"]:
+        for model_type in ["LightGBM"]:
             similarities = pd.DataFrame()
             for explainer in explainers:
                 for project in projects:
@@ -411,13 +412,15 @@ if __name__ == "__main__":
         Path(f"./evaluations/feasibility/{args.distance}").mkdir(
             parents=True, exist_ok=True
         )
-        for model_type in ["RandomForest", "SVM", "XGBoost", "CatBoost", "LightGBM"]:
+        # for model_type in ["RandomForest", "SVM", "XGBoost", "CatBoost", "LightGBM"]:
+        for model_type in ["LightGBM"]:
             for explainer in explainer_map:
                 results = []
                 for project_list in project_lists:
                     result, total, cannot = flip_feasibility(
                         project_list, explainer, model_type, args.distance
                     )
+                    print(f"Processing {project_list} {model_type} {explainer}")
                     if len(result) == 0:
                         totals += total
                         cannots += cannot
