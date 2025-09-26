@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 
 """
-Generate DiCE counterfactuals (10 per true-positive instance) using different methods,
-verify flips, and save all successful candidates in long format.
+Generate DiCE counterfactuals (k per true-positive instance) using different methods,
+restricting changes to the per-instance top-K LIME features (default K=5).
+Verifies flips and saves successful candidates in long format.
 
 Output CSV (per project/model/method):
   experiments/{project}/{model_type}/{method}/DiCE_all.csv
 
 Columns:
   - test_idx: original test row index
-  - candidate_id: 0..(k-1) per test_idx
+  - candidate_id: 0..(k-1) per test_idx (after filtering)
   - <all feature columns> (no 'target')
   - proba0, proba1: model probabilities for class 0 and 1
 """
 
-import os
 import warnings
 from argparse import ArgumentParser
 from pathlib import Path
@@ -28,6 +28,7 @@ from sklearn.exceptions import ConvergenceWarning
 
 import dice_ml
 from dice_ml import Dice
+from lime.lime_tabular import LimeTabularExplainer
 
 # your helpers
 from data_utils import read_dataset, get_model, get_true_positives
@@ -44,13 +45,12 @@ class ScaledModel:
     """
     Wraps an sklearn-like classifier so it accepts *unscaled* X and internally
     applies a StandardScaler (fit on train features).
-    Provides predict and predict_proba for Dice/verification.
+    Provides predict and predict_proba for Dice/LIME verification.
     """
 
     def __init__(self, base_model, scaler: StandardScaler):
         self.model = base_model
         self.scaler = scaler
-        # mirror common attrs if present (helps some toolchains)
         if hasattr(base_model, "classes_"):
             self.classes_ = base_model.classes_
 
@@ -62,35 +62,26 @@ class ScaledModel:
         Xs = self.scaler.transform(X)
         if hasattr(self.model, "predict_proba"):
             proba = self.model.predict_proba(Xs)
-            # Ensure 2-column output (P0, P1). If single column, synthesize.
             if proba.ndim == 2 and proba.shape[1] == 2:
                 return proba
-            # If only one column (e.g., prob of positive class), synthesize P0
             if proba.ndim == 2 and proba.shape[1] == 1:
                 p1 = proba[:, 0]
-                p0 = 1.0 - p1
-                return np.stack([p0, p1], axis=1)
+                return np.stack([1.0 - p1, p1], axis=1)
             if proba.ndim == 1:
                 p1 = proba
-                p0 = 1.0 - p1
-                return np.stack([p0, p1], axis=1)
-        # fallback: decision_function -> sigmoid
+                return np.stack([1.0 - p1, p1], axis=1)
         if hasattr(self.model, "decision_function"):
             s = self.model.decision_function(Xs)
             s = np.clip(s, -50, 50)
             p1 = 1.0 / (1.0 + np.exp(-s))
             if p1.ndim == 1:
                 return np.stack([1.0 - p1, p1], axis=1)
-            # multiclass not expected here; reduce to binary-ish
             p1r = p1[:, 0]
             return np.stack([1.0 - p1r, p1r], axis=1)
-        # last resort: predict labels and one-hot-ish probs
         y = self.model.predict(Xs)
         p0 = (y == 0).astype(float)
-        p1 = 1.0 - p0
-        return np.stack([p0, p1], axis=1)
+        return np.stack([p0, 1.0 - p0], axis=1)
 
-    # let dice_ml access other attrs/methods if needed
     def __getattr__(self, name):
         return getattr(self.model, name)
 
@@ -101,25 +92,27 @@ def generate_dice_flips_for_project(project: str,
                                     model_type: str,
                                     method: str = "random",
                                     total_cfs: int = 10,
+                                    topk: int = 5,
                                     verbose: bool = True,
                                     overwrite: bool = True):
     """
     For the given project/model/method:
       - find true positives on test
-      - generate 10 DiCE CFs per TP using specified method
-      - keep only candidates that actually flip to class 0
+      - get LIME top-K features for each TP (using same scaler as the model)
+      - generate DiCE CFs restricted to those K features (features_to_vary)
+      - keep only candidates that:
+           (a) actually flip to class 0 and
+           (b) change at most K features (and at least 1)
       - save to experiments/{project}/{model_type}/{method}/DiCE_all.csv (long format)
     """
-    # Validate method
     valid_methods = ["random", "kdtree", "genetic"]
     if method not in valid_methods:
         tqdm.write(f"[ERROR] Invalid method '{method}'. Must be one of: {valid_methods}")
         return
 
-    # load data/model
     ds = read_dataset()
     if project not in ds:
-        tqdm.write(f"[{project}/{model_type}/{method}] not found. Skipping.")
+        tqdm.write(f"[{project}/{model_type}/{method}] dataset not found. Skipping.")
         return
 
     train, test = ds[project]
@@ -135,59 +128,84 @@ def generate_dice_flips_for_project(project: str,
         tqdm.write(f"[{project}/{model_type}/{method}] no true positives. Skipping.")
         return
 
+    # LIME explainer (use same scaler's transformed train data for consistency)
+    X_train_scaled = scaler.transform(train[feat_cols].values)
+    lime_explainer = LimeTabularExplainer(
+        training_data=X_train_scaled,
+        training_labels=train["target"].values,   # 1D labels
+        feature_names=feat_cols,
+        feature_selection="lasso_path",
+        discretizer="entropy",
+        random_state=SEED,
+    )
+
     # DiCE data/model interfaces - use ALL available data for search space
-    all_data = pd.concat([
-        train[feat_cols + ["target"]], 
-        test[feat_cols + ["target"]]
-    ], axis=0, ignore_index=True)
-    
-    data = dice_ml.Data(
-        dataframe=all_data,  # Use combined dataset instead of just train
+    all_data = pd.concat(
+        [train[feat_cols + ["target"]], test[feat_cols + ["target"]]],
+        axis=0, ignore_index=True
+    )
+    dice_data = dice_ml.Data(
+        dataframe=all_data,
         continuous_features=feat_cols,
         outcome_name="target",
     )
-    dice_model = dice_ml.Model(model=model, backend="sklearn")  # wrap with scaler
+    dice_model = dice_ml.Model(model=model, backend="sklearn")
 
-    # Create explainer with specified method
     try:
-        explainer = Dice(data, dice_model, method=method)
+        dice_explainer = Dice(dice_data, dice_model, method=method)
     except Exception as e:
         tqdm.write(f"[ERROR] Failed to create DiCE explainer with method '{method}': {e}")
         return
 
-    # output path - organized by method
     out_dir = Path(EXPERIMENTS) / project / model_type / method
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_csv = out_dir / "DiCE_all.csv"
+    out_csv = out_dir / "DiCE_all_100.csv"
 
     if overwrite and out_csv.exists():
         out_csv.unlink(missing_ok=True)
 
     results = []
 
-    for idx in tqdm(tp_df.index.astype(int), 
-                   desc=f"{project}/{model_type}/{method}", 
-                   leave=False, 
-                   disable=not verbose):
-        x0 = test.loc[idx, feat_cols]
-        x0_df = x0.to_frame().T  # 1-row DF
+    for idx in tqdm(tp_df.index.astype(int),
+                    desc=f"{project}/{model_type}/{method}",
+                    leave=False,
+                    disable=not verbose):
+        x0 = test.loc[idx, feat_cols].astype(float)
+        x0_df = x0.to_frame().T
 
+        # --- LIME top-K features for *this* instance (consistent label) ---
+        x0_scaled = scaler.transform(x0_df.values)
+        label_pred = int(model.predict(x0_df.values)[0])  # ScaledModel scales internally
+
+        lime_exp = lime_explainer.explain_instance(
+            x0_scaled[0],
+            model.predict_proba,      # callable on *unscaled* X (ScaledModel handles scaling)
+            num_features=topk,
+        )
+        # class key for the map
+        asmap = lime_exp.as_map()
+        label_key = label_pred if label_pred in asmap else list(asmap.keys())[0]
+        top_pairs = asmap[label_key][:topk]               # list[(feat_idx, weight)]
+        top_idx = [i for (i, _) in top_pairs]
+        top_names = [feat_cols[i] for i in top_idx]
+
+        # --- Generate CFs limited to those top-K features ---
         try:
-            # Try with random_seed first (works for 'random' method)
             try:
-                cf = explainer.generate_counterfactuals(
+                cf = dice_explainer.generate_counterfactuals(
                     x0_df,
                     total_CFs=total_cfs,
                     desired_class="opposite",
+                    features_to_vary=top_names,   # <<<<<< enforce same logic as original
                     random_seed=SEED,
                 )
             except TypeError as te:
-                # If random_seed is not supported by this method, try without it
                 if "random_seed" in str(te):
-                    cf = explainer.generate_counterfactuals(
+                    cf = dice_explainer.generate_counterfactuals(
                         x0_df,
                         total_CFs=total_cfs,
                         desired_class="opposite",
+                        features_to_vary=top_names,
                     )
                 else:
                     raise te
@@ -201,32 +219,41 @@ def generate_dice_flips_for_project(project: str,
         except Exception:
             cf_df = None
 
-        if cf_df is None or len(cf_df) == 0:
+        if cf_df is None or cf_df.empty:
             continue
 
-        # keep feature subset, ensure numeric
+        # keep feature subset, backfill any missing with original, ensure numeric order
         if "target" in cf_df.columns:
             cf_df = cf_df.drop(columns=["target"])
         for c in feat_cols:
             if c not in cf_df.columns:
-                # if DiCE didn't include a column (unlikely), backfill with original
                 cf_df[c] = x0[c]
-
         cf_df = cf_df[feat_cols].astype(float)
 
-        # verify flips with the (scaled) model
-        probs = model.predict_proba(cf_df.values)
-        preds = (probs[:, 1] >= 0.5).astype(int)  # class-1 threshold at 0.5
-        # we want flips to class 0 -> predicted 0 => probs[:,0] >= 0.5
+        # (1) Guarantee ≤ topk changed features (tolerance to ignore float noise)
+        orig_vals = x0.values.astype(float)[None, :]     # shape (1, d)
+        cand_vals = cf_df.values                          # shape (n, d)
+        changed_mask_matrix = ~np.isclose(cand_vals, orig_vals, rtol=1e-7, atol=1e-7)
+        changed_counts = changed_mask_matrix.sum(axis=1)
+        allowed_mask = (changed_counts > 0) & (changed_counts <= topk)
+
+        if not np.any(allowed_mask):
+            continue
+
+        cf_df_allowed = cf_df.loc[allowed_mask].copy()
+
+        # (2) Verify flips with the (scaled) model
+        probs = model.predict_proba(cf_df_allowed.values)
+        preds = (probs[:, 1] >= 0.5).astype(int)
         flips_mask = (preds == 0)
 
         if not np.any(flips_mask):
             continue
 
-        kept = cf_df.loc[flips_mask].copy()
+        kept = cf_df_allowed.loc[flips_mask].copy()
         kept["proba0"] = probs[flips_mask, 0]
         kept["proba1"] = probs[flips_mask, 1]
-        kept.insert(0, "candidate_id", np.arange(len(kept)))
+        kept.insert(0, "candidate_id", np.arange(len(kept)))  # renumber after filtering
         kept.insert(0, "test_idx", idx)
         results.append(kept)
 
@@ -237,15 +264,15 @@ def generate_dice_flips_for_project(project: str,
         flipped = out_df["test_idx"].nunique()
         computed = len(out_df)
         tqdm.write(f"[OK] {project}/{model_type}/{method}: wrote {computed} flipped candidates "
-                   f"for {flipped} TP(s) -> {out_csv}")
+                   f"(restricted to top-{topk} LIME features) for {flipped} TP(s) -> {out_csv}")
     else:
-        tqdm.write(f"[{project}/{model_type}/{method}] no flipped candidates found.")
+        tqdm.write(f"[{project}/{model_type}/{method}] no flipped candidates found under top-{topk} LIME feature restriction.")
 
 
 # ----------------------------- CLI -----------------------------
 
 def main():
-    ap = ArgumentParser(description="Generate DiCE counterfactuals with different methods")
+    ap = ArgumentParser(description="Generate DiCE counterfactuals (restricted to per-instance top-K LIME features)")
     ap.add_argument("--project", type=str, default="all",
                     help="Project name or 'all'")
     ap.add_argument("--model_types", type=str, default="RandomForest,SVM,XGBoost,LightGBM,CatBoost",
@@ -254,19 +281,23 @@ def main():
                     help="Comma-separated DiCE methods: random,kdtree,genetic (default: random)")
     ap.add_argument("--total_cfs", type=int, default=100,
                     help="How many CFs to request from DiCE per instance")
+    ap.add_argument("--topk", type=int, default=5,
+                    help="Number of LIME features to allow DiCE to vary (per instance)")
     ap.add_argument("--overwrite", action="store_true",
                     help="Overwrite existing experiment files")
     ap.add_argument("--verbose", action="store_true",
                     help="Enable verbose output")
     args = ap.parse_args()
 
-    # Parse arguments
     projects = read_dataset()
-    project_list = list(sorted(projects.keys())) if args.project == "all" else args.project.split()
+    if args.project == "all":
+        project_list = list(sorted(projects.keys()))
+    else:
+        project_list = [p.strip() for p in args.project.replace(",", " ").split() if p.strip()]
+
     model_types = [m.strip() for m in args.model_types.split(",") if m.strip()]
     methods = [m.strip() for m in args.methods.split(",") if m.strip()]
 
-    # Validate methods
     valid_methods = ["random", "kdtree", "genetic"]
     invalid_methods = [m for m in methods if m not in valid_methods]
     if invalid_methods:
@@ -274,13 +305,13 @@ def main():
         print(f"Valid methods are: {valid_methods}")
         return
 
-    # Generate all combinations
     combos = [(p, m, method) for p in project_list for m in model_types for method in methods]
-    
+
     print(f"Running {len(combos)} combinations:")
     print(f"  Projects: {project_list}")
     print(f"  Models: {model_types}")
     print(f"  Methods: {methods}")
+    print(f"  LIME top-K: {args.topk}")
     print()
 
     for p, m, method in tqdm(combos, desc="Projects/Models/Methods", leave=True, disable=not args.verbose):
@@ -289,6 +320,7 @@ def main():
             model_type=m,
             method=method,
             total_cfs=args.total_cfs,
+            topk=args.topk,
             verbose=args.verbose,
             overwrite=args.overwrite,
         )

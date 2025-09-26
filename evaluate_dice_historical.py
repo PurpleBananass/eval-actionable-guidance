@@ -37,19 +37,62 @@ DEFAULT_GROUPS = [
     ["lucene@0", "lucene@1", "lucene@2"],
     ["wicket@0", "wicket@1"],
 ]
+def _ensure_test_idx_column(df: pd.DataFrame | None) -> pd.DataFrame | None:
+    """Ensure df has a single 'test_idx' column and no index named 'test_idx'."""
+    if df is None or df.empty:
+        return df
+
+    # If already have a 'test_idx' column:
+    if "test_idx" in df.columns:
+        # Drop ambiguity if the index is ALSO named 'test_idx'
+        if df.index.name == "test_idx":
+            df = df.reset_index(drop=True)
+    else:
+        # No 'test_idx' col: move index into a column
+        if df.index.nlevels > 1:
+            # MultiIndex: put all index levels into columns, name the first as test_idx
+            df = df.reset_index()
+            first_level_name = df.columns[0]
+            df = df.rename(columns={first_level_name: "test_idx"})
+        else:
+            # Single index
+            idx_name = df.index.name if df.index.name is not None else "index"
+            df = df.reset_index().rename(columns={idx_name: "test_idx"})
+
+    # Normalize dtype: coerce to numeric, drop NaNs, cast to int
+    df["test_idx"] = pd.to_numeric(df["test_idx"], errors="coerce")
+    df = df.dropna(subset=["test_idx"]).copy()
+    df["test_idx"] = df["test_idx"].astype(int)
+
+    # Also ensure we don’t leave the index named 'test_idx'
+    if df.index.name == "test_idx":
+        df = df.reset_index(drop=True)
+
+    return df
 
 def _flip_path(project: str, model_type: str, method: str, use_hist_seed: bool = False) -> Path:
     """Updated to include method subdirectory and optionally use historical seeding filename"""
-    filename = "DiCE_all_hist_seed.csv" if use_hist_seed else "DiCE_all.csv"
+    filename = "DiCE_all_hist_seed2.csv" if use_hist_seed else "DiCE_all_hist.csv"
     return Path(EXPERIMENTS) / project / model_type / method / filename
 
 def _safe_read_csv(path: Path) -> pd.DataFrame | None:
+    print(f"Reading {path}...")
+    """Legacy-style CSV load: lenient; allow index-based test ids; don't enforce test_idx column."""
     if not path.exists() or path.stat().st_size == 0:
         return None
     try:
-        return pd.read_csv(path)
+        # legacy often stored test indices in the first column as the index
+        try:
+            df = pd.read_csv(path, index_col=0)
+        except Exception:
+            df = pd.read_csv(path)
+
+        # Do NOT enforce/construct a 'test_idx' column here.
+        # Also do NOT synthesize candidate_id.
+        return df
     except Exception:
         return None
+
 
 def _feature_cols(df: pd.DataFrame) -> list[str]:
     non_feats = {"test_idx", "candidate_id", "proba0", "proba1", "target"}
@@ -77,30 +120,51 @@ def _cosine_all(df: pd.DataFrame, x: pd.Series) -> list[float]:
     xv = x.values.astype(float)
     return [_cosine_similarity(xv, r.values.astype(float)) for _, r in df.iterrows()]
 
-def _normalized_mahalanobis_distance(df: pd.DataFrame, x: pd.Series, y: pd.Series) -> float:
+def normalized_mahalanobis_distance(df, x, y):
     df = df.loc[:, (df.nunique() > 1)]
     if df.shape[1] < 1:
-        return 0.0
+        return 0
 
-    mu = df.mean()
-    sd = df.std(ddof=0).replace(0, 1.0)
-    zdf = (df - mu) / sd
+    standardized_df = (df - df.mean()) / df.std()
 
-    xz = (x[df.columns] - mu) / sd
-    yz = (y[df.columns] - mu) / sd
+    x_standardized = [
+        (x[feature] - df[feature].mean()) / df[feature].std() for feature in df.columns
+    ]
+    y_standardized = [
+        (y[feature] - df[feature].mean()) / df[feature].std() for feature in df.columns
+    ]
 
-    cov = np.cov(zdf.T)
-    inv_cov = np.linalg.pinv(cov) if cov.ndim > 0 else (np.array([[1 / cov]]) if cov != 0 else np.array([[np.inf]]))
+    cov_matrix = np.cov(standardized_df.T)
+    if cov_matrix.ndim == 0:
+        inv_cov_matrix = (
+            np.array([[1 / cov_matrix]]) if cov_matrix != 0 else np.array([[np.inf]])
+        )
+    else:
+        inv_cov_matrix = np.linalg.pinv(cov_matrix)
 
-    dist = float(mahalanobis(xz.values, yz.values, inv_cov))
+    distance = mahalanobis(x_standardized, y_standardized, inv_cov_matrix)
 
-    zmin = ((df.min() - mu) / sd).values
-    zmax = ((df.max() - mu) / sd).values
-    denom = float(mahalanobis(zmin, zmax, inv_cov))
-    if denom == 0 or not np.isfinite(denom):
-        return 0.0
-    return dist / denom
+    min_vector = np.array([min(df[feature]) for feature in df.columns])
+    max_vector = np.array([max(df[feature]) for feature in df.columns])
 
+    min_vector_standardized = [
+        (min_vector[i] - df[feature].mean()) / df[feature].std()
+        for i, feature in enumerate(df.columns)
+    ]
+    max_vector_standardized = [
+        (max_vector[i] - df[feature].mean()) / df[feature].std()
+        for i, feature in enumerate(df.columns)
+    ]
+
+    max_vector_distance = mahalanobis(
+        min_vector_standardized, max_vector_standardized, inv_cov_matrix
+    )
+
+    normalized_distance = (
+        distance / max_vector_distance if max_vector_distance != 0 else 0
+    )
+
+    return normalized_distance
 def _mahalanobis_all(df: pd.DataFrame, x: pd.Series) -> list[float]:
     df = df.loc[:, (df.nunique() > 1)]
     if df.shape[1] < 1:
@@ -153,8 +217,12 @@ def _count_flips_for_project_model(project: str, model_type: str, method: str, u
     if flips is None or flips.empty:
         return 0, 0, tp_count
 
-    if "test_idx" not in flips.columns:
-        flips["test_idx"] = range(len(flips))  # fallback
+    # if "test_idx" not in flips.columns:
+    #     flips["test_idx"] = range(len(flips))  # fallback
+    flips = _safe_read_csv(_flip_path(project, model_type, method, use_hist_seed))
+    flips = _ensure_test_idx_column(flips)
+    if flips is None or flips.empty:
+        return 0, 0, tp_count
 
     # consider only genuine TPs
     flips = flips[flips["test_idx"].astype(int).isin(tp_idx_set)]
@@ -309,6 +377,8 @@ def rq2_similarity(model_types: list[str], projects: list[str], methods: list[st
 
 # ----------------------------- RQ3: Feasibility vs historical deltas -----------------------------
 
+# ----------------------------- RQ3: Feasibility vs historical deltas -----------------------------
+
 def _flip_feasibility_for_group(
     project_list,
     model_type,
@@ -316,13 +386,13 @@ def _flip_feasibility_for_group(
     *,
     use_hist_seed=False,
     distance="mahalanobis",
-    min_rows=5,
-    require_all_nonzero=True,
-    selection_strategy="best"  # "best" or "first"
+    min_rows=0,                 # original threshold
+    require_all_nonzero=True,   # original strict behavior
+    selection_strategy="best"
 ):
     ds = read_dataset()
 
-    # Build historical delta pool
+    # Build historical delta pool (unchanged)
     pool = pd.DataFrame()
     for p in project_list:
         train, test = ds[p]
@@ -336,35 +406,44 @@ def _flip_feasibility_for_group(
     for p in project_list:
         flip_path = _flip_path(p, model_type, method, use_hist_seed)
         flips = _safe_read_csv(flip_path)
-        if flips is None or flips.empty or "test_idx" not in flips.columns:
+        if flips is None or flips.empty:
             continue
+
+        # ORIGINAL strictness: drop any row with any NaN
+        flips = flips.dropna()
 
         train, test = ds[p]
         feat_cols = [c for c in test.columns if c != "target"]
 
-        for test_idx, g in flips.groupby("test_idx"):
-            t = int(test_idx)
-            totals += 1
-            if t not in test.index:
-                cannot += 1
+        # Support both schemas:
+        if "test_idx" in flips.columns:
+            group_iter = flips.groupby("test_idx")
+        else:
+            group_iter = ((idx, flips.loc[[idx]]) for idx in flips.index.unique())
+
+        for test_idx, g in group_iter:
+            try:
+                t = int(test_idx)
+            except Exception:
                 continue
+
+            totals += 1
 
             original = test.loc[t, feat_cols]
             best = None
 
-            # Filter candidates based on selection strategy
             if selection_strategy == "first":
-                # Only use candidate_id=0 (first generated CF)
                 if "candidate_id" in g.columns:
                     g = g[g["candidate_id"] == 0]
                 else:
-                    g = g.iloc[:1]  # fallback: take first row
-        
+                    g = g.iloc[:1]
+
             for _, cand in g.iterrows():
+                # ORIGINAL style: direct inequality
                 changed = {
                     f: float(cand[f]) - float(original[f])
                     for f in feat_cols if f in g.columns
-                    if not math.isclose(float(cand[f]), float(original[f]), rel_tol=1e-9, abs_tol=1e-9)
+                    if (float(cand[f]) != float(original[f]))
                 }
                 if not changed:
                     continue
@@ -372,11 +451,12 @@ def _flip_feasibility_for_group(
                 names = list(changed.keys())
                 x = pd.Series(changed, index=names, dtype=float)
 
+                # ORIGINAL strict non-zero filter over history
                 sub = pool[names].dropna()
-                sub = sub.loc[(sub != 0).all(axis=1)] if require_all_nonzero else sub.loc[(sub != 0).any(axis=1)]
+                sub = sub.loc[(sub != 0).all(axis=1)]  # strict: all features non-zero
 
                 if distance == "mahalanobis":
-                    if len(sub) < min_rows:
+                    if len(sub) <= len(names):   # strict: need at least 5 rows
                         continue
                     dists = _mahalanobis_all(sub, x)
                 else:
@@ -384,26 +464,21 @@ def _flip_feasibility_for_group(
                         continue
                     dists = _cosine_all(sub, x)
 
-                if len(dists) == 0:
+                if not dists:
                     continue
 
-                mean_d = float(np.mean(dists))
-                min_d  = float(np.min(dists))
-                max_d  = float(np.max(dists))
-
-                # Store candidate data for selection
                 candidate_data = {
-                    "mean": mean_d,   # selection criterion for "best"
-                    "min":  min_d,    # minimum distance
-                    "max":  max_d,    # maximum distance
+                    "mean": float(np.mean(dists)),
+                    "min":  float(np.min(dists)),
+                    "max":  float(np.max(dists)),
                 }
 
                 if selection_strategy == "best":
-                    if (best is None) or (mean_d < best["mean"]):
+                    if (best is None) or (candidate_data["mean"] < best["mean"]):
                         best = candidate_data
-                else:  # "first" - just take the first (and only) candidate
+                else:
                     best = candidate_data
-                    break  # exit after first candidate
+                    break
 
             if best is not None:
                 results_rows.append(best)
@@ -412,28 +487,26 @@ def _flip_feasibility_for_group(
 
     return results_rows, totals, cannot
 
+
 def rq3_feasibility(
     model_types: list[str],
     projects: list[str],
     methods: list[str],
     distance: str = "mahalanobis",
     use_default_groups: bool = True,
-    min_rows: int = 5,
-    require_all_nonzero: bool = True,
+    min_rows: int = 0,
+    require_all_nonzero: bool = True,    # strict by default
     selection_strategy: str = "best",
     use_hist_seed: bool = False
 ):
-    # Always include strategy in filename for clarity
-    strategy_suffix = f"_{selection_strategy}"
-    hist_suffix = "_hist_seed" if use_hist_seed else ""
     Path(f"./evaluations/feasibility/{distance}").mkdir(parents=True, exist_ok=True)
-    
+
     ds = read_dataset()
     all_projects = list(sorted(ds.keys()))
     groups = DEFAULT_GROUPS if use_default_groups else [[p] for p in (projects or all_projects)]
-    
+
     summary = []
-    
+
     for m in model_types:
         for method in methods:
             all_rows, totals, cannots = [], 0, 0
@@ -443,7 +516,7 @@ def rq3_feasibility(
                     use_hist_seed=use_hist_seed,
                     distance=distance,
                     min_rows=min_rows,
-                    require_all_nonzero=require_all_nonzero,
+                    require_all_nonzero=require_all_nonzero,  # strict path
                     selection_strategy=selection_strategy
                 )
                 totals += tot
@@ -452,36 +525,24 @@ def rq3_feasibility(
 
             if all_rows:
                 df = pd.DataFrame(all_rows)
-                
-                # Filter extreme outliers before saving
-                for col in ['min', 'max', 'mean']:
-                    if col in df.columns:
-                        q99 = df[col].quantile(0.99)
-                        df = df[df[col] <= q99 * 10]  # Remove values > 10x the 99th percentile
-                
-                if len(df) > 0:  # Only save if data remains after filtering
-                    # Include method, strategy, and hist_seed in filename
-                    out = f"./evaluations/feasibility/{distance}/{MODEL_ABBR.get(m, m)}_DiCE_{method}{strategy_suffix}{hist_suffix}.csv"
+                if len(df) > 0:
+                    out = f"./evaluations/feasibility/{distance}/{MODEL_ABBR.get(m, m)}_DiCE_{method}_{selection_strategy}{'_hist_seed2' if use_hist_seed else ''}.csv"
                     df.to_csv(out, index=False)
+                    summary.append([
+                        m, method, "DiCE",
+                        df["min"].mean(),
+                        df["max"].mean(),
+                        df["mean"].mean()
+                    ])
 
-                    # Use the same column names as original format for summary
-                    mean_min = df["min"].mean()
-                    mean_max = df["max"].mean()
-                    mean_mean = df["mean"].mean()
-                    summary.append([m, method, "DiCE", mean_min, mean_max, mean_mean])
-
-            hist_tag = " (hist_seed)" if use_hist_seed else ""
-            print(f"[{m}/{method}/{selection_strategy}{hist_tag}] totals={totals}, cannot={cannots}")
+            print(f"[{m}/{method}/{selection_strategy}{' (hist_seed)' if use_hist_seed else ''}] totals={totals}, cannot={cannots}")
 
     if summary:
         s = pd.DataFrame(summary, columns=["Model", "Method", "Explainer", "Min", "Max", "Mean"])
-        s.to_csv(f"./evaluations/feasibility_{distance}_DiCE_all_methods{strategy_suffix}{hist_suffix}.csv", index=False)
-        hist_tag = " (hist_seed)" if use_hist_seed else ""
-        print(f"\nFeasibility summary ({selection_strategy} candidate per TP{hist_tag}):")
+        s.to_csv(f"./evaluations/feasibility_{distance}_DiCE_all_methods_{selection_strategy}{'_hist_seed2' if use_hist_seed else ''}.csv", index=False)
+        print("\nFeasibility summary:")
         print(tabulate(s, headers=s.columns, tablefmt="github", showindex=False))
-        print(f"Total: {totals}, Cannot: {cannots} ({cannots/totals*100:.2f}%)" if totals > 0 else "No data processed")
-    else:
-        print("No feasibility results to summarize.")
+
 
 # ----------------------------- CLI -----------------------------
 

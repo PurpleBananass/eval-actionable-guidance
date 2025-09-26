@@ -194,7 +194,12 @@ def mahalanobis_all(df, x):
     return distances
 
 
-def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"):
+from collections import Counter
+
+from collections import Counter
+import sys
+
+def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis", progress: bool = True):
     # all release deltas
     total_deltas = pd.DataFrame()
     for project in project_list:
@@ -206,7 +211,14 @@ def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"
         )
         total_deltas = pd.concat([total_deltas, deltas], axis=0)
 
+    def _format_counts(counter: Counter) -> str:
+        if not counter:
+            return "-"
+        keys = sorted(counter.keys())
+        return " | ".join(f"{k}:{counter[k]}" for k in keys)
+
     cannot = 0
+    change_size_counts = Counter()  # histogram of #features actually changed (per instance)
 
     for project in project_list:
         train, test = read_dataset()[project]
@@ -216,6 +228,7 @@ def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"
             / "plans_all.json"
         )
         flip_path = Path(EXPERIMENTS) / f"{project}/{model_type}/{explainer}_all.csv"
+
         with open(plan_path, "r") as f:
             plans = json.load(f)
 
@@ -226,12 +239,16 @@ def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"
         flipped = flipped.dropna()
 
         results = []
+        # if progress:
+        #     sys.stdout.write(f"\n[{project}] counts: -")
+        #     sys.stdout.flush()
+
         for test_idx in flipped.index:
             if str(test_idx) in plans:
                 original_row = test.loc[test_idx, test.columns != "target"]
-
                 flipped_row = flipped.loc[test_idx, :]
 
+                # compute actual changes (non-zero deltas)
                 changed_features = {}
                 for feature in plans[str(test_idx)]:
                     if flipped_row[feature] != original_row[feature]:
@@ -239,33 +256,62 @@ def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"
                             flipped_row[feature] - original_row[feature]
                         )
 
+                # tally feature-change count (includes 0 if nothing changed)
+                num_changed = len(changed_features)
+                change_size_counts[num_changed] += 1
+
+                # live progress line (overwrites in place)
+                # if progress:
+                #     sys.stdout.write(
+                #         "\r"
+                #         + f"[{project}] counts: {_format_counts(change_size_counts)}"
+                #     )
+                #     sys.stdout.flush()
+
+                # if nothing truly changed, skip distance calc
+                if num_changed == 0:
+                    cannot += 1
+                    continue
+
                 changed_flipped = pd.Series(changed_features)
-
                 changed_feature_names = list(changed_features.keys())
-                # print(changed_feature_names)
-                nonzero_deltas = total_deltas[changed_feature_names].dropna()
-                # remove all zeo valutes
-                nonzero_deltas = nonzero_deltas.loc[(nonzero_deltas != 0).all(axis=1)]
 
-                # print(nonzero_deltas)
+                # restrict historical deltas to the same changed features
+                nonzero_deltas = total_deltas[changed_feature_names].dropna()
+                # keep rows that changed all of these features (non-zero across all)
+                nonzero_deltas = nonzero_deltas.loc[(nonzero_deltas != 0).all(axis=1)]
+                
                 if distance == "cosine":
                     if len(nonzero_deltas) == 0:
                         cannot += 1
                         continue
                     distances = cosine_all(nonzero_deltas, changed_flipped)
+
                 elif distance == "mahalanobis":
-                    if len(nonzero_deltas) < 5:
+                    # print("\n Nonzero Delta Count: " + str(len(nonzero_deltas)) + " - Change Feature Count: " + str(len(changed_feature_names)))
+                    if len(nonzero_deltas) <= len(changed_feature_names):
+                        # print("\n Nonzero Delta Count: " + str(len(nonzero_deltas)) + " - Change Feature Count: " + str(len(changed_feature_names)))
+
                         cannot += 1
                         continue
                     distances = mahalanobis_all(nonzero_deltas, changed_flipped)
+
                 results.append(
                     {
-                        "min": np.min(distances),
-                        "max": np.max(distances),
-                        "mean": np.mean(distances),
+                        "min": float(np.min(distances)),
+                        "max": float(np.max(distances)),
+                        "mean": float(np.mean(distances)),
                     }
                 )
-    return results, len(flipped), cannot
+
+        # finish the line for this project
+        # if progress:
+        #     sys.stdout.write("\n")
+        #     sys.stdout.flush()
+
+    # return the histogram as a plain dict for easy JSON/CSV handling
+    return results, len(flipped), cannot, dict(change_size_counts)
+
 
 
 def implications(project, explainer, model_type):
@@ -357,8 +403,10 @@ if __name__ == "__main__":
                     print(result)
                     table.append([model_map[model_type], "SQAPlanner", result["Rate"]])
                 else:
+                    
                     result = get_flip_rates(explainer, None, model_type, verbose=False)
-                    table.append([model_map[model_type], explainer, result["Rate"]])
+                    # print(str(result['TP']) + "Total")
+                    table.append([model_map[model_type], explainer, result["Rate"],result['TP']])
 
             # Add mean per model
             table.append(
@@ -370,7 +418,7 @@ if __name__ == "__main__":
                     ),
                 ]
             )
-        print(tabulate(table, headers=["Model", "Explainer", "Flip Rate"]))
+        print(tabulate(table, headers=["Model", "Explainer", "Flip Rate","TP"]))
 
         # table to csv
         table = pd.DataFrame(table, columns=["Model", "Explainer", "Flip Rate"])
@@ -417,7 +465,7 @@ if __name__ == "__main__":
             for explainer in explainer_map:
                 results = []
                 for project_list in project_lists:
-                    result, total, cannot = flip_feasibility(
+                    result, total, cannot, change_size_counts = flip_feasibility(
                         project_list, explainer, model_type, args.distance
                     )
                     if len(result) == 0:
@@ -433,7 +481,7 @@ if __name__ == "__main__":
                 # print(df.head())
                 # print(df)
                 # save to csv
-
+                print(change_size_counts)
                 df.to_csv(
                     f"./evaluations/feasibility/{args.distance}/{model_map[model_type]}_{explainer_map[explainer]}.csv",
                     index=False,

@@ -258,7 +258,7 @@ def visualize_rq3_dice_comparison(methods: list[str] = None, strategies: list[st
             found = False
             for model in model_order:
                 abbr = MODEL_ABBR[model]
-                file_path = f"./evaluations/feasibility/mahalanobis/{abbr}_DiCE_{method}_{strategy}.csv"
+                file_path = f"./evaluations/feasibility/mahalanobis/{abbr}_DiCE_{method}_{strategy}_100"
                 if os.path.exists(file_path):
                     found = True
                     break
@@ -290,16 +290,16 @@ def visualize_rq3_dice_comparison(methods: list[str] = None, strategies: list[st
         
         for model in model_order:
             abbr = MODEL_ABBR[model]
-            file_path = f"./evaluations/feasibility/mahalanobis/{abbr}_DiCE_{method}_{strategy}.csv"
+            file_path = f"./evaluations/feasibility/mahalanobis/{abbr}_DiCE_{method}_{strategy}_100.csv"
             df = _load_first(file_path)
             
             if df is None or df.empty:
                 continue
 
-            if "best_min" in df.columns:
-                y = pd.to_numeric(df["best_min"], errors="coerce").dropna()
+            if "min" in df.columns:
+                y = pd.to_numeric(df["min"], errors="coerce").dropna()
                 # Filter outliers
-                y = y[y <= 5.0]
+                y = y[y <= 1.0]
             else:
                 continue
 
@@ -340,7 +340,7 @@ def visualize_rq3_dice_comparison(methods: list[str] = None, strategies: list[st
     
     plt.tight_layout()
     combo_str = "_".join([f"{m}_{s}" for m, s in available_combos])
-    out = f"./evaluations/rq3_dice_comparison_{combo_str[:50]}.png"  # Truncate long names
+    out = f"./evaluations/rq3_dice_comparison_{combo_str[:50]}_100.png"  # Truncate long names
     plt.savefig(out, dpi=300, bbox_inches="tight")
     print(f"[RQ3] Saved comparison: {out}")
 
@@ -360,7 +360,7 @@ def visualize_rq3_dice(method: str = "random", strategy: str = "best"):
 
     for model in model_order:
         abbr = MODEL_ABBR[model]
-        file_path = f"./evaluations/feasibility/mahalanobis/{abbr}_DiCE_{method}_{strategy}_hist_seed.csv"
+        file_path = f"./evaluations/feasibility/mahalanobis/{abbr}_DiCE_{method}_{strategy}_100.csv"
         df = _load_first(file_path)
 
         if df is None or df.empty:
@@ -372,7 +372,7 @@ def visualize_rq3_dice(method: str = "random", strategy: str = "best"):
             
             # Filter outliers
             original_count = len(y)
-            y = y[y <= 5.0]  
+            # y = y[y <= 100.0]  
             filtered_count = len(y)
             if original_count != filtered_count:
                 print(f"[RQ3] {abbr}/{method}/{strategy}: Filtered {original_count - filtered_count} outliers")
@@ -424,7 +424,7 @@ def visualize_rq3_dice(method: str = "random", strategy: str = "best"):
     sns.despine(ax=ax)
     plt.tight_layout()
     
-    out = f"./evaluations/rq3_dice_{method}_{strategy}.png"
+    out = f"./evaluations/rq3_dice_{method}_{strategy}_100.png"
     plt.savefig(out, dpi=300, bbox_inches="tight")
     print(f"[RQ3] Saved {out}")
 
@@ -438,7 +438,7 @@ def main():
     ap.add_argument("--rq3", action="store_true", help="Draw DiCE RQ3 figure")
     ap.add_argument("--methods", type=str, default="random",
                     help="Comma-separated methods: random,kdtree,genetic")
-    ap.add_argument("--strategies", type=str, default="best",
+    ap.add_argument("--strategies", type=str, default="first",
                     help="Comma-separated strategies: best,first (RQ3 only)")
     ap.add_argument("--compare", action="store_true", 
                     help="Generate comparison plots across methods/strategies")

@@ -1,0 +1,13 @@
+Model,Explainer,File,rows_raw,min_non_na,min_numeric,kept_cutoff,status
+RandomForest,LIME,evaluations/feasibility/mahalanobis/RF_LIME.csv,537,537,537,536,OK
+RandomForest,LIME-HPO,evaluations/feasibility/mahalanobis/RF_LIME-HPO.csv,536,536,536,534,OK
+RandomForest,TimeLIME,evaluations/feasibility/mahalanobis/RF_TimeLIME.csv,427,427,427,427,OK
+RandomForest,SQAPlanner,evaluations/feasibility/mahalanobis/RF_SQAPlanner.csv,205,205,205,205,OK
+XGBoost,LIME,evaluations/feasibility/mahalanobis/XGB_LIME.csv,633,633,633,630,OK
+XGBoost,LIME-HPO,evaluations/feasibility/mahalanobis/XGB_LIME-HPO.csv,614,614,614,610,OK
+XGBoost,TimeLIME,evaluations/feasibility/mahalanobis/XGB_TimeLIME.csv,475,475,475,475,OK
+XGBoost,SQAPlanner,evaluations/feasibility/mahalanobis/XGB_SQAPlanner.csv,249,249,249,249,OK
+SVM,LIME,evaluations/feasibility/mahalanobis/SVM_LIME.csv,332,332,332,330,OK
+SVM,LIME-HPO,evaluations/feasibility/mahalanobis/SVM_LIME-HPO.csv,341,341,341,338,OK
+SVM,TimeLIME,evaluations/feasibility/mahalanobis/SVM_TimeLIME.csv,257,257,257,256,OK
+SVM,SQAPlanner,evaluations/feasibility/mahalanobis/SVM_SQAPlanner.csv,72,72,72,72,OK
