@@ -33,7 +33,8 @@ print("="*50)
 
 for model in model_types:
     for explainer in explainer_types:
-        if model == "LightGBM" and explainer == "LIME-HPO":
+        print(f"\nRunning flip simulation for {model} with {explainer}")
+        if model == "LightGBM" and explainer == "LIME":
             continue  # Skip invalid combination
         subprocess.run([
             "python", "flip_exp.py",
@@ -45,6 +46,7 @@ for model in model_types:
         ])
     
     for strategy in sqa_strategies:
+        print(f"\nRunning flip simulation for {model} with SQAPlanner ({strategy})")
         subprocess.run([
             "python", "flip_exp.py",
             "--model_type", model,
