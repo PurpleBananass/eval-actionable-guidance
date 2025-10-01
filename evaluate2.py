@@ -412,8 +412,8 @@ if __name__ == "__main__":
         Path(f"./evaluations/feasibility/{args.distance}").mkdir(
             parents=True, exist_ok=True
         )
-        # for model_type in ["RandomForest", "SVM", "XGBoost", "CatBoost", "LightGBM"]:
-        for model_type in ["LightGBM"]:
+        for model_type in ["RandomForest", "SVM", "XGBoost", "CatBoost", "LightGBM"]:
+        # for model_type in ["LightGBM"]:
             for explainer in explainer_map:
                 results = []
                 for project_list in project_lists:

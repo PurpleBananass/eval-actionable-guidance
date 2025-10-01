@@ -159,7 +159,7 @@ def generate_dice_flips_for_project(project: str,
 
     out_dir = Path(EXPERIMENTS) / project / model_type / method
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_csv = out_dir / "DiCE_all_100.csv"
+    out_csv = out_dir / "DiCE_all_100_nofeat.csv"
 
     if overwrite and out_csv.exists():
         out_csv.unlink(missing_ok=True)
@@ -196,7 +196,7 @@ def generate_dice_flips_for_project(project: str,
                     x0_df,
                     total_CFs=total_cfs,
                     desired_class="opposite",
-                    features_to_vary=top_names,   # <<<<<< enforce same logic as original
+                    # features_to_vary=top_names,   
                     random_seed=SEED,
                 )
             except TypeError as te:
@@ -205,7 +205,7 @@ def generate_dice_flips_for_project(project: str,
                         x0_df,
                         total_CFs=total_cfs,
                         desired_class="opposite",
-                        features_to_vary=top_names,
+                        # features_to_vary=top_names,
                     )
                 else:
                     raise te

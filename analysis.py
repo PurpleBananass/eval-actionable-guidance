@@ -16,65 +16,57 @@ from hyparams import EXPERIMENTS
 
 
 def visualize_rq1():
+    import pandas as pd
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+
     df = pd.read_csv("./evaluations/flip_rates.csv")
 
-    df = df.sort_values(by="Flip Rate", ascending=False)
     sns.set_palette("crest")
     plt.rcParams["font.family"] = "Times New Roman"
 
-    explainers = ["LIME", "LIME-HPO", "TimeLIME", "SQAPlanner", "All"]
-
-    # Increase figure height to accommodate more models
-    plt.figure(figsize=(4, 5))
-    ax = sns.barplot(
-        y="Model",
-        x="Flip Rate",
-        hue="Explainer",
-        data=df,
-        edgecolor="0.2",
-        hue_order=explainers,
+    expl_order = ["LIME", "LIME-HPO", "TimeLIME", "SQAPlanner", "All"]
+    # Order models by overall mean flip rate (desc) so legend/grouping stays informative
+    model_order = (
+        df.groupby("Model", as_index=False)["Flip Rate"]
+          .mean()
+          .sort_values("Flip Rate", ascending=False)["Model"]
+          .tolist()
     )
 
-    for i, container in enumerate(ax.containers):
+    plt.figure(figsize=(6, 4.8))
+    ax = sns.barplot(
+        y="Explainer",
+        x="Flip Rate",
+        hue="Model",
+        data=df,
+        order=expl_order,
+        hue_order=model_order,
+        edgecolor="0.2",
+    )
+
+    # Style & annotate value on each bar
+    for container in ax.containers:
         for bar in container:
-            bar.set_height(bar.get_height() * 0.8)
             bar.set_edgecolor("black")
             bar.set_linewidth(0.5)
-
-            left_text = plt.text(
-                -0.02,
-                bar.get_y() + bar.get_height() / 2,
-                f"{explainers[i]}",
-                va="center",
-                ha="right",
-                fontsize=11,
+            h = bar.get_width()
+            y = bar.get_y() + bar.get_height() / 2
+            ax.text(
+                h + 0.01, y,
+                f"{h:.2f}",
+                va="center", ha="left",
+                fontsize=9, fontfamily="monospace",
             )
 
-            value_text = plt.text(
-                bar.get_width() - 0.01,
-                bar.get_y() + bar.get_height() / 2 + 0.01,
-                f"{round(bar.get_width(), 2)}",
-                va="center",
-                ha="right",
-                fontsize=9,
-                fontfamily="monospace",
-            )
-
-            if i != 4:
-                bar.set_alpha(0.4)
-            else:
-                left_text.set_fontweight("bold")
-                value_text.set_color("white")
-                value_text.set_fontweight("bold")
-
-    ax.margins(x=0, y=0.01)
-    plt.xlim(0, 1)
+    ax.margins(x=0.01, y=0.02)
+    ax.set_xlim(0, 1)
     ax.yaxis.tick_right()
     ax.yaxis.set_label_position("right")
-    plt.ylabel("")
-    plt.xlabel("")
+    ax.set_xlabel("")
+    ax.set_ylabel("")
 
-    plt.legend([], [], frameon=False)
+    ax.legend(title="", frameon=False, loc="lower right", fontsize=10)
     plt.xticks(fontsize=11, ticks=[0, 0.25, 0.5, 0.75, 1.0])
     plt.yticks(fontsize=11)
     plt.tight_layout()

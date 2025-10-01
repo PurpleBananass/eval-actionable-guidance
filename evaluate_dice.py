@@ -25,6 +25,65 @@ from hyparams import PROPOSED_CHANGES, EXPERIMENTS  # PROPOSED_CHANGES unused (k
 from data_utils import read_dataset, get_model, get_true_positives
 
 # ----------------------------- config / helpers -----------------------------
+# Where selected Mahalanobis-best choices are stored
+SELECTED_DIR = "./evaluations/feasibility/mahalanobis/selected"
+
+def _selected_index_file(model_type: str, method: str) -> Path:
+    """Selected rows / indices across projects for a model/method."""
+    abbr = MODEL_ABBR.get(model_type, model_type)
+    return Path(SELECTED_DIR) / f"{abbr}_DiCE_{method}_selected.csv"
+
+def _load_selected_index_for_project(project: str, model_type: str, method: str):
+    """
+    Load selected rows for this project from the precomputed 'selected' file.
+    Returns:
+      - a DataFrame of selected rows if it already contains features; or
+      - a set/dict used to filter the long DiCE file by (test_idx[, candidate_id]).
+    Expected columns in selected file (best effort):
+      - must have: 'test_idx'
+      - nice to have: 'project', 'candidate_id' (and/or all feature columns)
+      - always has: 'min' (distance) – used in RQ3 plots
+    """
+    sel_path = _selected_index_file(model_type, method)
+    if not sel_path.exists():
+        return None, None
+
+    try:
+        sel_df = pd.read_csv(sel_path)
+    except Exception:
+        return None, None
+
+    if sel_df is None or sel_df.empty or "test_idx" not in sel_df.columns:
+        return None, None
+
+    # Filter to current project if a project column exists
+    if "project" in sel_df.columns:
+        sel_df = sel_df[sel_df["project"].astype(str) == str(project)].copy()
+
+    if sel_df.empty:
+        return None, None
+
+    # If selection file already contains feature columns, we can return it directly
+    # Heuristic: contains more than just identifiers & stats
+    id_like = {"project", "test_idx", "candidate_id", "min", "max", "mean"}
+    feat_like_cols = [c for c in sel_df.columns if c not in id_like]
+    if any(c not in {"project", "test_idx", "candidate_id"} for c in feat_like_cols):
+        # Looks like full rows are present
+        return sel_df, None
+
+    # Otherwise, build an index filter for (test_idx[, candidate_id])
+    if "candidate_id" in sel_df.columns:
+        # Map test_idx -> set(candidate_id)
+        idx_map = {}
+        for _, r in sel_df.iterrows():
+            ti = int(r["test_idx"])
+            cid = int(r["candidate_id"])
+            idx_map.setdefault(ti, set()).add(cid)
+        return None, idx_map
+    else:
+        # Just a set of test_idx to keep
+        idx_set = set(sel_df["test_idx"].astype(int).tolist())
+        return None, idx_set
 
 MODEL_ABBR = {"SVM": "SVM", "RandomForest": "RF", "XGBoost": "XGB", "LightGBM": "LGBM", "CatBoost": "CatB"}
 
@@ -42,7 +101,7 @@ DEFAULT_GROUPS = [
 
 def _dice_flip_path(project: str, model_type: str, method: str, use_hist_seed: bool) -> Path:
     """DiCE long-format outputs live under a method subdir."""
-    filename = "DiCE_all_100.csv"
+    filename = "DiCE_all_100_nofeat.csv"
     return Path(EXPERIMENTS) / project / model_type / method / filename
 
 def _feature_cols(df: pd.DataFrame) -> list[str]:
@@ -416,6 +475,33 @@ def rq3_feasibility(
 
     for m in model_types:
         for method in methods:
+            # If user wants the preselected set, just read them and write to the standard location
+            if selection_strategy == "selected":
+                sel_path = _selected_index_file(m, method)
+                if not sel_path.exists():
+                    print(f"[{m}/{method}] No selected file at {sel_path}. Skipping.")
+                    continue
+                try:
+                    df = pd.read_csv(sel_path)
+                except Exception as e:
+                    print(f"[{m}/{method}] Failed to read selected file: {e}")
+                    continue
+                if df is None or df.empty or "min" not in df.columns:
+                    print(f"[{m}/{method}] Selected file missing 'min' column. Skipping.")
+                    continue
+
+                # Normalize/clamp just in case
+                df["min"] = pd.to_numeric(df["min"], errors="coerce").clip(0, 1)
+                out = f"./evaluations/feasibility/{distance}/{MODEL_ABBR.get(m, m)}_DiCE_{method}_selected.csv"
+                df.to_csv(out, index=False)
+                summary.append([m, method, "DiCE",
+                                df["min"].mean(),
+                                df["min"].max(),
+                                df["min"].mean()])  # keep structure; 'max' is real, 'mean' repeated here
+                print(f"[{m}/{method}] Loaded {len(df)} selected distances → {out}")
+                continue
+
+            # Otherwise, fall back to computing (best/first) like before
             all_rows, totals, cannots = [], 0, 0
             for g in groups:
                 rows, tot, cannot = flip_feasibility(
@@ -435,17 +521,17 @@ def rq3_feasibility(
                 summary.append([
                     m, method, "DiCE",
                     df["min"].mean(),
-                    df["max"].mean(),
+                    df["max"].max(),
                     df["mean"].mean()
                 ])
-
             print(f"[{m}/{method}/{selection_strategy}{' (hist_seed2)' if use_hist_seed else ''}] totals={totals}, cannot={cannots}")
 
-    if True:
+    if summary:
         s = pd.DataFrame(summary, columns=["Model", "Method", "Explainer", "Min", "Max", "Mean"])
-        s.to_csv(f"./evaluations/feasibility_{distance}_DiCE_all_methods_{selection_strategy}{'_100'}.csv", index=False)
+        s.to_csv(f"./evaluations/feasibility_{distance}_DiCE_all_methods_{selection_strategy}{'_100' if selection_strategy!='selected' else ''}.csv", index=False)
         print("\nFeasibility summary:")
         print(tabulate(s, headers=s.columns, tablefmt="github", showindex=False))
+
 
 # ----------------------------- Implications (no plans; direct diff) -----------------------------
 
@@ -469,38 +555,76 @@ def implications(project: str,
                  use_hist_seed: bool = False,
                  selection_strategy: str = "best"):
     """
-    Select ONE CF per test_idx by the SAME Mahalanobis rule as RQ3 ('best' = smallest *min* distance),
-    then compute implications as sum |z(flipped)-z(original)| over changed features.
-
-    selection_strategy:
-      - "first": use first candidate per test_idx
-      - "best" : Mahalanobis-best (lowest *min* distance to historical deltas),
-                 matching your RQ3 selection behavior.
+    If selection_strategy == 'selected': use the pre-saved Mahalanobis-best rows.
+    Else: 'first' or 'best' (the previous logic).
+    Total amount of change (scaled) = sum |z(flipped)-z(original)| over changed features.
     """
-    flip_path = _dice_flip_path(project, model_type, method, use_hist_seed)
-    if not flip_path.exists():
-        return []
-
     ds = read_dataset()
     train, test = ds[project]
     feat_cols = [c for c in test.columns if c != "target"]
+    scaler = StandardScaler().fit(train.drop("target", axis=1).values)
 
-    flips_long = _load_flips_long(flip_path, feat_cols)
+    flip_path = _dice_flip_path(project, model_type, method, use_hist_seed)
+    flips_long = _load_flips_long(flip_path, feat_cols) if flip_path.exists() else None
+
+    if selection_strategy == "selected":
+        # Try to load selected rows for this project
+        sel_rows, sel_filter = _load_selected_index_for_project(project, model_type, method)
+        if sel_rows is not None:
+            # Selected file already contains feature columns → use directly
+            # Ensure features only
+            need_cols = ["test_idx"] + [c for c in feat_cols if c in sel_rows.columns]
+            sel_rows = sel_rows.loc[:, [c for c in need_cols if c in sel_rows.columns]].copy()
+            groups = sel_rows.groupby("test_idx", sort=False)
+        else:
+            # Need to filter the long DiCE file by (test_idx[, candidate_id])
+            if flips_long is None or flips_long.empty or sel_filter is None:
+                return []
+            if isinstance(sel_filter, dict):
+                # test_idx -> set(candidate_id)
+                mask_list = []
+                for ti, group in flips_long.groupby("test_idx", sort=False):
+                    if int(ti) in sel_filter:
+                        keep_cids = sel_filter[int(ti)]
+                        if "candidate_id" in group.columns:
+                            mask_list.append(group[group["candidate_id"].astype(int).isin(keep_cids)])
+                        else:
+                            # No candidate_id saved → keep first row
+                            mask_list.append(group.iloc[[0]])
+                sel_rows = pd.concat(mask_list, axis=0) if mask_list else pd.DataFrame()
+            else:
+                # sel_filter is a set of test_idx
+                sel_rows = flips_long[flips_long["test_idx"].astype(int).isin(sel_filter)].copy()
+
+            groups = sel_rows.groupby("test_idx", sort=False)
+
+        totals = []
+        for ti, g in groups:
+            original_row = test.loc[int(ti), feat_cols].astype(float)
+            # use the (single) selected row per test_idx
+            cand = g.iloc[0]
+            flipped_row = cand[feat_cols].astype(float)
+            changed = ~np.isclose(flipped_row.values, original_row.values, rtol=1e-7, atol=1e-7)
+            if not np.any(changed):
+                continue
+            zf = scaler.transform([flipped_row.values])[0]
+            zo = scaler.transform([original_row.values])[0]
+            totals.append(float(np.abs(zf - zo)[changed].sum()))
+        return totals
+
+    # --- original 'first' / 'best' logic (unchanged except small cleanup) ---
     if flips_long is None or flips_long.empty:
         return []
 
-    scaler = StandardScaler().fit(train.drop("target", axis=1).values)
-
-    # historical deltas pool (same spirit as RQ3)
-    total_deltas = _build_historical_deltas()
-
     totals = []
+    # optional: build historical deltas only if 'best' (we won't need for 'first')
+    if selection_strategy == "best":
+        total_deltas = _build_historical_deltas()
 
     for test_idx, g in flips_long.groupby("test_idx", sort=False):
         original_row = test.loc[int(test_idx), feat_cols].astype(float)
-        print("SDFADFA")
+
         if selection_strategy == "first":
-            # First candidate only
             cand = g.iloc[0]
             flipped_row = cand[feat_cols].astype(float)
             changed_mask = ~np.isclose(flipped_row.values, original_row.values, rtol=1e-7, atol=1e-7)
@@ -511,10 +635,8 @@ def implications(project: str,
             totals.append(float(np.abs(zf - zo)[changed_mask].sum()))
             continue
 
-        # selection_strategy == "best": Mahalanobis-best candidate (match RQ3)
-        best_key = None   # smallest *min* Mahalanobis distance
-        best_cand = None
-
+        # selection_strategy == "best": Mahalanobis-best (like RQ3)
+        best_key, best_cand = None, None
         for _, cand in g.iterrows():
             flipped_row = cand[feat_cols].astype(float)
             changed_mask = ~np.isclose(flipped_row.values, original_row.values, rtol=1e-7, atol=1e-7)
@@ -522,10 +644,7 @@ def implications(project: str,
                 continue
 
             names = [feat_cols[i] for i in np.where(changed_mask)[0]]
-            x = pd.Series(
-                (flipped_row.values - original_row.values)[changed_mask],
-                index=names, dtype=float
-            )
+            x = pd.Series((flipped_row.values - original_row.values)[changed_mask], index=names, dtype=float)
 
             sub = total_deltas[names].dropna()
             sub = sub.loc[(sub != 0).all(axis=1)]
@@ -536,25 +655,22 @@ def implications(project: str,
             if not dists:
                 continue
 
-            key = float(np.min(dists))  # <-- match your RQ3 code's 'min' criterion
+            key = float(np.min(dists))  # pick the candidate with smallest 'min' distance
             if (best_key is None) or (key < best_key):
-                best_key = key
-                best_cand = cand
+                best_key, best_cand = key, cand
 
         if best_cand is None:
             continue
-
-        # compute implications for the selected candidate
         flipped_row = best_cand[feat_cols].astype(float)
         changed_mask = ~np.isclose(flipped_row.values, original_row.values, rtol=1e-7, atol=1e-7)
         if not np.any(changed_mask):
             continue
-
         zf = scaler.transform([flipped_row.values])[0]
         zo = scaler.transform([original_row.values])[0]
         totals.append(float(np.abs(zf - zo)[changed_mask].sum()))
 
     return totals
+
 
 
 # ----------------------------- CLI -----------------------------

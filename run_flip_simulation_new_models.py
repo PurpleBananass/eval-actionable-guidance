@@ -2,9 +2,9 @@
 import subprocess
 from itertools import product
 
-model_types = ["LightGBM", "CatBoost"]
-# model_types = ["CatBoost"]
-explainer_types = ["LIME", "LIME-HPO", "TimeLIME"]
+# model_types = ["LightGBM", "CatBoost"]
+model_types = ["CatBoost"]
+explainer_types = [ "TimeLIME"]
 sqa_strategies = ["confidence"]
 
 # Run simulations for LIME variants and TimeLIME
