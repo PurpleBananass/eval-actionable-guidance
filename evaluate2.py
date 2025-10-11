@@ -195,7 +195,10 @@ def mahalanobis_all(df, x):
 
 
 def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"):
-    # all release deltas
+    """Return (results, totals, cannots) PLUS detailed counters so you can see
+    why many flips didn't yield a Mahalanobis score.
+    """
+    # --- aggregate historical deltas across this project group ---
     total_deltas = pd.DataFrame()
     for project in project_list:
         train, test = read_dataset()[project]
@@ -206,66 +209,112 @@ def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"
         )
         total_deltas = pd.concat([total_deltas, deltas], axis=0)
 
-    cannot = 0
+    # --- counters ---
+    totals = 0                      # flips seen (sum across projects)
+    cannots = 0                     # your existing cannot
+    skipped_no_flipfile = 0         # no *_all.csv for this (project, explainer, model)
+    skipped_no_plan = 0             # flip has no matching plan key
+    skipped_zero_change = 0         # plan exists but nothing actually changed
+    skipped_empty_nonzero = 0       # nonzero_deltas empty after filter
+    skipped_rank_too_low = 0        # nonzero_deltas rows < #changed features (mahalanobis)
+    written = 0                     # rows actually written to results
+
+    results = []
 
     for project in project_list:
-        train, test = read_dataset()[project]
         plan_path = (
             Path(PROPOSED_CHANGES)
             / f"{project}/{model_type}/{explainer}"
             / "plans_all.json"
         )
         flip_path = Path(EXPERIMENTS) / f"{project}/{model_type}/{explainer}_all.csv"
+
+        # Plan/flip file existence
+        if not flip_path.exists():
+            skipped_no_flipfile += 1
+            continue
+        if not plan_path.exists():
+            # Without plans you can't compute changes for *any* flip in this project
+            # We still count flips to totals for transparency.
+            flipped = pd.read_csv(flip_path, index_col=0).dropna()
+            totals += len(flipped)
+            skipped_no_plan += len(flipped)
+            continue
+
         with open(plan_path, "r") as f:
             plans = json.load(f)
 
-        if not flip_path.exists():
-            continue
+        flipped = pd.read_csv(flip_path, index_col=0).dropna()
+        totals += len(flipped)
 
-        flipped = pd.read_csv(flip_path, index_col=0)
-        flipped = flipped.dropna()
+        train, test = read_dataset()[project]
 
-        results = []
         for test_idx in flipped.index:
-            if str(test_idx) in plans:
-                original_row = test.loc[test_idx, test.columns != "target"]
+            key = str(test_idx)
+            if key not in plans:
+                skipped_no_plan += 1
+                continue
 
-                flipped_row = flipped.loc[test_idx, :]
+            original_row = test.loc[test_idx, test.columns != "target"]
+            flipped_row = flipped.loc[test_idx, :]
 
-                changed_features = {}
-                for feature in plans[str(test_idx)]:
-                    if flipped_row[feature] != original_row[feature]:
-                        changed_features[feature] = (
-                            flipped_row[feature] - original_row[feature]
-                        )
+            # Compute per-feature change dictated by the plan
+            changed_features = {}
+            for feature in plans[key]:
+                # treat tiny float diffs as "no change"
+                if not math.isclose(flipped_row[feature], original_row[feature], rel_tol=1e-7):
+                    changed_features[feature] = flipped_row[feature] - original_row[feature]
 
-                changed_flipped = pd.Series(changed_features)
+            if not changed_features:
+                skipped_zero_change += 1
+                continue
 
-                changed_feature_names = list(changed_features.keys())
-                # print(changed_feature_names)
-                nonzero_deltas = total_deltas[changed_feature_names].dropna()
-                # remove all zeo valutes
-                nonzero_deltas = nonzero_deltas.loc[(nonzero_deltas != 0).all(axis=1)]
+            changed_feature_names = list(changed_features.keys())
+            changed_flipped = pd.Series(changed_features)
 
-                # print(nonzero_deltas)
-                if distance == "cosine":
-                    if len(nonzero_deltas) == 0:
-                        cannot += 1
-                        continue
-                    distances = cosine_all(nonzero_deltas, changed_flipped)
-                elif distance == "mahalanobis":
-                    if len(nonzero_deltas) <= len(changed_feature_names):
-                        cannot += 1
-                        continue
-                    distances = mahalanobis_all(nonzero_deltas, changed_flipped)
+            # historical rows where *all* changed features moved (strict)
+            nonzero_deltas = total_deltas[changed_feature_names].dropna()
+            nonzero_deltas = nonzero_deltas.loc[(nonzero_deltas != 0).all(axis=1)]
+
+            if distance == "cosine":
+                if len(nonzero_deltas) == 0:
+                    cannots += 1
+                    skipped_empty_nonzero += 1
+                    continue
+                distances = cosine_all(nonzero_deltas, changed_flipped)
+
+            elif distance == "mahalanobis":
+                if len(nonzero_deltas) < len(changed_feature_names):
+                    cannots += 1
+                    skipped_rank_too_low += 1
+                    continue
+                distances = mahalanobis_all(nonzero_deltas, changed_flipped)
+
+            # Write one summary row per flip that produced any distances
+            if isinstance(distances, (list, np.ndarray)) and len(distances) > 0:
                 results.append(
                     {
-                        "min": np.min(distances),
-                        "max": np.max(distances),
-                        "mean": np.mean(distances),
+                        "min": float(np.min(distances)),
+                        "max": float(np.max(distances)),
+                        "mean": float(np.mean(distances)),
                     }
                 )
-    return results, len(flipped), cannot
+                written += 1
+            else:
+                # treat unexpected empty/malformed distances as cannot
+                cannots += 1
+                skipped_empty_nonzero += 1
+
+    # Optional: print a quick breakdown for this call
+    print(
+        f"[{model_type} {explainer} {distance}] totals={totals}, written={written}, "
+        f"cannot={cannots} | no_flipfile={skipped_no_flipfile}, no_plan={skipped_no_plan}, "
+        f"zero_change={skipped_zero_change}, empty_nonzero={skipped_empty_nonzero}, "
+        f"rank_too_low={skipped_rank_too_low}"
+    )
+
+    return results, totals, cannots
+
 
 
 def implications(project, explainer, model_type):
@@ -421,10 +470,12 @@ if __name__ == "__main__":
                         project_list, explainer, model_type, args.distance
                     )
                     print(f"Processing {project_list} {model_type} {explainer}")
+                    
                     if len(result) == 0:
                         totals += total
                         cannots += cannot
                         continue
+                    
                     results.extend(result)
                     totals += total
                     cannots += cannot
@@ -497,3 +548,13 @@ if __name__ == "__main__":
         print(tabulate(table, headers=["Model", "Explainer", "Mean"]))
         # table to csv
         table = pd.DataFrame(table, columns=["Model", "Explainer", "Mean"])
+
+        per_model_rows = []
+        for m in models:
+            t = totals_by_model[m]
+            c = cannots_by_model[m]
+            pct = (c / t * 100.0) if t else 0.0
+            per_model_rows.append([model_map[m], c, t, f"{pct:.2f}%"])
+        print("\nPer-model 'cannot' summary")
+        print(tabulate(per_model_rows, headers=["Model", "Cannot", "Total", "Cannot%"]))
+        # <<<

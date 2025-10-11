@@ -353,7 +353,8 @@ def visualize_rq3_histograms_per_combo_selected():
             # ----- load distances -----
             if explainer == "DiCE":
                 # Use ONLY the selected files saved by rq3_feasibility()
-                paths = glob.glob(f"{sel_base}/{model}_DiCE_*_selected.csv")
+                paths = glob.glob(f"{sel_base}/{model}_DiCE_*.csv")
+                print(paths)
                 frames = []
                 for p in paths:
                     try:
@@ -424,7 +425,7 @@ def visualize_rq3_histograms_per_combo_selected():
             print(f"[saved] {out_path}")
 
 
-def visualize_rq3_hist_per_model():
+# def visualize_rq3_hist_per_model():
     """
     One PNG with 5 subplots (RF, XGB, SVM, LGBM, CatB).
     Each subplot shows bars for explainers; bar height = mean(normalized 'min').
@@ -852,7 +853,7 @@ def visualize_rq3():
                 continue
 
         # 2) DiCE — ONLY selected instances saved by RQ3
-        dice_sel_files = glob.glob(f"{dice_selected_dir}/{abbr}_DiCE_*_selected.csv")
+        dice_sel_files = glob.glob(f"{dice_selected_dir}/{abbr}_DiCE_*.csv")
         if dice_sel_files:
             parts = []
             for p in dice_sel_files:
@@ -1034,7 +1035,7 @@ if __name__ == "__main__":
         visualize_rq3()
         # visualize_rq3_histograms_per_combo_selected()
         # visualize_rq3_hist_per_model()
-        plot_skew_slopegraph()
+        # plot_skew_slopegraph()
 
         # summarize_rq3_skewness_and_plot()
     if args.implications:
