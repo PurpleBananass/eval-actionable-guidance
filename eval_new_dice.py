@@ -62,6 +62,22 @@ DEFAULT_GROUPS = [
 # Where selected choices are stored
 SELECTED_DIR = "./evaluations/feasibility/mahalanobis/selected"
 
+def _negative_label(model) -> int:
+    """
+    Pick the model's 'negative' label robustly.
+    - If classes_ is {0,1} → 0
+    - Else (e.g., {-1, 1}) → min(classes_)
+    - Else fallback → 0
+    """
+    classes = list(getattr(model, "classes_", []))
+    if classes:
+        if 0 in classes and 1 in classes:
+            return 0
+        try:
+            return sorted(classes)[0]
+        except Exception:
+            return 0
+    return 0
 
 def _selected_index_file_param(
     model_type: str,
@@ -304,12 +320,33 @@ def _count_flips_for_project_model(
         X_use = np.asarray(full_rows)
 
         # strict verify using predict_proba >= 0.5
-        probs = getattr(model, "predict_proba", None)
-        if probs is not None:
-            P = model.predict_proba(scaler.transform(X_use))
-            preds = (P[:, 1] >= 0.5).astype(int)  # binary convention
-        else:
-            preds = model.predict(scaler.transform(X_use))
+        # probs = getattr(model, "predict_proba", None)
+        # if probs is not None:
+        #     P = model.predict_proba(scaler.transform(X_use))
+        #     preds = (P[:, 1] > 0.5).astype(int)  # binary convention
+        # else:
+        #     preds = model.predict(scaler.transform(X_use))
+        Xs = scaler.transform(X_use)
+
+# Always verify flips using LABELS (consistent across models, esp. SVM).
+        try:
+            preds = model.predict(Xs)
+        except Exception:
+            # Fallbacks if a model oddly lacks predict:
+            if hasattr(model, "decision_function"):
+                d = model.decision_function(Xs)
+                # Binary or 2D; threshold at 0
+                if np.ndim(d) == 1:
+                    preds = (d >= 0).astype(int)
+                else:
+                    preds = (d[:, 0] >= 0).astype(int)
+            else:
+                # Last resort: proba threshold, but pick the positive class index safely
+                P = model.predict_proba(Xs)
+                classes = list(getattr(model, "classes_", [0, 1]))
+                pos_idx = classes.index(1) if 1 in classes else int(np.argmax(classes))
+                preds = (P[:, pos_idx] >= 0.5).astype(int)
+
 
         # flipped if ANY candidate == 0 (since TP predicted 1)
         did_flip = bool(np.any(preds == 0))
@@ -494,8 +531,8 @@ def flip_feasibility(
                 if distance == "cosine":
                     dists = cosine_all(sub, x)
                 elif distance == "mahalanobis":
-                    print(len(sub), len(x.index))  # debug
-                    if len(sub) < len(x.index):
+                    # print(len(sub), len(x.index))  # debug
+                    if len(sub) <= len(x.index):
                         continue
                     dists = mahalanobis_all(sub, x)
                 else:

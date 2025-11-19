@@ -13,6 +13,8 @@ from Explainer.SQAPlanner.LORMIKA import LORMIKA
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 def process_test_idx(
     test_idx, true_positives, train_data, model, output_path, explainer_type

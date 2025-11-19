@@ -1,0 +1,21 @@
+Model,Other,Baseline,Test,N(other/baseline),p-value,Cliff’s δ,Magnitude,Median(other−CF)
+RF,LIME,CF,rank-sum,1720 / 1815,2.225e-04,0.072,negligible,0.039
+RF,LIME-HPO,CF,rank-sum,1708 / 1815,3.519e-02,0.041,negligible,0.029
+RF,TimeLIME,CF,rank-sum,1108 / 1815,4.184e-21,-0.207,small,-0.031
+RF,SQAPlanner,CF,rank-sum,781 / 1815,1.379e-118,-0.571,large,-0.050
+XGB,LIME,CF,rank-sum,1824 / 1930,1.726e-02,0.045,negligible,0.020
+XGB,LIME-HPO,CF,rank-sum,1814 / 1930,2.530e-04,0.069,negligible,0.028
+XGB,TimeLIME,CF,rank-sum,1231 / 1930,4.608e-06,-0.096,negligible,-0.001
+XGB,SQAPlanner,CF,rank-sum,882 / 1930,8.996e-56,-0.369,medium,-0.010
+SVM,LIME,CF,rank-sum,1052 / 1256,1.231e-11,0.163,small,0.199
+SVM,LIME-HPO,CF,rank-sum,1048 / 1256,2.665e-10,0.152,small,0.166
+SVM,TimeLIME,CF,rank-sum,798 / 1256,2.825e-01,-0.028,negligible,-0.017
+SVM,SQAPlanner,CF,rank-sum,293 / 1256,1.033e-23,-0.376,medium,-0.186
+LGBM,LIME,CF,rank-sum,1802 / 1915,5.902e-01,-0.010,negligible,0.015
+LGBM,LIME-HPO,CF,rank-sum,1782 / 1915,3.125e-01,0.019,negligible,0.021
+LGBM,TimeLIME,CF,rank-sum,1184 / 1915,4.110e-18,-0.185,small,-0.011
+LGBM,SQAPlanner,CF,rank-sum,931 / 1915,5.660e-93,-0.471,medium,-0.023
+CatB,LIME,CF,rank-sum,1608 / 1790,5.320e-25,0.205,small,0.121
+CatB,LIME-HPO,CF,rank-sum,1591 / 1790,8.013e-21,0.186,small,0.117
+CatB,TimeLIME,CF,rank-sum,1071 / 1790,3.993e-02,0.046,negligible,0.025
+CatB,SQAPlanner,CF,rank-sum,847 / 1790,1.240e-49,-0.356,medium,-0.045

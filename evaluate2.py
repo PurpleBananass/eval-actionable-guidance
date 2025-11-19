@@ -284,7 +284,7 @@ def flip_feasibility(project_list, explainer, model_type, distance="mahalanobis"
                 distances = cosine_all(nonzero_deltas, changed_flipped)
 
             elif distance == "mahalanobis":
-                if len(nonzero_deltas) < len(changed_feature_names):
+                if len(nonzero_deltas) <= len(changed_feature_names):
                     cannots += 1
                     skipped_rank_too_low += 1
                     continue
@@ -426,8 +426,8 @@ if __name__ == "__main__":
     if args.rq2:
         table = []
         Path("./evaluations/similarities").mkdir(parents=True, exist_ok=True)
-        # for model_type in ["SVM", "RandomForest", "XGBoost", "CatBoost", "LightGBM"]:
-        for model_type in ["LightGBM"]:
+        for model_type in ["SVM", "RandomForest", "XGBoost", "CatBoost", "LightGBM"]:
+        # for model_type in ["LightGBM"]:
             similarities = pd.DataFrame()
             for explainer in explainers:
                 for project in projects:
@@ -458,11 +458,12 @@ if __name__ == "__main__":
             ["lucene@0", "lucene@1", "lucene@2"],
             ["wicket@0", "wicket@1"],
         ]
+
         Path(f"./evaluations/feasibility/{args.distance}").mkdir(
             parents=True, exist_ok=True
         )
         for model_type in ["RandomForest", "SVM", "XGBoost", "CatBoost", "LightGBM"]:
-        # for model_type in ["LightGBM"]:
+        # for model_type in ["SVM"]:
             for explainer in explainer_map:
                 results = []
                 for project_list in project_lists:

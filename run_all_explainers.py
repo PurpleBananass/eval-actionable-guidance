@@ -2,7 +2,7 @@
 import subprocess
 from itertools import product
 
-model_types = ["LightGBM", "CatBoost"]  
+model_types = ["CatBoost"]  
 explainer_types = ["LIME", "LIME-HPO", "TimeLIME", "SQAPlanner"]
 
 for model, explainer in product(model_types, explainer_types):
