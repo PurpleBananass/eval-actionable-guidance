@@ -1,182 +1,170 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# #!/usr/bin/env python3
+# """
+# Count flips per explainer from existing experiment outputs.
 
-"""
-Compare RQ3 data-point counts between:
-  A) DiCE viz (per-method/strategy/hist_seed):  ./evaluations/feasibility/mahalanobis/{ABBR}_DiCE_{method}_{strategy}_hist_seed.csv
-  B) Legacy viz (per-explainer files):          ./evaluations/feasibility/mahalanobis/{ABBR}_{Explainer}.csv
+# Assumptions (matching your pipeline):
+# - For each project/model/explainer[/search_strategy], results are in:
+#     {EXPERIMENTS}/{project}/{model}/{explainer}_all.csv
+#     or
+#     {EXPERIMENTS}/{project}/{model}/{explainer}_{search}_all.csv
+# - A flipped instance is a non-NaN row; non-flips are all-NaN rows.
+# - We DO NOT recompute models or flips. We only summarize already-saved CSVs.
 
-For each, this script reports:
-  - raw row count
-  - how many 'min' entries are non-null
-  - how many 'min' are numeric (coercible)
-  - (optional) how many would be kept under a cutoff (e.g., <= 10.0)
+# Examples:
+#     python count_flips_per_explainer.py --projects all --model RandomForest
+#     python count_flips_per_explainer.py --projects apachejit openstack --model XGBoost
+#     python count_flips_per_explainer.py --model LightGBM --by-search --save ./flip_summary.csv
+# """
 
-It also aggregates Legacy counts across explainers to compare against DiCE counts per model.
-"""
+# import argparse
+# from collections import defaultdict
+# from pathlib import Path
+# from typing import Dict, Tuple, Optional
 
-from pathlib import Path
-import argparse
+# import pandas as pd
+# from tabulate import tabulate
+
+# from hyparams import EXPERIMENTS  # uses your existing path constant
+# from data_utils import read_dataset  # used only to list projects when --projects all
+
+
+# def _parse_explainer_and_search(stem: str) -> Tuple[str, Optional[str]]:
+#     """
+#     From a file stem like:
+#         'LIME_all'                     -> ('LIME', None)
+#         'kfeature_random_all'          -> ('kfeature', 'random')
+#         'TimeLIME_all'                 -> ('TimeLIME', None)
+#         'SQAPlanner_greedy_all'        -> ('SQAPlanner', 'greedy')
+#     we first strip the trailing '_all', then split the remainder once on '_'.
+#     """
+#     base = stem[:-4] if stem.endswith("_all") else stem
+#     if "_" in base:
+#         explainer, search = base.split("_", 1)
+#         return explainer, search
+#     return base, None
+
+
+# def _summarize_folder(folder: Path, by_search: bool):
+#     """
+#     Scan one {EXPERIMENTS}/{project}/{model} folder and aggregate flips.
+#     Returns:
+#         per_key: dict[(explainer, search_or_None)] -> {'flips': int, 'total': int, 'projects': set()}
+#         files_seen: int
+#     """
+#     per_key: Dict[Tuple[str, Optional[str]], Dict[str, object]] = defaultdict(
+#         lambda: {"flips": 0, "total": 0, "projects": set()}
+#     )
+#     files_seen = 0
+
+#     if not folder.exists():
+#         return per_key, files_seen
+
+#     for csv_path in folder.glob("*_all.csv"):
+#         files_seen += 1
+#         try:
+#             df = pd.read_csv(csv_path, index_col=0)
+#         except Exception:
+#             continue  # skip unreadable files
+
+#         flips = len(df.dropna())
+#         total = len(df)
+
+#         explainer, search = _parse_explainer_and_search(csv_path.stem)
+#         key = (explainer, search if by_search else None)
+
+#         per_key[key]["flips"] += flips
+#         per_key[key]["total"] += total
+#         per_key[key]["projects"].add(folder.parts[-2])  # project name in path
+#     return per_key, files_seen
+
+
+# def main():
+#     ap = argparse.ArgumentParser()
+#     ap.add_argument("--projects", type=str, default="all",
+#                     help="Space/comma-separated projects or 'all' to scan all from read_dataset()")
+#     ap.add_argument("--model", type=str, default="RandomForest",
+#                     help="Model folder to scan under each project (e.g., RandomForest, SVM, XGBoost, ...)")
+#     ap.add_argument("--by-search", action="store_true",
+#                     help="If set, split results by search strategy; otherwise group by explainer only.")
+#     ap.add_argument("--save", type=str, default=None,
+#                     help="Optional CSV path to save the summary table.")
+#     args = ap.parse_args()
+
+#     # Resolve projects
+#     if args.projects.strip().lower() == "all":
+#         projects = list(read_dataset().keys())
+#     else:
+#         projects = [p for chunk in args.projects.replace(",", " ").split() for p in [chunk.strip()] if p]
+
+#     base = Path(EXPERIMENTS)
+#     grand: Dict[Tuple[str, Optional[str]], Dict[str, object]] = defaultdict(
+#         lambda: {"flips": 0, "total": 0, "projects": set()}
+#     )
+
+#     files_total = 0
+#     for project in sorted(projects):
+#         model_dir = base / project / args.model
+#         per_key, seen = _summarize_folder(model_dir, args.by_search)
+#         files_total += seen
+#         for k, v in per_key.items():
+#             grand[k]["flips"] += v["flips"]
+#             grand[k]["total"] += v["total"]
+#             grand[k]["projects"] |= v["projects"]
+
+#     if not grand:
+#         print("No matching *_all.csv files were found. Check EXPERIMENTS path, model, or projects.")
+#         return
+
+#     # Build summary dataframe
+#     rows = []
+#     for (explainer, search), agg in sorted(grand.items(), key=lambda kv: (kv[0][0], kv[0][1] or "")):
+#         flips = agg["flips"]
+#         total = agg["total"]
+#         rate = (flips / total) if total > 0 else 0.0
+#         rows.append({
+#             "Explainer": explainer,
+#             **({"Search": search or "-"} if args.by_search else {}),
+#             "Projects": len(agg["projects"]),
+#             "Flips": flips,
+#             "Computed": total,
+#             "Flip%": f"{rate*100:.2f}%"
+#         })
+
+#     df = pd.DataFrame(rows)
+
+#     # Pretty print
+#     headers = ["Explainer"] + (["Search"] if args.by_search else []) + ["Projects", "Flips", "Computed", "Flip%"]
+#     print(tabulate(df[headers].values.tolist(), headers=headers, tablefmt="github"))
+#     print(f"\nScanned CSV files: {files_total}")
+
+#     # Optional save
+#     if args.save:
+#         out = Path(args.save)
+#         out.parent.mkdir(parents=True, exist_ok=True)
+#         df.to_csv(out, index=False)
+#         print(f"Saved summary to: {out.resolve()}")
+
+# if __name__ == "__main__":
+#     main()
+
 import pandas as pd
+from data_utils import read_dataset, get_model
+from sklearn.preprocessing import StandardScaler
+from hyparams import EXPERIMENTS
 
-# ------------ Config ------------
-MODEL_ABBR = {
-    "RandomForest": "RF",
-    "XGBoost": "XGB",
-    "SVM": "SVM",
-    "LightGBM": "LGBM",
-    "CatBoost": "CatB",
-}
+project='activemq@0'; model_type='RandomForest'; method='kfeature'; total_cfs=1; max_features=5
+train,test = read_dataset()[project]
+feat_cols = [c for c in test.columns if c!='target']
+model = get_model(project, model_type)
+scaler = StandardScaler().fit(train[feat_cols].values)
 
-LEGACY_MODELS = ["RandomForest", "XGBoost", "SVM"]
-ALL_MODELS     = ["RandomForest", "XGBoost", "SVM", "LightGBM", "CatBoost"]
-LEGACY_EXPLAINERS = ["LIME", "LIME-HPO", "TimeLIME", "SQAPlanner"]
+path = f"{EXPERIMENTS}/{project}/{model_type}/{method}/DiCE_all_{total_cfs}_max{max_features}feat.csv"
+df = pd.read_csv(path)
 
+X = df[feat_cols].values
+P = model.predict_proba(scaler.transform(X))
+df['P1_eval'] = P[:,1]
+df['strict_flip'] = (df['P1_eval'] < 0.5).astype(int)
 
-# ------------ Helpers ------------
-
-def _read_csv_lenient(path: Path) -> pd.DataFrame | None:
-    """Read CSV; return None on any failure."""
-    if not path.exists() or path.stat().st_size == 0:
-        return None
-    try:
-        return pd.read_csv(path)
-    except Exception:
-        return None
-
-def _count_min_columns(df: pd.DataFrame, cutoff: float | None = None) -> dict:
-    """Count raw rows, non-null mins, numeric mins, and <= cutoff (if provided)."""
-    if df is None or df.empty:
-        return dict(rows_raw=0, min_non_na=0, min_numeric=0, kept_cutoff=None)
-
-    rows_raw = len(df)
-    if "min" not in df.columns:
-        return dict(rows_raw=rows_raw, min_non_na=0, min_numeric=0, kept_cutoff=None)
-
-    mins = pd.to_numeric(df["min"], errors="coerce")
-    min_non_na = int(df["min"].notna().sum())
-    min_numeric = int(mins.notna().sum())
-    kept_cutoff = None
-    if cutoff is not None:
-        kept_cutoff = int((mins.dropna() <= cutoff).sum())
-
-    return dict(rows_raw=rows_raw, min_non_na=min_non_na, min_numeric=min_numeric, kept_cutoff=kept_cutoff)
-
-def count_points_rq3_dice(method="random", strategy="best", hist_seed=True, cutoff: float | None = 10.0) -> pd.DataFrame:
-    """
-    Count per-model points for DiCE viz files. Returns a DataFrame with columns:
-    [Model, File, rows_raw, min_non_na, min_numeric, kept_cutoff, status]
-    """
-    rows = []
-    suffix = "_hist_seed" if hist_seed else ""
-    for model in ALL_MODELS:
-        abbr = MODEL_ABBR[model]
-        path = Path(f"./evaluations/feasibility/mahalanobis/{abbr}_DiCE_{method}_{strategy}{suffix}.csv")
-        df = _read_csv_lenient(path)
-        counts = _count_min_columns(df, cutoff=cutoff)
-        status = "OK" if (df is not None and not df.empty and "min" in df.columns) else (
-                 "NO_MIN" if (df is not None and "min" not in (df.columns if hasattr(df, "columns") else [])) else
-                 "MISSING/EMPTY")
-        rows.append([model, str(path), counts["rows_raw"], counts["min_non_na"], counts["min_numeric"], counts["kept_cutoff"], status])
-
-    out = pd.DataFrame(rows, columns=["Model","File","rows_raw","min_non_na","min_numeric","kept_cutoff","status"])
-    return out
-
-def count_points_rq3_legacy(cutoff: float | None = None) -> pd.DataFrame:
-    """
-    Count per-(Model, Explainer) points for legacy viz files. Returns a DataFrame with columns:
-    [Model, Explainer, File, rows_raw, min_non_na, min_numeric, kept_cutoff, status]
-    """
-    rows = []
-    for model in LEGACY_MODELS:
-        abbr = MODEL_ABBR[model]
-        for exp in LEGACY_EXPLAINERS:
-            path = Path(f"./evaluations/feasibility/mahalanobis/{abbr}_{exp}.csv")
-            df = _read_csv_lenient(path)
-            counts = _count_min_columns(df, cutoff=cutoff)
-            status = "OK" if (df is not None and not df.empty and "min" in df.columns) else (
-                     "NO_MIN" if (df is not None and "min" not in (df.columns if hasattr(df, "columns") else [])) else
-                     "MISSING/EMPTY")
-            rows.append([model, exp, str(path), counts["rows_raw"], counts["min_non_na"], counts["min_numeric"], counts["kept_cutoff"], status])
-
-    out = pd.DataFrame(rows, columns=["Model","Explainer","File","rows_raw","min_non_na","min_numeric","kept_cutoff","status"])
-    return out
-
-def compare_dice_vs_legacy(dice_df: pd.DataFrame, legacy_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Aggregate Legacy counts across explainers per model, and compare to DiCE per-model counts.
-    Produces columns:
-      Model, dice_min_numeric, legacy_min_numeric_total, diff (legacy - dice), pct_diff
-    """
-    # Aggregate legacy per model (sum of numeric mins across explainers)
-    legacy_agg = legacy_df.groupby("Model", as_index=False)["min_numeric"].sum().rename(columns={"min_numeric":"legacy_min_numeric_total"})
-
-    # Keep only overlapping models (RandomForest, XGBoost, SVM) for a fair comparison
-    dice_subset = dice_df[dice_df["Model"].isin(LEGACY_MODELS)][["Model","min_numeric"]].copy()
-    dice_agg = dice_subset.rename(columns={"min_numeric":"dice_min_numeric"})
-
-    merged = pd.merge(legacy_agg, dice_agg, on="Model", how="outer").fillna(0)
-    merged["diff"] = merged["legacy_min_numeric_total"] - merged["dice_min_numeric"]
-    merged["pct_diff"] = merged.apply(lambda r: (r["diff"] / r["legacy_min_numeric_total"] * 100.0) if r["legacy_min_numeric_total"] > 0 else 0.0, axis=1)
-    return merged[["Model","dice_min_numeric","legacy_min_numeric_total","diff","pct_diff"]]
-
-def pretty_print(title: str, df: pd.DataFrame):
-    print(f"\n=== {title} ===")
-    if df is None or df.empty:
-        print("(no rows)")
-        return
-    try:
-        from tabulate import tabulate
-        print(tabulate(df, headers=df.columns, tablefmt="github", showindex=False))
-    except Exception:
-        print(df.to_string(index=False))
-
-
-# ------------ CLI ------------
-
-def main():
-    ap = argparse.ArgumentParser(description="Compare RQ3 data-point counts between DiCE and Legacy visualizations.")
-    ap.add_argument("--method", type=str, default="random", help="DiCE method (random, kdtree, genetic)")
-    ap.add_argument("--strategy", type=str, default="best", help="Selection strategy (best, first)")
-    ap.add_argument("--hist_seed", action="store_true", help="Use _hist_seed file suffix for DiCE files")
-    ap.add_argument("--no_hist_seed", dest="hist_seed", action="store_false", help="Do NOT use _hist_seed suffix")
-    ap.add_argument("--cutoff", type=float, default=10.0, help="Optional cutoff for 'min' (set to -1 to disable)")
-    ap.set_defaults(hist_seed=True)
-    args = ap.parse_args()
-
-    cutoff = None if (args.cutoff is not None and args.cutoff < 0) else args.cutoff
-
-    # Count
-    dice_counts   = count_points_rq3_dice(method=args.method, strategy=args.strategy, hist_seed=args.hist_seed, cutoff=cutoff)
-    legacy_counts = count_points_rq3_legacy(cutoff=cutoff)
-
-    # Print per-source details
-    pretty_print(f"DiCE counts (method={args.method}, strategy={args.strategy}, hist_seed={args.hist_seed}, cutoff={cutoff})", dice_counts)
-    pretty_print("Legacy counts (per model × explainer)", legacy_counts)
-
-    # Summaries
-    dice_summary = dice_counts.groupby("Model", as_index=False)[["rows_raw","min_non_na","min_numeric"]].sum()
-    legacy_summary = legacy_counts.groupby("Model", as_index=False)[["rows_raw","min_non_na","min_numeric"]].sum()
-
-    pretty_print("DiCE per-model summary", dice_summary)
-    pretty_print("Legacy per-model summary (explainer-aggregated)", legacy_summary)
-
-    # Comparison (only overlapping models)
-    comp = compare_dice_vs_legacy(dice_counts, legacy_counts)
-    pretty_print("Comparison (Legacy total vs DiCE per model) — using 'min_numeric' counts", comp)
-
-    # Totals
-    total_dice_numeric   = int(dice_counts["min_numeric"].sum())
-    total_legacy_numeric = int(legacy_counts["min_numeric"].sum())
-    print(f"\nTOTAL numeric 'min' entries — DiCE: {total_dice_numeric} | Legacy (sum over explainers): {total_legacy_numeric}")
-
-    # Optional: save CSVs
-    outdir = Path("./evaluations/debug")
-    outdir.mkdir(parents=True, exist_ok=True)
-    dice_counts.to_csv(outdir / f"dice_counts_{args.method}_{args.strategy}{'_hist' if args.hist_seed else ''}.csv", index=False)
-    legacy_counts.to_csv(outdir / "legacy_counts.csv", index=False)
-    comp.to_csv(outdir / f"compare_legacy_vs_dice_{args.method}_{args.strategy}{'_hist' if args.hist_seed else ''}.csv", index=False)
-    print(f"\nSaved CSVs to {outdir}")
-
-if __name__ == "__main__":
-    main()
+print("strict flips:", df['strict_flip'].sum(), "of", len(df))
+print("ties at 0.5 (likely cause):", (abs(df['P1_eval']-0.5)<1e-12).sum())
